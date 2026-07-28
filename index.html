@@ -933,6 +933,11 @@
       deepdiveBtn.classList.toggle('active', !isOverview);
       overviewPanel.classList.toggle('hidden', !isOverview);
       deepdivePanel.classList.toggle('hidden', isOverview);
+
+      if (!isOverview && !deepdivePanel.dataset.mapsLoaded) {
+        document.querySelectorAll('#tab-deepdive iframe').forEach(f => { f.src = f.src; });
+        deepdivePanel.dataset.mapsLoaded = 'true';
+      }
     }
 
     // ============ GEO HELPERS ============
