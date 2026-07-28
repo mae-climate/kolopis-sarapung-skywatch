@@ -1,0 +1,1635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Penampang Geo-Watch EWS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <style>
+    details > summary::-webkit-details-marker { display: none; }
+    .tab-btn.active { background-color: #0369a1; color: white; }
+    .tab-btn:not(.active) { background-color: white; color: #475569; }
+    .tab-panel.hidden { display: none; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans p-2 sm:p-4 md:p-6 min-h-screen pb-24">
+
+  <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+
+    <!-- OCR Alert Banner -->
+    <div id="met-alert-banner" class="hidden bg-red-600 text-white p-4 rounded-2xl shadow-lg flex items-center gap-3 animate-bounce">
+      <span class="text-3xl">🚨</span>
+      <div>
+        <h2 data-i18n="meta.metAlertTitle" class="font-black text-base sm:text-lg tracking-wide uppercase">Official MetMalaysia Severe Warning Active</h2>
+        <p id="met-alert-text" data-i18n="meta.metAlertDefault" class="text-xs sm:text-sm mt-0.5 text-red-100">
+          Thunderstorm Warning active for Sabah / Pantai Barat. Check nowcasting immediately!
+        </p>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-3">
+      <div>
+        <h1 data-i18n="meta.headerTitle" class="text-lg sm:text-xl md:text-2xl font-black text-sky-700 flex items-center gap-2">
+          📡 Penampang Weather &amp; Hazard Watch
+        </h1>
+        <p data-i18n="meta.headerSubtitle" class="text-xs text-slate-500 mt-0.5">Coverage: Penampang, Kg. Sarapung &amp; Kolopis (5.925840, 116.143360)</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <button id="lang-toggle-btn" class="px-3 py-1.5 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-xs font-black text-sky-700 transition-colors">BM</button>
+        <div class="bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200 text-xs text-slate-600 flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" id="sync-dot"></span>
+          <div>
+            <p id="model-time" class="font-bold text-sky-800">Updated: Loading...</p>
+            <p id="update-time" data-i18n="meta.syncing" class="text-[10px] text-slate-400">Syncing live data...</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- TIER 1: ALWAYS-VISIBLE FLOOD-RISK BANNER -->
+    <div id="tier1-banner" class="rounded-2xl shadow-lg p-4 sm:p-5 flex items-center gap-4 bg-slate-200 border-2 border-slate-300 transition-colors">
+      <span id="tier1-icon" class="text-3xl sm:text-4xl shrink-0">⏳</span>
+      <div class="min-w-0">
+        <span id="tier1-badge" class="inline-block px-2.5 py-1 text-xs sm:text-sm font-black rounded-lg bg-slate-300 text-slate-700">LOADING</span>
+        <p id="tier1-action" class="text-sm sm:text-base font-black text-slate-800 mt-1">Assessing current hazard status...</p>
+      </div>
+    </div>
+
+    <!-- TAB BAR -->
+    <div class="flex gap-2">
+      <button id="tab-btn-overview" class="tab-btn active flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-sky-700 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabOverview">Overview</button>
+      <button id="tab-btn-deepdive" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabDeepDive">Deep Dive</button>
+    </div>
+
+    <!-- ===================== OVERVIEW TAB ===================== -->
+    <div id="tab-overview" class="tab-panel space-y-4 sm:space-y-6">
+
+      <div id="coverage-content" class="space-y-4 sm:space-y-6">
+        <!-- Official Alerts & River Level -->
+        <div>
+          <h2 data-i18n="alerts.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🚨 Official Alerts &amp; River Level</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+            <!-- MetMalaysia Warning -->
+            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <h3 data-i18n="alerts.metTitle" class="font-black text-slate-800 text-sm flex items-center gap-2">⛈️ MetMalaysia Alert</h3>
+                <p id="ocr-status-text" data-i18n="alerts.scanning" class="text-xs font-bold text-slate-600 mt-1">Scanning MetMalaysia images...</p>
+              </div>
+              <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" data-i18n="alerts.viewImage" class="mt-3 text-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-colors shrink-0">View Image ↗</a>
+            </div>
+
+            <!-- River Telemetry -->
+            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col justify-between">
+              <div>
+                <div class="flex justify-between items-start mb-1">
+                  <h3 data-i18n="alerts.moyogTitle" class="font-black text-slate-800 text-sm flex items-center gap-2">💧 Sg. Moyog</h3>
+                  <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="alerts.table" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 text-[10px] font-bold rounded-lg border border-sky-200 transition-colors shrink-0">Table ↗</a>
+                </div>
+                <p data-i18n="alerts.station" class="text-[9px] text-slate-400 font-mono">Station 26312 (Donggongon)</p>
+
+                <div class="my-2 flex items-baseline gap-1">
+                  <span id="moyog-live-val" class="text-2xl font-black text-slate-900">FETCHING...</span>
+                  <span id="moyog-live-status" class="ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-emerald-100 text-emerald-800 border border-emerald-200">SCANNING</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-100 flex justify-between items-center text-center text-[9px]">
+                 <div><span class="block font-black text-emerald-600" data-i18n="alerts.thresholds.norm">NORM</span><span class="font-bold text-slate-700">4.30m</span></div>
+                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-amber-500" data-i18n="alerts.thresholds.alert">ALERT</span><span class="font-bold text-slate-700">7.00m</span></div>
+                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-orange-500" data-i18n="alerts.thresholds.warn">WARN</span><span class="font-bold text-slate-700">7.30m</span></div>
+                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-red-600" data-i18n="alerts.thresholds.danger">DANGER</span><span class="font-bold text-slate-700">8.00m</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Primary Hazards (Tier 2 — collapsed by default) -->
+        <div>
+          <h2 data-i18n="hazard.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">⚠️ Local Hazard Risk</h2>
+          <div class="space-y-3">
+
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 data-i18n="hazard.kolopisTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">🌊 Tidal Lock &amp; Flash Flood Risk</h3>
+                    <p id="kolopis-action" data-i18n="hazard.kolopisCalc" class="text-xs font-bold text-slate-600 mt-1">Calculating coastal tide lock...</p>
+                  </div>
+                  <span id="kolopis-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                </div>
+              </summary>
+              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs space-y-2">
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.currentTide">Current Tide Level:</span><strong id="pond-tide" class="text-slate-900">0.00 m</strong></div>
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.peakTide">Next 12h Peak Tide Forecast:</span><strong id="tide-forecast-peak" class="text-sky-700">0.00 m</strong></div>
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.rainIntensity">Current Rain Intensity:</span><strong id="kolopis-rain-adjusted" class="text-slate-900">0.0 mm/hr</strong></div>
+                <div class="flex justify-between"><span data-i18n="hazard.saturation">Ground Saturation (24h):</span><strong id="pond-24h" class="text-slate-900">0.0 mm</strong></div>
+
+                <div class="pt-2 flex justify-between items-center text-[10px]">
+                  <span data-i18n="hazard.sourceTide" class="text-slate-400 font-mono">Source: Open-Meteo Coastal API</span>
+                  <a href="https://www.windfinder.com/tide/kota_kinabalu" target="_blank" data-i18n="hazard.fullTideTable" class="font-bold text-sky-600 hover:underline">Full Tide Table ↗</a>
+                </div>
+              </div>
+            </details>
+
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 data-i18n="hazard.sarapungTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛰️ Kg. Sarapung Slope Risk</h3>
+                    <p id="sarapung-action" data-i18n="hazard.sarapungCalc" class="text-xs font-bold text-slate-600 mt-1">Evaluating hillside soaking...</p>
+                  </div>
+                  <span id="sarapung-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                </div>
+              </summary>
+              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
+                <p data-i18n="hazard.soaking" class="text-slate-600 mb-1">7-Day Total Soaking Rain:</p>
+                <div class="flex items-baseline gap-2">
+                  <span id="sarapung-7day-val" class="text-2xl font-black text-slate-900">0.0</span>
+                  <span data-i18n="hazard.trigger" class="text-slate-500">/ 200 mm trigger threshold</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2.5 mt-2 overflow-hidden"><div id="slope-bar" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                <p data-i18n="hazard.sourceEcmwf" class="text-[9px] text-slate-400 text-right mt-2 font-mono">Source: Open-Meteo ECMWF IFS</p>
+              </div>
+            </details>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Out-of-coverage message (shown instead of coverage-content when outside geofence) -->
+      <div id="out-of-coverage-msg" class="hidden bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 sm:p-5">
+        <h3 data-i18n="coverage.msgTitle" class="font-black text-sky-800 text-sm sm:text-base">🚧 Outside the calibrated hazard area</h3>
+        <p data-i18n="coverage.msgBody" class="text-xs sm:text-sm text-sky-900 mt-2 leading-relaxed">The flood/landslide thresholds on this page are calibrated specifically for Kolopis &amp; Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips below still apply anywhere.</p>
+      </div>
+
+      <!-- Daily Household Guide (demoted, always visible) -->
+      <section>
+        <h2 data-i18n="household.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🏠 Daily Household Guide</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 items-start">
+
+          <!-- LAUNDRY -->
+          <details class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm group outline-none cursor-pointer hover:border-sky-300 transition-all overflow-hidden">
+            <summary class="list-none p-3 sm:p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-center mb-1">
+                <span data-i18n="household.laundry.title" class="font-black text-xs sm:text-sm text-slate-800">🧺 Laundry</span>
+                <span id="laundry-badge" class="px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">FETCHING</span>
+              </div>
+              <p id="laundry-desc" data-i18n="household.laundry.fetching" class="text-xs font-bold text-slate-600 mt-1 leading-snug">Calculating dry window...</p>
+              <span data-i18n="household.tapDetails" class="text-[9px] font-bold text-sky-600 mt-2 text-right block group-open:hidden">Tap for details ▼</span>
+            </summary>
+            <div class="p-3 border-t border-slate-100 bg-slate-50 text-xs space-y-1.5">
+              <p data-i18n="household.laundry.tip" class="font-bold text-slate-700 bg-amber-50 p-2 rounded-lg border border-amber-100 text-[10px]">
+                💡 Tip: High relative humidity (&gt;85%) causes damp odours. Hang laundry outdoors only when cloud cover &lt;40% and dry window &gt;3 hours.
+              </p>
+              <p class="text-slate-600"><span data-i18n="household.laundry.rain4h">4-Hour Rain Total:</span> <strong id="idx-l-rain" class="text-slate-900">-- mm</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.laundry.cloud">Cloud Cover:</span> <strong id="idx-l-cloud" class="text-slate-900">-- %</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.laundry.humidity">Air Humidity:</span> <strong id="idx-l-hum" class="text-slate-900">-- %</strong></p>
+              <p data-i18n="household.laundry.source" class="text-[9px] text-slate-400 pt-1 border-t border-slate-200 font-mono">Source: ECMWF 9km Model</p>
+            </div>
+          </details>
+
+          <!-- AC POWER -->
+          <details class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm group outline-none cursor-pointer hover:border-sky-300 transition-all overflow-hidden">
+            <summary class="list-none p-3 sm:p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-center mb-1">
+                <span data-i18n="household.ac.title" class="font-black text-xs sm:text-sm text-slate-800">⚡ AC Power</span>
+                <span id="ac-badge" class="px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">FETCHING</span>
+              </div>
+              <p id="ac-desc" class="text-xs font-bold text-slate-600 mt-1 leading-snug">Analyzing heat...</p>
+              <span data-i18n="household.tapDetails" class="text-[9px] font-bold text-sky-600 mt-2 text-right block group-open:hidden">Tap for details ▼</span>
+            </summary>
+            <div class="p-3 border-t border-slate-100 bg-slate-50 text-xs space-y-1.5">
+              <p data-i18n="household.ac.tip" class="font-bold text-slate-700 bg-sky-50 p-2 rounded-lg border border-sky-100 text-[10px]">
+                💡 Tip: When Temp ≥32°C &amp; Humidity ≥75%, set AC to 25°C + Dry Mode to remove moisture efficiently without overworking the compressor.
+              </p>
+              <p class="text-slate-600"><span data-i18n="household.ac.temp">Temperature:</span> <strong id="idx-temp" class="text-slate-900">-- °C</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.ac.humidity">Air Humidity:</span> <strong id="idx-hum" class="text-slate-900">-- %</strong></p>
+              <p data-i18n="household.ac.source" class="text-[9px] text-slate-400 pt-1 border-t border-slate-200 font-mono">Source: ECMWF 9km Model</p>
+            </div>
+          </details>
+
+          <!-- GARDEN -->
+          <details class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm group outline-none cursor-pointer hover:border-sky-300 transition-all overflow-hidden">
+            <summary class="list-none p-3 sm:p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-center mb-1">
+                <span data-i18n="household.garden.title" class="font-black text-xs sm:text-sm text-slate-800">🌱 Garden</span>
+                <span id="garden-badge" class="px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">FETCHING</span>
+              </div>
+              <p id="garden-desc" class="text-xs font-bold text-slate-600 mt-1 leading-snug">Checking soil...</p>
+              <span data-i18n="household.tapDetails" class="text-[9px] font-bold text-sky-600 mt-2 text-right block group-open:hidden">Tap for details ▼</span>
+            </summary>
+            <div class="p-3 border-t border-slate-100 bg-slate-50 text-xs space-y-1.5">
+              <p data-i18n="household.garden.tip" class="font-bold text-slate-700 bg-emerald-50 p-2 rounded-lg border border-emerald-100 text-[10px]">
+                💡 Tip: Skip manual watering if past 24h rain &gt;10mm or soil moisture &gt;0.40. Deep water early morning only when evapotranspiration &gt;4.5mm.
+              </p>
+              <p class="text-slate-600"><span data-i18n="household.garden.soil">Soil Moisture:</span> <strong id="idx-g-soil" class="text-slate-900">--</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.garden.et">Evaporation Rate:</span> <strong id="idx-g-et" class="text-slate-900">-- mm</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.garden.past">Past 24h Rain:</span> <strong id="idx-g-past" class="text-slate-900">-- mm</strong></p>
+              <p data-i18n="household.garden.source" class="text-[9px] text-slate-400 pt-1 border-t border-slate-200 font-mono">Source: ECMWF 9km Model</p>
+            </div>
+          </details>
+
+          <!-- WEED SPRAY -->
+          <details class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm group outline-none cursor-pointer hover:border-sky-300 transition-all overflow-hidden">
+            <summary class="list-none p-3 sm:p-4 flex flex-col justify-between">
+              <div class="flex justify-between items-center mb-1">
+                <span data-i18n="household.spray.title" class="font-black text-xs sm:text-sm text-slate-800">🧪 Weed Spray</span>
+                <span id="spray-badge" class="px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">FETCHING</span>
+              </div>
+              <p id="spray-desc" class="text-xs font-bold text-slate-600 mt-1 leading-snug">Checking wind drift...</p>
+              <span data-i18n="household.tapDetails" class="text-[9px] font-bold text-sky-600 mt-2 text-right block group-open:hidden">Tap for details ▼</span>
+            </summary>
+            <div class="p-3 border-t border-slate-100 bg-slate-50 text-xs space-y-1.5">
+              <p data-i18n="household.spray.tip" class="font-bold text-slate-700 bg-indigo-50 p-2 rounded-lg border border-indigo-100 text-[10px]">
+                💡 Tip: Do not spray if wind &gt;15 km/h (drift danger) or rain expected in next 6h (&gt;0.5mm washout). Spraying is ideal during early calm hours.
+              </p>
+              <p class="text-slate-600"><span data-i18n="household.spray.wind">Wind Speed:</span> <strong id="idx-s-wind" class="text-slate-900">-- km/h</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.spray.humidity">Humidity:</span> <strong id="idx-s-hum" class="text-slate-900">-- %</strong></p>
+              <p class="text-slate-600"><span data-i18n="household.spray.rain6h">Next 6h Rain:</span> <strong id="idx-s-rain" class="text-slate-900">-- mm</strong></p>
+              <p data-i18n="household.spray.source" class="text-[9px] text-slate-400 pt-1 border-t border-slate-200 font-mono">Source: ECMWF 9km Model</p>
+            </div>
+          </details>
+
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================== DEEP DIVE TAB ===================== -->
+    <div id="tab-deepdive" class="tab-panel hidden space-y-4 sm:space-y-6">
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+        <!-- Sky & Atmosphere -->
+        <div class="space-y-5">
+          <div>
+            <h2 data-i18n="sky.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">☁️ Sky &amp; Atmosphere Profile</h2>
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none" open>
+              <summary class="list-none p-4 sm:p-5 cursor-pointer flex justify-between items-start hover:bg-slate-50">
+                <div>
+                  <h3 id="user-regime-title" class="text-base sm:text-lg font-black text-amber-600">Analyzing Sky...</h3>
+                  <p id="user-regime-desc" class="text-xs sm:text-sm text-slate-600 font-bold mt-1">Fetching conditions...</p>
+                </div>
+                <span data-i18n="sky.tapData" class="text-xs font-bold text-sky-600 border border-sky-200 px-2 py-1 rounded-lg bg-sky-50 shrink-0">Tap for Data ▼</span>
+              </summary>
+
+              <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-4">
+
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm space-y-2">
+                  <span data-i18n="sky.rain24h" class="text-slate-500 font-bold text-[10px] uppercase tracking-wide">🌧️ 24-Hour Rain Forecast (3-Hour Intervals)</span>
+                  <div id="rain-24h-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-1 text-center text-[10px]">
+                    <div class="p-1 bg-slate-50 rounded" data-i18n="sky.loading">Loading...</div>
+                  </div>
+                </div>
+
+                <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between text-center items-center shadow-sm">
+                   <div class="w-1/3">
+                      <p data-i18n="sky.lowClouds" class="text-[10px] font-black text-slate-400">LOW CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-low">--%</p>
+                      <p data-i18n="sky.lowCloudsSub" class="text-[9px] text-slate-500">Low gloom/drizzle</p>
+                   </div>
+                   <div class="w-1/3 border-l border-slate-200">
+                      <p data-i18n="sky.midClouds" class="text-[10px] font-black text-slate-400">MID CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-mid">--%</p>
+                      <p data-i18n="sky.midCloudsSub" class="text-[9px] text-slate-500">3km high</p>
+                   </div>
+                   <div class="w-1/3 border-l border-slate-200">
+                      <p data-i18n="sky.highClouds" class="text-[10px] font-black text-slate-400">HIGH CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-high">--%</p>
+                      <p data-i18n="sky.highCloudsSub" class="text-[9px] text-slate-500">Thin wisps</p>
+                   </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.cape" class="text-slate-500 font-bold text-[10px]">THUNDERSTORM FUEL (CAPE)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cape-val">-- J/kg</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cape-interp">Calculating...</p>
+                    <p data-i18n="sky.capeRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;1000 | Mod: 1000-2500 | High: &gt;2500</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.cin" class="text-slate-500 font-bold text-[10px]">ATMOSPHERIC LID (CIN)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cin-val">-- J/kg</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cin-interp">Calculating...</p>
+                    <p data-i18n="sky.cinRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Weak Cap: &gt; -50 | Strong Lid: &lt; -150</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.rh700" class="text-slate-500 font-bold text-[10px]">MID-SKY MOISTURE (3KM HIGH)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="rh700-val">--%</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="rh700-interp">Calculating...</p>
+                    <p data-i18n="sky.rh700Range" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Dry: &lt;60% | Normal: 60-80% | Heavy Rain: &gt;80%</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.shear" class="text-slate-500 font-bold text-[10px]">WIND SHEAR (ORGANIZATION)</span>
+                    <p class="text-sm font-black text-sky-700 mt-0.5" id="shear-val">-- km/h</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="shear-interp">Calculating...</p>
+                    <p data-i18n="sky.shearRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;20 | Mod: 20-40 | High: &gt;40 km/h</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 sm:col-span-2">
+                    <span class="text-slate-500 font-bold text-[10px] flex justify-between"><span data-i18n="sky.storm">STORM MOVEMENT</span> <span data-i18n="sky.upperWinds" class="text-amber-600">Upper Winds (1.5 - 5.5km)</span></span>
+                    <p class="text-sm font-black text-sky-700 mt-0.5"><span id="steer-speed-val">-- km/h</span> | <span data-i18n="sky.movingToward">Moving toward:</span> <strong id="steer-dest-val" class="text-slate-900">--</strong></p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="steer-interp">Calculating...</p>
+                  </div>
+                </div>
+
+                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                  <span data-i18n="sky.aiHeading" class="font-black text-indigo-900 text-xs flex items-center gap-1 mb-1">🤖 AI Thermodynamic Assessment</span>
+                  <p id="ai-analysis-text" data-i18n="sky.aiWaiting" class="text-xs text-indigo-950 font-medium leading-relaxed">Waiting for data...</p>
+                </div>
+                <p data-i18n="sky.sourceEcmwf" class="text-[9px] text-slate-400 text-right font-mono">Source: Open-Meteo ECMWF IFS (9km Grid Resolution)</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- Macro Climate -->
+        <div class="space-y-5">
+
+          <div>
+            <h2 data-i18n="macro.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🌍 Macro-Climate Drivers</h2>
+            <div class="space-y-3">
+
+              <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+                <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                  <div class="flex justify-between items-start">
+                    <div>
+                      <h3 data-i18n="macro.droughtTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Local Water Security</h3>
+                      <p data-i18n="macro.droughtSub" class="text-[10px] text-slate-500 mt-0.5">Babagon Catchment 90-Day Accumulation</p>
+                    </div>
+                    <span id="drought-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                  </div>
+                  <div class="mt-3 flex items-baseline gap-2">
+                    <span id="drought-90d-val" class="text-2xl font-black text-slate-900">0.0</span>
+                    <span data-i18n="macro.droughtBaseline" class="text-xs text-slate-500">/ 650 mm baseline</span>
+                  </div>
+                  <div class="w-full bg-slate-200 rounded-full h-2 mt-1.5"><div id="drought-bar" class="bg-sky-500 h-2 rounded-full" style="width: 0%"></div></div>
+                  <p id="drought-action" class="text-xs font-bold text-slate-600 mt-2">Calculating water security...</p>
+                </summary>
+                <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
+                  <p data-i18n="macro.droughtNote" class="text-slate-600 leading-relaxed">
+                    Sum of past 83 days observed + 7 days forecast rain over Babagon dam catchment. Cumulative values dropping below 300mm (&lt;45%) signal critical dam drawdowns and domestic water rationing risks.
+                  </p>
+                </div>
+              </details>
+
+              <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm space-y-4">
+                <div class="flex justify-between items-start">
+                  <h3 data-i18n="macro.ensoMjoTitle" class="font-black text-slate-800 text-sm sm:text-base">🌡️ ENSO &amp; MJO Waves</h3>
+                  <div class="flex gap-1">
+                    <a href="https://www.met.gov.my/en/iklim/ramalan-el-nino-status-terkini/" target="_blank" class="px-2 py-1 text-[9px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-slate-200">MetMsia ↗</a>
+                    <a href="https://www.cpc.ncep.noaa.gov/products/precip/CWlink/MJO/mjo.shtml" target="_blank" class="px-2 py-1 text-[9px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-slate-200">NOAA ↗</a>
+                  </div>
+                </div>
+
+                <div id="climate-indices-wrap">
+                  <div>
+                     <p data-i18n="macro.ensoHeading" class="text-[10px] font-black text-slate-500 mb-1">1. EL NIÑO / LA NIÑA (ENSO)</p>
+                     <div class="w-full h-3 rounded-full bg-gradient-to-r from-sky-400 via-slate-200 to-red-500 relative border border-slate-200 shadow-inner">
+                        <div id="enso-gauge-marker" class="absolute -top-1 -bottom-1 w-1 bg-slate-900 rounded left-1/2 shadow transition-all"></div>
+                     </div>
+                     <p id="enso-summary-text" class="text-xs font-bold text-slate-700 bg-slate-50 p-2 rounded-xl border border-slate-100 mt-2">
+                       Loading ENSO status...
+                     </p>
+                  </div>
+
+                  <details class="group outline-none mt-4">
+                     <summary class="list-none cursor-pointer">
+                       <div class="flex justify-between items-center mb-1">
+                          <p data-i18n="macro.mjoHeading" class="text-[10px] font-black text-slate-500">2. MADDEN-JULIAN OSCILLATION (MJO)</p>
+                          <span data-i18n="macro.mjoTapDetails" class="text-[9px] text-sky-700 font-bold border border-sky-200 px-1.5 py-0.5 rounded bg-sky-50">Tap for details ▼</span>
+                       </div>
+                       <p class="text-xs font-bold text-amber-800 bg-amber-50 p-2 rounded-xl border border-amber-100" id="mjo-summary-text">
+                         Loading MJO status...
+                       </p>
+                     </summary>
+
+                     <div class="p-3 mt-2 bg-slate-50 border border-slate-200 rounded-xl text-xs space-y-2">
+                        <p data-i18n="macro.mjoKeyTitle" class="text-[10px] font-black text-slate-700 border-b border-slate-200 pb-1">MJO Phase Impact Key for Sabah:</p>
+                        <div class="grid grid-cols-2 gap-2 text-[10px]">
+                           <div class="p-2 bg-white rounded-lg border border-slate-200">
+                              <span data-i18n="macro.mjoActivePhases" class="font-black text-emerald-700">Phases 4 &amp; 5 (Maritime Continent):</span>
+                              <p data-i18n="macro.mjoActiveDesc" class="text-slate-600 mt-0.5">ACTIVE WAVE: Monsoon rain bursts and severe storm outbreaks.</p>
+                           </div>
+                           <div class="p-2 bg-white rounded-lg border border-slate-200">
+                              <span data-i18n="macro.mjoSuppressedPhases" class="font-black text-amber-700">Phases 8, 1 &amp; 2 (Indian Ocean / W. Hem):</span>
+                              <p data-i18n="macro.mjoSuppressedDesc" class="text-slate-600 mt-0.5">SUPPRESSED WAVE: Sinking dry air. Sunny hot spells dominating.</p>
+                           </div>
+                        </div>
+                        <p class="bg-indigo-50 p-2 rounded-lg border border-indigo-100 text-[10px] text-indigo-950 font-medium">
+                           <span data-i18n="macro.crossHeading" class="font-bold">Thermodynamic Alignment:</span> <span id="mjo-cross-analysis">Evaluating alignment...</span>
+                        </p>
+                     </div>
+                  </details>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- SPATIAL MAPS & DUAL AXIS TIMELINE -->
+      <section class="space-y-4 pt-2">
+        <h2 data-i18n="maps.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 px-1">🗺️ Live Satellite Maps &amp; 14-Day Outlook</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div class="bg-white p-3 sm:p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[360px]">
+            <h3 data-i18n="maps.windTitle" class="text-xs font-bold text-slate-700 mb-2">Live Wind &amp; Clouds (Windy.com)</h3>
+            <iframe class="rounded-xl border border-slate-200 flex-grow" src="https://embed.windy.com/embed2.html?lat=5.925840&lon=116.143360&detailLat=5.925840&detailLon=116.143360&zoom=10&level=surface&overlay=satellite&product=satellite&menu=&message=&marker=true&calendar=now&pressure=&type=map&location=coordinates&detail=&metricWind=km%2Fh&metricTemp=%C2%B0C&radarRange=-1" frameborder="0"></iframe>
+          </div>
+
+          <div class="bg-white p-3 sm:p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[360px]">
+            <h3 data-i18n="maps.radarTitle" class="text-xs font-bold text-slate-700 mb-2">Live Radar &amp; Rain (Ventusky.com)</h3>
+            <iframe class="rounded-xl border border-slate-200 flex-grow" src="https://embed.ventusky.com/?p=5.926;116.143;10&l=rain-3h&pin=5.926;116.143;dot;Kg.%20Kolopis" frameborder="0"></iframe>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+           <div class="flex justify-between items-center mb-3">
+              <div>
+                <h3 data-i18n="maps.chartTitle" class="text-xs font-black text-slate-800 uppercase tracking-wide">14-Day Rain &amp; Temperature Outlook</h3>
+                <p data-i18n="maps.chartRef" class="text-[9px] text-slate-400 font-mono">Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)</p>
+              </div>
+              <a href="ensemble.html" target="_blank" data-i18n="maps.ensembleLink" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">Rainfall Ensemble ↗</a>
+           </div>
+           <div class="h-64 w-full relative"><canvas id="rainTempChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- OFFICIAL FEEDS -->
+      <section class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm mb-8">
+        <h2 data-i18n="feeds.heading" class="font-black text-slate-800 text-sm mb-2">📡 Official MetMalaysia Radar &amp; Nowcasting Feeds</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a href="https://www.met.gov.my/pencerapan/radar-sabah-and-sarawak/" target="_blank" class="bg-slate-50 hover:bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between transition-colors">
+            <span data-i18n="feeds.radarTitle" class="font-bold text-slate-800 text-xs flex items-center gap-2">📡 Live Sabah Doppler Radar</span>
+            <span data-i18n="feeds.radarLink" class="text-sky-600 text-xs font-bold">Open Radar ↗</span>
+          </a>
+          <a href="https://www.met.gov.my/pencerapan/nowcasting/" target="_blank" class="bg-slate-50 hover:bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between transition-colors">
+            <span data-i18n="feeds.nowcastTitle" class="font-bold text-slate-800 text-xs flex items-center gap-2">⛈️ MetMalaysia Short-Term Nowcasting</span>
+            <span data-i18n="feeds.nowcastLink" class="text-amber-600 text-xs font-bold">Open Forecast ↗</span>
+          </a>
+        </div>
+      </section>
+
+    </div>
+
+  </div>
+
+  <!-- FLOATING FEEDBACK BUTTON -->
+  <button id="feedback-fab" class="fixed bottom-5 right-4 sm:right-6 z-40 px-4 py-3 rounded-full shadow-xl bg-sky-700 hover:bg-sky-800 text-white text-xs sm:text-sm font-black flex items-center gap-2 transition-colors">
+    🌊 <span data-i18n="feedback.fabLabel">Does it flood here?</span>
+  </button>
+
+  <!-- FEEDBACK MODAL -->
+  <div id="feedback-modal-overlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-5 sm:p-6 max-h-[90vh] overflow-y-auto">
+      <h3 data-i18n="feedback.title" class="text-lg font-black text-slate-800">🌊 Report Flooding</h3>
+      <p data-i18n="feedback.subtitle" class="text-xs text-slate-500 mt-1 mb-4">Every report helps calibrate this tool for more locations.</p>
+
+      <form id="feedback-form" class="space-y-3">
+        <div class="grid grid-cols-2 gap-2">
+          <label class="block text-xs">
+            <span data-i18n="feedback.lat" class="font-bold text-slate-600">Latitude</span>
+            <input type="number" step="0.000001" name="latitude" id="feedback-lat" required class="mt-1 w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs">
+          </label>
+          <label class="block text-xs">
+            <span data-i18n="feedback.lon" class="font-bold text-slate-600">Longitude</span>
+            <input type="number" step="0.000001" name="longitude" id="feedback-lon" required class="mt-1 w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs">
+          </label>
+        </div>
+        <p id="feedback-locate-status" data-i18n="feedback.locating" class="text-[10px] text-slate-400">Locating you...</p>
+
+        <label class="block text-xs">
+          <span data-i18n="feedback.severity" class="font-bold text-slate-600">Severity</span>
+          <select name="severity" required class="mt-1 w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs">
+            <option value="just_rain" data-i18n="feedback.severityOptions.rain">Just rain</option>
+            <option value="water_on_road" data-i18n="feedback.severityOptions.road">Water on road</option>
+            <option value="water_entering_house" data-i18n="feedback.severityOptions.house">Water entering house</option>
+          </select>
+        </label>
+
+        <label class="block text-xs">
+          <span data-i18n="feedback.note" class="font-bold text-slate-600">Notes (optional)</span>
+          <textarea name="note" rows="3" data-i18n-placeholder="feedback.notePlaceholder" placeholder="Anything else worth knowing (depth, duration, exact spot)..." class="mt-1 w-full px-2 py-1.5 rounded-lg border border-slate-300 text-xs"></textarea>
+        </label>
+
+        <p id="feedback-status" class="text-xs font-bold"></p>
+
+        <div class="flex gap-2 pt-1">
+          <button type="button" id="feedback-cancel-btn" data-i18n="feedback.cancel" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-slate-600 text-xs font-bold hover:bg-slate-50">Cancel</button>
+          <button type="submit" id="feedback-submit-btn" data-i18n="feedback.submit" class="flex-1 px-3 py-2 rounded-xl bg-sky-700 hover:bg-sky-800 text-white text-xs font-black">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // ============ CONSTANTS ============
+    const latPenampang = 5.925840, lonPenampang = 116.143360;
+    const latCoast = 5.9800, lonCoast = 115.9500;
+    // Empirically calibrated to the Kolopis/Sarapung catchment from documented 2026 flood
+    // events — do not widen without new calibration work (see CLAUDE.md constraints).
+    const COVERAGE_RADIUS_KM = 4;
+    // TODO: replace with your real Formspree endpoint. Sign up free at https://formspree.io,
+    // create a form, and paste its https://formspree.io/f/XXXXXXXX URL here.
+    const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+
+    // ============ I18N ============
+    const i18n = {
+      en: {
+        meta: {
+          headerTitle: "📡 Penampang Weather & Hazard Watch",
+          headerSubtitle: "Coverage: Penampang, Kg. Sarapung & Kolopis (5.925840, 116.143360)",
+          syncing: "Syncing live data...",
+          tabOverview: "Overview",
+          tabDeepDive: "Deep Dive",
+          metAlertTitle: "Official MetMalaysia Severe Warning Active",
+          metAlertDefault: "Thunderstorm Warning active for Sabah / Pantai Barat. Check nowcasting immediately!",
+        },
+        tier1: {
+          loadingBadge: "LOADING", loadingAction: "Assessing current hazard status...",
+          dangerBadge: "🌊 TIDAL LOCK FLOOD", dangerAction: "Heavy rain + high tide — drains blocked. Avoid low roads now.",
+          pondingBadge: "⚠️ PONDING RISK", pondingAction: "Intense local rain. Expect road puddling — drive carefully.",
+          slopeBadge: "⛰️ SLOPE RISK", slopeAction: "Kg. Sarapung hillside soil is saturated — landslide risk.",
+          clearBadge: "✅ ALL CLEAR", clearAction: "No flood or landslide risk detected right now.",
+          outBadge: "📍 OUTSIDE COVERAGE AREA", outAction: "Hazard calibration doesn't extend to your location yet — showing general weather tips only.",
+        },
+        coverage: {
+          msgTitle: "🚧 Outside the calibrated hazard area",
+          msgBody: "The flood/landslide thresholds on this page are calibrated specifically for Kolopis & Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips below still apply anywhere.",
+        },
+        household: {
+          heading: "🏠 Daily Household Guide",
+          tapDetails: "Tap for details ▼",
+          fetchingBadge: "FETCHING",
+          laundry: {
+            title: "🧺 Laundry",
+            tip: "💡 Tip: High relative humidity (>85%) causes damp odours. Hang laundry outdoors only when cloud cover <40% and dry window >3 hours.",
+            fetching: "Calculating dry window...",
+            rainingBadge: "RAINING NOW", rainingDesc: "🌧️ Take in laundry immediately!",
+            rainInBadge: (h) => `RAIN IN ~${h}H`,
+            rainInDesc: (h, t) => `⏳ Safe window: ~${h} hrs (rain expected ~${t}).`,
+            excellentBadge: "EXCELLENT", excellentDesc: "Fast drying! Sunny & dry air window.",
+            dampBadge: "DAMP AIR", dampDesc: "High air humidity (clothes dry slowly).",
+            safeBadge: "SAFE (12H+)", safeDesc: "12+ dry hours expected. Safe to hang clothes.",
+            rain4h: "4-Hour Rain Total:", cloud: "Cloud Cover:", humidity: "Air Humidity:", source: "Source: ECMWF 9km Model",
+          },
+          ac: {
+            title: "⚡ AC Power",
+            tip: "💡 Tip: When Temp ≥32°C & Humidity ≥75%, set AC to 25°C + Dry Mode to remove moisture efficiently without overworking the compressor.",
+            highBadge: "HIGH LOAD", highDesc: "Set AC to 25°C + Dry Mode.",
+            effBadge: "EFFICIENT", effDesc: "Normal AC power draw.",
+            temp: "Temperature:", humidity: "Air Humidity:", source: "Source: ECMWF 9km Model",
+          },
+          garden: {
+            title: "🌱 Garden",
+            tip: "💡 Tip: Skip manual watering if past 24h rain >10mm or soil moisture >0.40. Deep water early morning only when evapotranspiration >4.5mm.",
+            skipBadge: "SKIP WATERING", skipDesc: "Soil is thoroughly wet.",
+            deepBadge: "DEEP WATER NEEDED", deepDesc: "Strong evaporation drying soil.",
+            maintBadge: "MAINTENANCE", maintDesc: "Normal moisture. Light water.",
+            soil: "Soil Moisture:", et: "Evaporation Rate:", past: "Past 24h Rain:", source: "Source: ECMWF 9km Model",
+          },
+          spray: {
+            title: "🧪 Weed Spray",
+            tip: "💡 Tip: Do not spray if wind >15 km/h (drift danger) or rain expected in next 6h (>0.5mm washout). Spraying is ideal during early calm hours.",
+            washoutBadge: "WASHOUT RISK", washoutDesc: "Rain incoming. Spray will wash off.",
+            driftBadge: "DRIFT RISK", driftDesc: "Too windy. Chemical will drift.",
+            evapBadge: "EVAP RISK", evapDesc: "Too hot. Dries before absorbing.",
+            dilutionBadge: "DILUTION RISK", dilutionDesc: "Leaves still wet from rain.",
+            optimalBadge: "OPTIMAL", optimalDesc: "Safe weather window to spray.",
+            wind: "Wind Speed:", humidity: "Humidity:", rain6h: "Next 6h Rain:", source: "Source: ECMWF 9km Model",
+          },
+        },
+        sky: {
+          heading: "☁️ Sky & Atmosphere Profile",
+          analyzing: "Analyzing Sky...", fetchingConditions: "Fetching conditions...",
+          tapData: "Tap for Data ▼",
+          rain24h: "🌧️ 24-Hour Rain Forecast (3-Hour Intervals)",
+          loading: "Loading...",
+          lowClouds: "LOW CLOUDS", lowCloudsSub: "Low gloom/drizzle",
+          midClouds: "MID CLOUDS", midCloudsSub: "3km high",
+          highClouds: "HIGH CLOUDS", highCloudsSub: "Thin wisps",
+          cape: "THUNDERSTORM FUEL (CAPE)", capeRange: "Low: <1000 | Mod: 1000-2500 | High: >2500",
+          cin: "ATMOSPHERIC LID (CIN)", cinRange: "Weak Cap: > -50 | Strong Lid: < -150",
+          rh700: "MID-SKY MOISTURE (3KM HIGH)", rh700Range: "Dry: <60% | Normal: 60-80% | Heavy Rain: >80%",
+          shear: "WIND SHEAR (ORGANIZATION)", shearRange: "Low: <20 | Mod: 20-40 | High: >40 km/h",
+          storm: "STORM MOVEMENT", upperWinds: "Upper Winds (1.5 - 5.5km)",
+          movingToward: "Moving toward:",
+          calculating: "Calculating...",
+          aiHeading: "🤖 AI Thermodynamic Assessment", aiWaiting: "Waiting for data...",
+          sourceEcmwf: "Source: Open-Meteo ECMWF IFS (9km Grid Resolution)",
+          capeLow: "Low (Thunderstorms unlikely)", capeMod: "Moderate (Scattered rain clouds possible)", capeHigh: "High (Violent storm development supported)",
+          cinWeak: "Weak (Updraft clouds can easily initiate)", cinMod: "Moderate (Requires mountain heat to break lid)", cinStrong: "Strong (Atmosphere safely capped)",
+          rhDry: "Dry air (Clouds evaporate easily)", rhBalanced: "Balanced air (Normal rain clouds supported)", rhSaturated: "Saturated air (Supports torrential downpours)",
+          shearLow: "Low shear (Storm clouds collapse quickly)", shearMod: "Moderate shear (Multi-cloud storm clusters possible)", shearHigh: "High shear (Long-lasting severe storms favored)",
+          steerStall: "Stalling winds (High flood accumulation risk)", steerNormal: "Normal movement (~15 km/h - Storms won't linger too long)", steerFast: "Fast winds (Storms clear the area quickly)",
+        },
+        regime: {
+          drizzleTitle: "🌧️ Coastal Overcast & Drizzle", drizzleDesc: "High low-level moisture trapped. Stable air prevents severe lightning.",
+          stormyTitle: "⛈️ Afternoon Heat & Storms", stormyDesc: "Heat bubbling over Crocker Range. High risk of thunderstorms.",
+          squallsTitle: "💨 Coastal Sea Breeze Squalls", squallsDesc: "Sea breezes pushing rain clusters inland.",
+          showersTitle: "🌦️ Passing Showers", showersDesc: "Typical light-to-moderate rain passing through.",
+          gloomyTitle: "☁️ Gloomy & Overcast", gloomyDesc: "Thick cloud cover, but air is stable. Thunderstorms unlikely.",
+          partlyTitle: "⛅ Partly Cloudy", partlyDesc: "Fair weather. Sun mixing with passing clouds.",
+          brightTitle: "☀️ Bright & Hot", brightDesc: "Clear skies. High UV exposure.",
+        },
+        ai: {
+          highEnergyCapped: "High storm energy is present, but an atmospheric cap is blocking storms. If updrafts break this cap, storm development will be sudden. ",
+          highEnergyDry: "High storm energy exists, but mid-level air is too dry. Storm clouds will struggle to grow. ",
+          steadyRain: "Steady, non-explosive rain. Atmospheric stability prevents violent lightning storms right now. ",
+          heavyStorm: "Heavy downpours and thunderstorms are fully supported. ",
+          stable: "The atmosphere is stable right now. Rain is unlikely to be violent. ",
+          stalling: (s) => `Sluggish steering winds (${s} km/h) mean rain clouds will stall directly overhead, elevating flash flood risks.`,
+        },
+        alerts: {
+          heading: "🚨 Official Alerts & River Level",
+          metTitle: "⛈️ MetMalaysia Alert", scanning: "Scanning MetMalaysia images...",
+          station: "Station 26312 (Donggongon)",
+          noWarning: "✅ No Thunderstorm Warning Issued",
+          warningActive: "🚨 Sabah Thunderstorm Warning Active!",
+          warningOther: "ℹ️ Warning active for other states",
+          unavailable: "⚠️ Could not scan MetMalaysia image — data unavailable. Check the official image directly.",
+          viewImage: "View Image ↗",
+          moyogTitle: "💧 Sg. Moyog", table: "Table ↗",
+          fetching: "FETCHING...", scanningBadge: "SCANNING",
+          danger: "DANGER", warning: "WARNING", alert: "ALERT", normal: "NORMAL", unavailableBadge: "⚠ UNAVAILABLE",
+          unavailableVal: "—",
+          thresholds: { norm: "NORM", alert: "ALERT", warn: "WARN", danger: "DANGER" },
+        },
+        hazard: {
+          heading: "⚠️ Local Hazard Risk",
+          kolopisTitle: "🌊 Tidal Lock & Flash Flood Risk", kolopisCalc: "Calculating coastal tide lock...",
+          tidalLockBadge: "TIDAL LOCK FLOOD", tidalLockAction: "Heavy rain + High Tide. Drains blocked. Avoid low roads.",
+          pondingBadge: "PONDING RISK", pondingAction: "Intense local rain. Expect road puddling.",
+          clearBadge: "CLEAR", clearAction: "Road drains functioning normally.",
+          currentTide: "Current Tide Level:", peakTide: "Next 12h Peak Tide Forecast:", rainIntensity: "Current Rain Intensity:", saturation: "Ground Saturation (24h):",
+          sourceTide: "Source: Open-Meteo Coastal API", fullTideTable: "Full Tide Table ↗",
+          sarapungTitle: "⛰️ Kg. Sarapung Slope Risk", sarapungCalc: "Evaluating hillside soaking...",
+          highRiskBadge: "HIGH RISK", highRiskAction: "Soil is completely saturated.",
+          normalBadge: "NORMAL", normalAction: "Slope stability normal.",
+          soaking: "7-Day Total Soaking Rain:", trigger: "/ 200 mm trigger threshold", sourceEcmwf: "Source: Open-Meteo ECMWF IFS",
+        },
+        macro: {
+          heading: "🌍 Macro-Climate Drivers",
+          droughtTitle: "💧 Local Water Security", droughtSub: "Babagon Catchment 90-Day Accumulation",
+          droughtBaseline: "/ 650 mm baseline",
+          rationingBadge: "RATIONING RISK", rationingAction: "Prepare backup water supplies.",
+          stableBadge: "STABLE", stableAction: "Catchment levels healthy.",
+          droughtNote: "Sum of past 83 days observed + 7 days forecast rain over Babagon dam catchment. Cumulative values dropping below 300mm (<45%) signal critical dam drawdowns and domestic water rationing risks.",
+          ensoMjoTitle: "🌡️ ENSO & MJO Waves",
+          ensoHeading: "1. EL NIÑO / LA NIÑA (ENSO)",
+          mjoHeading: "2. MADDEN-JULIAN OSCILLATION (MJO)",
+          mjoTapDetails: "Tap for details ▼",
+          mjoKeyTitle: "MJO Phase Impact Key for Sabah:",
+          mjoActivePhases: "Phases 4 & 5 (Maritime Continent):", mjoActiveDesc: "ACTIVE WAVE: Monsoon rain bursts and severe storm outbreaks.",
+          mjoSuppressedPhases: "Phases 8, 1 & 2 (Indian Ocean / W. Hem):", mjoSuppressedDesc: "SUPPRESSED WAVE: Sinking dry air. Sunny hot spells dominating.",
+          crossHeading: "Thermodynamic Alignment:",
+          climateUnavailable: "⚠️ Climate index data unavailable — could not load data/climate_indices.json.",
+          enso: {
+            elNino: "El Niño", laNina: "La Niña", neutral: "Neutral",
+            strength: { Weak: "Weak", Moderate: "Moderate", Strong: "Strong", "Very Strong": "Very Strong" },
+            summary: (phase, strength, anom) => `${strength} ${phase} (Niño 3.4 3-month avg anomaly ${anom > 0 ? '+' : ''}${anom}°C).`,
+          },
+          mjoImpact: { active: "active", suppressed: "suppressed", transitional: "transitional" },
+          mjoText: {
+            active: (phase) => `Phase ${phase} Active — see impact key below.`,
+            inactive: (phase) => `Phase ${phase} (weak signal, amplitude < 1.0) — little influence expected.`,
+          },
+          crossAnalysis: (ensoPhase, mjoImpact) => `${ensoPhase} base state combined with a ${mjoImpact} MJO wave — watch for compounding effects on rainfall over the next 1-2 weeks.`,
+        },
+        maps: {
+          heading: "🗺️ Live Satellite Maps & 14-Day Outlook",
+          windTitle: "Live Wind & Clouds (Windy.com)", radarTitle: "Live Radar & Rain (Ventusky.com)",
+          chartTitle: "14-Day Rain & Temperature Outlook",
+          chartRef: "Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)",
+          ensembleLink: "Rainfall Ensemble ↗",
+          alert20: "20mm Alert", flood60: "60mm Sept 2025 Flood Baseline", extreme100: "100mm Extreme Hazard",
+          rainLabel: "Rain (mm)", tempLabel: "Temp (°C)",
+        },
+        feeds: {
+          heading: "📡 Official MetMalaysia Radar & Nowcasting Feeds",
+          radarTitle: "📡 Live Sabah Doppler Radar", radarLink: "Open Radar ↗",
+          nowcastTitle: "⛈️ MetMalaysia Short-Term Nowcasting", nowcastLink: "Open Forecast ↗",
+        },
+        feedback: {
+          fabLabel: "Does it flood here?",
+          title: "🌊 Report Flooding", subtitle: "Every report helps calibrate this tool for more locations.",
+          lat: "Latitude", lon: "Longitude",
+          severity: "Severity", severityOptions: { rain: "Just rain", road: "Water on road", house: "Water entering house" },
+          note: "Notes (optional)", notePlaceholder: "Anything else worth knowing (depth, duration, exact spot)...",
+          submit: "Submit Report", submitting: "Submitting...", cancel: "Cancel",
+          success: "✅ Thanks — your report was submitted.",
+          error: "⚠️ Couldn't submit — this form isn't fully set up yet. Please try again later.",
+          locating: "Locating you...",
+          locateFailed: "Location unavailable — enter coordinates manually.",
+        },
+      },
+      bm: {
+        meta: {
+          headerTitle: "📡 Pemantau Cuaca & Bencana Penampang",
+          headerSubtitle: "Liputan: Penampang, Kg. Sarapung & Kolopis (5.925840, 116.143360)",
+          syncing: "Menyegerak data langsung...",
+          tabOverview: "Ringkasan",
+          tabDeepDive: "Kajian Mendalam",
+          metAlertTitle: "Amaran Rasmi MetMalaysia Aktif",
+          metAlertDefault: "Amaran ribut petir aktif untuk Sabah / Pantai Barat. Semak nowcasting segera!",
+        },
+        tier1: {
+          loadingBadge: "MEMUAT", loadingAction: "Menilai status bencana semasa...",
+          dangerBadge: "🌊 BANJIR KUNCI PASANG SURUT", dangerAction: "Hujan lebat + air pasang tinggi — perparitan tersumbat. Elakkan jalan rendah sekarang.",
+          pondingBadge: "⚠️ RISIKO TAKUNGAN AIR", pondingAction: "Hujan lebat setempat. Jangkakan jalan bertakung — pandu dengan berhati-hati.",
+          slopeBadge: "⛰️ RISIKO CERUN", slopeAction: "Tanah cerun Kg. Sarapung sudah tepu air — risiko tanah runtuh.",
+          clearBadge: "✅ SELAMAT", clearAction: "Tiada risiko banjir atau tanah runtuh dikesan sekarang.",
+          outBadge: "📍 LUAR KAWASAN LIPUTAN", outAction: "Penentukuran bencana belum meliputi lokasi anda — hanya panduan cuaca umum dipaparkan.",
+        },
+        coverage: {
+          msgTitle: "🚧 Di luar kawasan bencana yang ditentukur",
+          msgBody: "Ambang banjir/tanah runtuh di laman ini ditentukur khusus untuk Kolopis & Kg. Sarapung, Penampang. Lokasi semasa anda berada di luar radius ~4km itu, jadi status bencana tidak dipaparkan bagi mengelakkan bacaan palsu. Panduan cuaca isi rumah di bawah masih terpakai di mana-mana.",
+        },
+        household: {
+          heading: "🏠 Panduan Isi Rumah Harian",
+          tapDetails: "Ketik untuk butiran ▼",
+          fetchingBadge: "MEMUAT",
+          laundry: {
+            title: "🧺 Dobi",
+            tip: "💡 Petua: Kelembapan relatif tinggi (>85%) menyebabkan bau lembap. Sidai pakaian di luar hanya apabila litupan awan <40% dan tempoh kering >3 jam.",
+            fetching: "Mengira tempoh kering...",
+            rainingBadge: "HUJAN SEKARANG", rainingDesc: "🌧️ Angkat pakaian segera!",
+            rainInBadge: (h) => `HUJAN ~${h}J LAGI`,
+            rainInDesc: (h, t) => `⏳ Tempoh selamat: ~${h} jam (hujan dijangka ~${t}).`,
+            excellentBadge: "CEMERLANG", excellentDesc: "Cepat kering! Tempoh cerah & udara kering.",
+            dampBadge: "UDARA LEMBAP", dampDesc: "Kelembapan udara tinggi (pakaian kering perlahan).",
+            safeBadge: "SELAMAT (12J+)", safeDesc: "12+ jam kering dijangka. Selamat untuk menyidai.",
+            rain4h: "Jumlah Hujan 4-Jam:", cloud: "Litupan Awan:", humidity: "Kelembapan Udara:", source: "Sumber: Model ECMWF 9km",
+          },
+          ac: {
+            title: "⚡ Kuasa Penghawa Dingin",
+            tip: "💡 Petua: Apabila Suhu ≥32°C & Kelembapan ≥75%, tetapkan penghawa dingin ke 25°C + Mod Kering untuk mengeluarkan lembapan dengan cekap.",
+            highBadge: "BEBAN TINGGI", highDesc: "Tetapkan ke 25°C + Mod Kering.",
+            effBadge: "CEKAP", effDesc: "Penggunaan kuasa normal.",
+            temp: "Suhu:", humidity: "Kelembapan Udara:", source: "Sumber: Model ECMWF 9km",
+          },
+          garden: {
+            title: "🌱 Kebun",
+            tip: "💡 Petua: Jangan siram jika hujan 24 jam lepas >10mm atau kelembapan tanah >0.40. Siram mendalam awal pagi hanya jika sejat >4.5mm.",
+            skipBadge: "JANGAN SIRAM", skipDesc: "Tanah sudah tepu air.",
+            deepBadge: "PERLU SIRAM MENDALAM", deepDesc: "Kadar sejatan tinggi mengeringkan tanah.",
+            maintBadge: "PENYELENGGARAAN", maintDesc: "Kelembapan normal. Siram ringan.",
+            soil: "Kelembapan Tanah:", et: "Kadar Sejatan:", past: "Hujan 24 Jam Lepas:", source: "Sumber: Model ECMWF 9km",
+          },
+          spray: {
+            title: "🧪 Semburan Racun Rumpai",
+            tip: "💡 Petua: Jangan semburan jika angin >15 km/j (risiko hanyut) atau hujan dijangka dalam 6 jam (>0.5mm larut). Semburan terbaik pada awal pagi yang tenang.",
+            washoutBadge: "RISIKO LARUT HUJAN", washoutDesc: "Hujan akan tiba. Semburan akan luntur.",
+            driftBadge: "RISIKO HANYUT ANGIN", driftDesc: "Terlalu berangin. Racun akan hanyut.",
+            evapBadge: "RISIKO SEJAT CEPAT", evapDesc: "Terlalu panas. Kering sebelum meresap.",
+            dilutionBadge: "RISIKO CAIR", dilutionDesc: "Daun masih basah akibat hujan.",
+            optimalBadge: "OPTIMUM", optimalDesc: "Tempoh cuaca selamat untuk menyembur.",
+            wind: "Kelajuan Angin:", humidity: "Kelembapan:", rain6h: "Hujan 6 Jam Akan Datang:", source: "Sumber: Model ECMWF 9km",
+          },
+        },
+        sky: {
+          heading: "☁️ Profil Langit & Atmosfera",
+          analyzing: "Menganalisis Langit...", fetchingConditions: "Mengambil keadaan cuaca...",
+          tapData: "Ketik untuk Data ▼",
+          rain24h: "🌧️ Ramalan Hujan 24-Jam (Selang 3 Jam)",
+          loading: "Memuat...",
+          lowClouds: "AWAN RENDAH", lowCloudsSub: "Kabus/hujan renyai rendah",
+          midClouds: "AWAN PERTENGAHAN", midCloudsSub: "Ketinggian 3km",
+          highClouds: "AWAN TINGGI", highCloudsSub: "Awan nipis",
+          cape: "BAHAN API RIBUT (CAPE)", capeRange: "Rendah: <1000 | Sederhana: 1000-2500 | Tinggi: >2500",
+          cin: "PENUTUP ATMOSFERA (CIN)", cinRange: "Tudung Lemah: > -50 | Tudung Kuat: < -150",
+          rh700: "KELEMBAPAN LANGIT PERTENGAHAN (3KM)", rh700Range: "Kering: <60% | Normal: 60-80% | Hujan Lebat: >80%",
+          shear: "RICIH ANGIN (ORGANISASI)", shearRange: "Rendah: <20 | Sederhana: 20-40 | Tinggi: >40 km/j",
+          storm: "PERGERAKAN RIBUT", upperWinds: "Angin Atas (1.5 - 5.5km)",
+          movingToward: "Bergerak ke arah:",
+          calculating: "Mengira...",
+          aiHeading: "🤖 Penilaian Termodinamik AI", aiWaiting: "Menunggu data...",
+          sourceEcmwf: "Sumber: Open-Meteo ECMWF IFS (Resolusi Grid 9km)",
+          capeLow: "Rendah (Ribut petir tidak dijangka)", capeMod: "Sederhana (Awan hujan berselerak mungkin berlaku)", capeHigh: "Tinggi (Perkembangan ribut ganas disokong)",
+          cinWeak: "Lemah (Awan updraft mudah bermula)", cinMod: "Sederhana (Perlukan haba gunung untuk pecahkan tudung)", cinStrong: "Kuat (Atmosfera selamat tertutup)",
+          rhDry: "Udara kering (Awan mudah sejat)", rhBalanced: "Udara seimbang (Awan hujan normal disokong)", rhSaturated: "Udara tepu (Menyokong hujan lebat)",
+          shearLow: "Ricih rendah (Awan ribut cepat runtuh)", shearMod: "Ricih sederhana (Kluster ribut berbilang awan mungkin)", shearHigh: "Ricih tinggi (Ribut teruk berpanjangan disokong)",
+          steerStall: "Angin perlahan (Risiko banjir kilat tinggi)", steerNormal: "Pergerakan normal (~15 km/j - Ribut tidak berlama-lama)", steerFast: "Angin laju (Ribut cepat berlalu)",
+        },
+        regime: {
+          drizzleTitle: "🌧️ Mendung & Hujan Renyai Pantai", drizzleDesc: "Kelembapan aras rendah terperangkap tinggi. Udara stabil mengelakkan kilat teruk.",
+          stormyTitle: "⛈️ Haba & Ribut Petang", stormyDesc: "Haba dari Banjaran Crocker. Risiko tinggi ribut petir.",
+          squallsTitle: "💨 Ribut Bayu Laut Pantai", squallsDesc: "Bayu laut menolak kelompok hujan ke pedalaman.",
+          showersTitle: "🌦️ Hujan Renyai Berselang", showersDesc: "Hujan ringan-sederhana biasa berlalu.",
+          gloomyTitle: "☁️ Mendung & Berawan Tebal", gloomyDesc: "Litupan awan tebal, tetapi udara stabil. Ribut petir tidak dijangka.",
+          partlyTitle: "⛅ Sebahagian Berawan", partlyDesc: "Cuaca baik. Matahari bercampur awan berlalu.",
+          brightTitle: "☀️ Cerah & Panas", brightDesc: "Langit cerah. Pendedahan UV tinggi.",
+        },
+        ai: {
+          highEnergyCapped: "Tenaga ribut tinggi hadir, tetapi tudung atmosfera menghalang ribut. Jika updraft memecah tudung ini, perkembangan ribut akan tiba-tiba. ",
+          highEnergyDry: "Tenaga ribut tinggi wujud, tetapi udara pertengahan terlalu kering. Awan ribut akan sukar membesar. ",
+          steadyRain: "Hujan stabil, tidak meletup. Kestabilan atmosfera menghalang ribut kilat teruk sekarang. ",
+          heavyStorm: "Hujan lebat dan ribut petir disokong sepenuhnya. ",
+          stable: "Atmosfera stabil sekarang. Hujan tidak dijangka ganas. ",
+          stalling: (s) => `Angin kemudi perlahan (${s} km/j) bermakna awan hujan akan terhenti di atas kawasan ini, meningkatkan risiko banjir kilat.`,
+        },
+        alerts: {
+          heading: "🚨 Amaran Rasmi & Paras Sungai",
+          metTitle: "⛈️ Amaran MetMalaysia", scanning: "Mengimbas imej MetMalaysia...",
+          station: "Stesen 26312 (Donggongon)",
+          noWarning: "✅ Tiada Amaran Ribut Petir Dikeluarkan",
+          warningActive: "🚨 Amaran Ribut Petir Sabah Aktif!",
+          warningOther: "ℹ️ Amaran aktif untuk negeri lain",
+          unavailable: "⚠️ Tidak dapat mengimbas imej MetMalaysia — data tidak tersedia. Semak imej rasmi terus.",
+          viewImage: "Lihat Imej ↗",
+          moyogTitle: "💧 Sg. Moyog", table: "Jadual ↗",
+          fetching: "MEMUAT...", scanningBadge: "MENGIMBAS",
+          danger: "BAHAYA", warning: "AMARAN", alert: "AWAS", normal: "NORMAL", unavailableBadge: "⚠ TIDAK TERSEDIA",
+          unavailableVal: "—",
+          thresholds: { norm: "NORM", alert: "AWAS", warn: "AMARAN", danger: "BAHAYA" },
+        },
+        hazard: {
+          heading: "⚠️ Risiko Bencana Setempat",
+          kolopisTitle: "🌊 Risiko Kunci Pasang Surut & Banjir Kilat", kolopisCalc: "Mengira kunci pasang surut pantai...",
+          tidalLockBadge: "BANJIR KUNCI PASANG", tidalLockAction: "Hujan lebat + Air Pasang Tinggi. Perparitan tersumbat. Elakkan jalan rendah.",
+          pondingBadge: "RISIKO TAKUNGAN", pondingAction: "Hujan lebat setempat. Jangkakan jalan bertakung.",
+          clearBadge: "SELAMAT", clearAction: "Perparitan jalan berfungsi normal.",
+          currentTide: "Paras Air Pasang Semasa:", peakTide: "Ramalan Puncak Pasang 12 Jam:", rainIntensity: "Keamatan Hujan Semasa:", saturation: "Ketepuan Tanah (24j):",
+          sourceTide: "Sumber: Open-Meteo Coastal API", fullTideTable: "Jadual Pasang Penuh ↗",
+          sarapungTitle: "⛰️ Risiko Cerun Kg. Sarapung", sarapungCalc: "Menilai ketepuan cerun bukit...",
+          highRiskBadge: "RISIKO TINGGI", highRiskAction: "Tanah sudah tepu sepenuhnya.",
+          normalBadge: "NORMAL", normalAction: "Kestabilan cerun normal.",
+          soaking: "Jumlah Hujan Rendaman 7-Hari:", trigger: "/ ambang cetusan 200 mm", sourceEcmwf: "Sumber: Open-Meteo ECMWF IFS",
+        },
+        macro: {
+          heading: "🌍 Penggerak Iklim Makro",
+          droughtTitle: "💧 Keselamatan Air Tempatan", droughtSub: "Pengumpulan 90-Hari Kolam Tadahan Babagon",
+          droughtBaseline: "/ garis dasar 650 mm",
+          rationingBadge: "RISIKO CATUAN", rationingAction: "Sediakan bekalan air sandaran.",
+          stableBadge: "STABIL", stableAction: "Paras kolam tadahan sihat.",
+          droughtNote: "Jumlah hujan 83 hari lepas diperhati + 7 hari ramalan di kolam tadahan empangan Babagon. Nilai kumulatif jatuh bawah 300mm (<45%) menandakan risiko penyusutan empangan kritikal dan catuan air domestik.",
+          ensoMjoTitle: "🌡️ Gelombang ENSO & MJO",
+          ensoHeading: "1. EL NIÑO / LA NIÑA (ENSO)",
+          mjoHeading: "2. OSILASI MADDEN-JULIAN (MJO)",
+          mjoTapDetails: "Ketik untuk butiran ▼",
+          mjoKeyTitle: "Kunci Kesan Fasa MJO untuk Sabah:",
+          mjoActivePhases: "Fasa 4 & 5 (Benua Maritim):", mjoActiveDesc: "GELOMBANG AKTIF: Hujan monsun lebat dan ribut teruk.",
+          mjoSuppressedPhases: "Fasa 8, 1 & 2 (Lautan Hindi / Hemisfera Barat):", mjoSuppressedDesc: "GELOMBANG TERTEKAN: Udara kering turun. Cuaca cerah panas mendominasi.",
+          crossHeading: "Penjajaran Termodinamik:",
+          climateUnavailable: "⚠️ Data indeks iklim tidak tersedia — gagal memuatkan data/climate_indices.json.",
+          enso: {
+            elNino: "El Niño", laNina: "La Niña", neutral: "Neutral",
+            strength: { Weak: "Lemah", Moderate: "Sederhana", Strong: "Kuat", "Very Strong": "Sangat Kuat" },
+            summary: (phase, strength, anom) => `${strength} ${phase} (anomali purata 3 bulan Niño 3.4 ${anom > 0 ? '+' : ''}${anom}°C).`,
+          },
+          mjoImpact: { active: "aktif", suppressed: "tertekan", transitional: "peralihan" },
+          mjoText: {
+            active: (phase) => `Fasa ${phase} Aktif — lihat kunci kesan di bawah.`,
+            inactive: (phase) => `Fasa ${phase} (isyarat lemah, amplitud < 1.0) — pengaruh minimum dijangka.`,
+          },
+          crossAnalysis: (ensoPhase, mjoImpact) => `Keadaan asas ${ensoPhase} bergabung dengan gelombang MJO ${mjoImpact} — perhatikan kesan bertindih pada hujan dalam 1-2 minggu akan datang.`,
+        },
+        maps: {
+          heading: "🗺️ Peta Satelit Langsung & Ramalan 14-Hari",
+          windTitle: "Angin & Awan Langsung (Windy.com)", radarTitle: "Radar & Hujan Langsung (Ventusky.com)",
+          chartTitle: "Ramalan Hujan & Suhu 14-Hari",
+          chartRef: "Garis Rujukan: 20mm (Awas), 60mm (Garis Dasar Banjir Sept 2025), 100mm (Bahaya Melampau)",
+          ensembleLink: "Ensembel Hujan ↗",
+          alert20: "Awas 20mm", flood60: "Garis Dasar Banjir Sept 2025", extreme100: "Bahaya Melampau 100mm",
+          rainLabel: "Hujan (mm)", tempLabel: "Suhu (°C)",
+        },
+        feeds: {
+          heading: "📡 Suapan Radar & Nowcasting Rasmi MetMalaysia",
+          radarTitle: "📡 Radar Doppler Sabah Langsung", radarLink: "Buka Radar ↗",
+          nowcastTitle: "⛈️ Nowcasting Jangka Pendek MetMalaysia", nowcastLink: "Buka Ramalan ↗",
+        },
+        feedback: {
+          fabLabel: "Adakah banjir di sini?",
+          title: "🌊 Laporkan Banjir", subtitle: "Setiap laporan membantu penentukuran alat ini untuk lebih banyak lokasi.",
+          lat: "Latitud", lon: "Longitud",
+          severity: "Keterukan", severityOptions: { rain: "Hujan sahaja", road: "Air di jalan", house: "Air masuk rumah" },
+          note: "Catatan (pilihan)", notePlaceholder: "Apa-apa lagi yang perlu diketahui (kedalaman, tempoh, lokasi tepat)...",
+          submit: "Hantar Laporan", submitting: "Menghantar...", cancel: "Batal",
+          success: "✅ Terima kasih — laporan anda telah dihantar.",
+          error: "⚠️ Gagal menghantar — borang ini belum disediakan sepenuhnya. Sila cuba lagi kemudian.",
+          locating: "Mengesan lokasi anda...",
+          locateFailed: "Lokasi tidak tersedia — masukkan koordinat secara manual.",
+        },
+      },
+    };
+
+    // ============ STATE ============
+    let currentLang = localStorage.getItem('skywatch_lang') || 'en';
+    let lastState = null;
+    let lastChartData = null;
+    let lastClimate = null;
+    let insideCoverage = true; // default assumption; refined once/if geolocation resolves
+    let rainTempChartInstance = null;
+
+    function t(lang, path) {
+      return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), i18n[lang]);
+    }
+
+    // ============ GENERIC STATIC I18N ============
+    function applyStaticI18n(lang) {
+      document.documentElement.lang = lang === 'bm' ? 'ms' : 'en';
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const val = t(lang, el.getAttribute('data-i18n'));
+        if (typeof val === 'string') el.innerHTML = val;
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const val = t(lang, el.getAttribute('data-i18n-placeholder'));
+        if (typeof val === 'string') el.setAttribute('placeholder', val);
+      });
+      document.getElementById('lang-toggle-btn').innerText = lang === 'en' ? 'BM' : 'EN';
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('skywatch_lang', lang);
+      applyStaticI18n(lang);
+      if (lastState) render(lastState, lang);
+      if (lastClimate) renderClimate(lastClimate, lang); else renderClimateUnavailable(lang);
+      if (lastChartData) renderDualChart(lastChartData, lang);
+    }
+
+    // ============ TABS ============
+    function switchTab(name) {
+      const overviewBtn = document.getElementById('tab-btn-overview');
+      const deepdiveBtn = document.getElementById('tab-btn-deepdive');
+      const overviewPanel = document.getElementById('tab-overview');
+      const deepdivePanel = document.getElementById('tab-deepdive');
+      const isOverview = name === 'overview';
+      overviewBtn.classList.toggle('active', isOverview);
+      deepdiveBtn.classList.toggle('active', !isOverview);
+      overviewPanel.classList.toggle('hidden', !isOverview);
+      deepdivePanel.classList.toggle('hidden', isOverview);
+    }
+
+    // ============ GEO HELPERS ============
+    function haversineKm(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function applyCoverageState() {
+      document.getElementById('coverage-content').classList.toggle('hidden', !insideCoverage);
+      document.getElementById('out-of-coverage-msg').classList.toggle('hidden', insideCoverage);
+      if (lastState) render(lastState, currentLang);
+    }
+
+    function checkGeofence() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const d = haversineKm(pos.coords.latitude, pos.coords.longitude, latPenampang, lonPenampang);
+          insideCoverage = d <= COVERAGE_RADIUS_KM;
+          applyCoverageState();
+        },
+        () => { /* denied/unavailable: keep default "inside" assumption, do not block core display */ },
+        { timeout: 8000, maximumAge: 10 * 60 * 1000 }
+      );
+    }
+
+    // ============ MetMalaysia OCR (Known Issue 2: honest failure state) ============
+    async function checkMetMalaysiaWarning() {
+      const banner = document.getElementById('met-alert-banner');
+      const ocrStatusText = document.getElementById('ocr-status-text');
+      try {
+        const targetUrl = "https://www.met.gov.my/data/AmaranRibutPetir.jpg";
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
+        const worker = await Tesseract.createWorker('eng');
+        const ret = await worker.recognize(proxyUrl);
+        const text = ret.data.text.toLowerCase();
+        await worker.terminate();
+
+        if (text.includes("tiada amaran")) {
+          ocrStatusText.innerText = i18n[currentLang].alerts.noWarning;
+          ocrStatusText.className = "text-xs font-bold text-emerald-700 mt-1";
+        } else if (text.includes("pantai barat") || text.includes("sabah") || text.includes("penampang")) {
+          banner.classList.remove('hidden');
+          ocrStatusText.innerText = i18n[currentLang].alerts.warningActive;
+          ocrStatusText.className = "text-xs font-black text-red-600 mt-1 animate-pulse";
+        } else {
+          ocrStatusText.innerText = i18n[currentLang].alerts.warningOther;
+          ocrStatusText.className = "text-xs font-bold text-amber-600 mt-1";
+        }
+      } catch (err) {
+        console.error("MetMalaysia OCR failed:", err);
+        ocrStatusText.innerText = i18n[currentLang].alerts.unavailable;
+        ocrStatusText.className = "text-xs font-black text-amber-700 mt-1";
+      }
+    }
+
+    // ============ Moyog River Telemetry (Known Issue 2: honest failure state) ============
+    async function fetchMoyogLevel() {
+      const liveVal = document.getElementById('moyog-live-val');
+      const liveStatus = document.getElementById('moyog-live-status');
+      try {
+        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://infobanjir.sabah.gov.my/WaterLevel/District/13");
+        const res = await fetch(proxyUrl);
+        const htmlString = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        let waterLevel = null;
+        const rows = doc.querySelectorAll('tr');
+
+        for (let row of rows) {
+            if (row.innerText.includes('Moyog') || row.innerText.includes('Penampang')) {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 8) {
+                    let potentialLevel = parseFloat(cells[7].innerText.trim());
+                    if (!isNaN(potentialLevel) && potentialLevel > 0 && potentialLevel < 20) {
+                        waterLevel = potentialLevel.toFixed(2);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (waterLevel) {
+          liveVal.innerText = `${waterLevel} m`;
+          let level = parseFloat(waterLevel);
+          if (level >= 8.0) {
+            liveStatus.innerText = i18n[currentLang].alerts.danger; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-red-600 text-white animate-pulse";
+          } else if (level >= 7.30) {
+            liveStatus.innerText = i18n[currentLang].alerts.warning; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-orange-500 text-white";
+          } else if (level >= 7.00) {
+            liveStatus.innerText = i18n[currentLang].alerts.alert; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-400 text-slate-900";
+          } else {
+            liveStatus.innerText = i18n[currentLang].alerts.normal; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-emerald-100 text-emerald-800 border border-emerald-200";
+          }
+        } else {
+          throw new Error("Parse Error");
+        }
+      } catch (err) {
+        console.error("Moyog fetch failed:", err);
+        liveVal.innerText = i18n[currentLang].alerts.unavailableVal;
+        liveStatus.innerText = i18n[currentLang].alerts.unavailableBadge;
+        liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-100 text-amber-800 border border-amber-300";
+      }
+    }
+
+    // ============ Climate indices (Known Issue 1: dynamic ENSO/MJO) ============
+    async function fetchClimateIndices() {
+      try {
+        const res = await fetch('data/climate_indices.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        lastClimate = json;
+        renderClimate(json, currentLang);
+      } catch (err) {
+        console.error("Climate indices fetch failed:", err);
+        lastClimate = null;
+        renderClimateUnavailable(currentLang);
+      }
+    }
+
+    function renderClimateUnavailable(lang) {
+      const msg = i18n[lang].macro.climateUnavailable;
+      document.getElementById('enso-summary-text').innerText = msg;
+      document.getElementById('enso-summary-text').className = "text-xs font-black text-amber-700 bg-amber-50 p-2 rounded-xl border border-amber-100 mt-2";
+      document.getElementById('mjo-summary-text').innerText = msg;
+      document.getElementById('mjo-cross-analysis').innerText = "—";
+    }
+
+    function renderClimate(climate, lang) {
+      const L = i18n[lang].macro;
+      const enso = climate.enso, mjo = climate.mjo;
+
+      // ENSO gauge: map anomaly (~ -2.5C..+2.5C) onto the 0-100% gradient bar
+      const anom = enso.nino34_3mo_running_avg_c;
+      const clamped = Math.max(-2.5, Math.min(2.5, anom));
+      const pct = ((clamped + 2.5) / 5) * 100;
+      document.getElementById('enso-gauge-marker').style.left = `${pct}%`;
+
+      const phaseText = enso.phase === 'El Nino' ? L.enso.elNino : enso.phase === 'La Nina' ? L.enso.laNina : L.enso.neutral;
+      const strengthText = L.enso.strength[enso.strength] || enso.strength;
+      const ensoEl = document.getElementById('enso-summary-text');
+      ensoEl.innerText = L.enso.summary(phaseText, strengthText, anom);
+      const ensoColor = enso.phase === 'El Nino' ? 'text-red-700 bg-red-50 border-red-100' : enso.phase === 'La Nina' ? 'text-sky-700 bg-sky-50 border-sky-100' : 'text-slate-700 bg-slate-50 border-slate-100';
+      ensoEl.className = `text-xs font-bold p-2 rounded-xl border mt-2 ${ensoColor}`;
+
+      const mjoEl = document.getElementById('mjo-summary-text');
+      mjoEl.innerText = mjo.active ? L.mjoText.active(mjo.phase) + " " + mjo.impact_text : L.mjoText.inactive(mjo.phase);
+
+      const impactWord = L.mjoImpact[mjo.impact_category] || mjo.impact_category;
+      document.getElementById('mjo-cross-analysis').innerText = L.crossAnalysis(phaseText, impactWord);
+    }
+
+    // ============ COMPUTE (pure — no DOM writes) ============
+    function computeState(data, marineData) {
+      const s = {};
+      s.modelTime = data.current?.time ? data.current.time.replace('T', ' ') : null;
+
+      let currIdx = 168; // Default past_days=7
+      if (data.hourly?.time) {
+        const found = data.hourly.time.indexOf(data.current.time);
+        if (found !== -1) currIdx = found;
+      }
+
+      const rawRain = data.current?.precipitation ?? 0;
+      const currentTemp = data.current?.temperature_2m ?? 0;
+      const currentRH = data.current?.relative_humidity_2m ?? 0;
+      const currentWind = data.hourly?.wind_speed_10m?.[currIdx] ?? 0;
+      const currentTide = marineData?.hourly?.sea_level?.[currIdx] ?? 0;
+
+      let peakTide = currentTide;
+      if (marineData?.hourly?.sea_level) {
+        for (let i = 0; i < 12; i++) {
+          let val = marineData.hourly.sea_level[currIdx + i] ?? 0;
+          if (val > peakTide) peakTide = val;
+        }
+      }
+
+      const cape = data.hourly?.cape?.[currIdx] ?? 0;
+      const cin = data.hourly?.convective_inhibition?.[currIdx] ?? 0;
+      const rh700 = data.hourly?.relative_humidity_700hPa?.[currIdx] ?? 0;
+
+      s.cloudLow = data.hourly?.cloud_cover_low?.[currIdx] ?? 0;
+      s.cloudMid = data.hourly?.cloud_cover_mid?.[currIdx] ?? 0;
+      s.cloudHigh = data.hourly?.cloud_cover_high?.[currIdx] ?? 0;
+
+      s.rain24h = [];
+      for (let i = 0; i < 24; i += 3) {
+        let fIdx = currIdx + i;
+        let rVal = data.hourly?.precipitation?.[fIdx] ?? 0;
+        let tStr = data.hourly?.time?.[fIdx] ? data.hourly.time[fIdx].split('T')[1].substring(0, 5) : `+${i}h`;
+        s.rain24h.push({ t: tStr, v: rVal });
+      }
+
+      let past24hRain = 0, past3hRain = 0, next12hRain = 0, next6hRain = 0;
+      for (let i = 1; i <= 24; i++) past24hRain += data.hourly?.precipitation?.[currIdx - i] ?? 0;
+      for (let i = 1; i <= 3; i++) past3hRain += data.hourly?.precipitation?.[currIdx - i] ?? 0;
+      for (let i = 0; i < 12; i++) next12hRain += data.hourly?.precipitation?.[currIdx + i] ?? 0;
+      for (let i = 0; i < 6; i++) next6hRain += data.hourly?.precipitation?.[currIdx + i] ?? 0;
+
+      const u10 = -currentWind * Math.sin((data.hourly?.wind_direction_10m?.[currIdx] ?? 0) * Math.PI / 180);
+      const v10 = -currentWind * Math.cos((data.hourly?.wind_direction_10m?.[currIdx] ?? 0) * Math.PI / 180);
+      const u500 = -(data.hourly?.wind_speed_500hPa?.[currIdx] ?? 0) * Math.sin((data.hourly?.wind_direction_500hPa?.[currIdx] ?? 0) * Math.PI / 180);
+      const v500 = -(data.hourly?.wind_speed_500hPa?.[currIdx] ?? 0) * Math.cos((data.hourly?.wind_direction_500hPa?.[currIdx] ?? 0) * Math.PI / 180);
+
+      const steerSpeed = Math.sqrt(u500 * u500 + v500 * v500).toFixed(1);
+      let steerDir = (Math.atan2(u500, v500) * 180 / Math.PI).toFixed(0);
+      if (steerDir < 0) steerDir = Number(steerDir) + 360;
+      const bulkShearSpeed = Math.sqrt((u500 - u10) ** 2 + (v500 - v10) ** 2).toFixed(1);
+
+      let destStr = "";
+      if (steerDir >= 337.5 || steerDir < 22.5) destStr = "Tuaran / Inanam";
+      else if (steerDir >= 22.5 && steerDir < 67.5) destStr = "Mt. Kinabalu / Ranau";
+      else if (steerDir >= 67.5 && steerDir < 112.5) destStr = "Crocker Range / Tambunan";
+      else if (steerDir >= 112.5 && steerDir < 157.5) destStr = "Keningau";
+      else if (steerDir >= 157.5 && steerDir < 202.5) destStr = "Papar";
+      else if (steerDir >= 202.5 && steerDir < 247.5) destStr = "Pulau Tiga";
+      else if (steerDir >= 247.5 && steerDir < 292.5) destStr = "KK City / South China Sea";
+      else if (steerDir >= 292.5 && steerDir < 337.5) destStr = "Likas / Sepanggar";
+
+      s.cape = cape; s.cin = cin; s.rh700 = rh700;
+      s.steerSpeed = steerSpeed; s.steerDir = steerDir; s.destStr = destStr; s.bulkShearSpeed = bulkShearSpeed;
+      s.rawRain = rawRain; s.currentTemp = currentTemp; s.currentRH = currentRH; s.currentWind = currentWind;
+      s.currentTide = currentTide; s.peakTide = peakTide;
+      s.past24hRain = past24hRain; s.past3hRain = past3hRain; s.next12hRain = next12hRain; s.next6hRain = next6hRain;
+
+      const now = new Date();
+      s.hour = now.getHours();
+      s.nowLocaleTime = now.toLocaleTimeString();
+
+      let avgCloud = 0; for (let i = 0; i < 4; i++) avgCloud += data.hourly?.cloud_cover?.[currIdx + i] ?? 0; avgCloud /= 4;
+      s.avgCloud = avgCloud;
+      let steerDirFrom = (Number(steerDir) + 180) % 360;
+
+      if (rh700 > 80 && cape < 800) s.regime = 'drizzle';
+      else if (cape > 1000 && s.hour >= 12 && s.hour <= 19) s.regime = 'stormy';
+      else if (s.hour <= 8 && steerDirFrom > 200 && steerDirFrom < 340) s.regime = 'squalls';
+      else if (rawRain > 0) s.regime = 'showers';
+      else if (avgCloud > 70 && cape < 500) s.regime = 'gloomy';
+      else if (avgCloud > 30) s.regime = 'partly';
+      else s.regime = 'bright';
+
+      // AC
+      s.ac = (currentTemp >= 32 && currentRH >= 75) ? 'high' : 'efficient';
+
+      // Laundry
+      let avgRH4h = 0; for (let i = 0; i < 4; i++) avgRH4h += data.hourly?.relative_humidity_2m?.[currIdx + i] ?? 0; avgRH4h /= 4;
+      let totalRain4h = 0; for (let i = 0; i < 4; i++) totalRain4h += data.hourly?.precipitation?.[currIdx + i] ?? 0;
+      s.avgRH4h = avgRH4h; s.totalRain4h = totalRain4h;
+
+      let dryHoursCount = 0, rainFound = false;
+      for (let h = 0; h < 12; h++) {
+        let pVal = data.hourly?.precipitation?.[currIdx + h] ?? 0;
+        if (pVal >= 0.2) { rainFound = true; break; }
+        dryHoursCount++;
+      }
+      s.dryHoursCount = dryHoursCount;
+      s.rainTimeStr = new Date(now.getTime() + dryHoursCount * 3600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (rawRain > 0.2) s.laundry = 'raining';
+      else if (rainFound) s.laundry = dryHoursCount <= 2 ? 'rainSoonUrgent' : 'rainSoon';
+      else if (avgRH4h < 65 && avgCloud < 40) s.laundry = 'excellent';
+      else if (avgRH4h > 85) s.laundry = 'damp';
+      else s.laundry = 'safe';
+
+      // Garden
+      s.currentSoil = 0.28;
+      s.currentET = data.daily?.et0_fao_evapotranspiration?.[7] ?? 3.5;
+      if (s.currentSoil > 0.40 || past24hRain > 10) s.garden = 'skip';
+      else if (s.currentET > 4.5 && s.currentSoil < 0.25) s.garden = 'deep';
+      else s.garden = 'maintenance';
+
+      // Spray
+      if (next6hRain > 0.5) s.spray = 'washout';
+      else if (currentWind > 15) s.spray = 'drift';
+      else if (currentTemp > 33 || currentRH < 45) s.spray = 'evap';
+      else if (past3hRain > 0.5) s.spray = 'dilution';
+      else s.spray = 'optimal';
+
+      // Kolopis hazard
+      if ((rawRain >= 15 || (rawRain >= 10 && past24hRain >= 25)) && peakTide >= 1.2) s.kolopis = 'tidalLock';
+      else if (rawRain >= 10) s.kolopis = 'ponding';
+      else s.kolopis = 'clear';
+
+      // Sarapung hazard
+      let sum7 = 0; for (let i = 1; i <= 168; i++) sum7 += data.hourly?.precipitation?.[currIdx - i] ?? 0;
+      s.sum7 = sum7;
+      s.sarapung = sum7 > 150 ? 'highRisk' : 'normal';
+
+      // Drought / water security
+      let p90 = past24hRain * 4.5;
+      s.est90 = Math.round(p90 + 320);
+      s.drought = s.est90 < 300 ? 'rationing' : 'stable';
+
+      // Tier 1 combined severity
+      if (s.kolopis === 'tidalLock') s.tier1 = 'danger';
+      else if (s.kolopis === 'ponding') s.tier1 = 'pondingWarning';
+      else if (s.sarapung === 'highRisk') s.tier1 = 'slopeWarning';
+      else s.tier1 = 'clear';
+
+      // Chart
+      s.chart = {
+        dates: data.daily?.time?.slice(0, 14) ?? [],
+        rain: data.daily?.precipitation_sum?.slice(0, 14) ?? [],
+        temp: data.daily?.temperature_2m_max?.slice(0, 14) ?? [],
+      };
+
+      return s;
+    }
+
+    // ============ AI ANALYSIS TEXT ============
+    function generateAIAnalysisText(s, lang) {
+      const L = i18n[lang].ai;
+      let analysis = "";
+      let highEnergy = s.cape > 1000;
+      let capped = s.cin <= -50;
+      let dryMidLevel = s.rh700 < 60;
+      let isRaining = s.rawRain > 0;
+
+      if (highEnergy && capped) analysis += L.highEnergyCapped;
+      else if (highEnergy && dryMidLevel) analysis += L.highEnergyDry;
+      else if (isRaining && !highEnergy) analysis += L.steadyRain;
+      else if (isRaining && highEnergy && !capped) analysis += L.heavyStorm;
+      else analysis += L.stable;
+
+      if (s.steerSpeed < 10 && (highEnergy || isRaining)) analysis += L.stalling(s.steerSpeed);
+      return analysis;
+    }
+
+    // ============ RENDER (all DOM writes, reads state + lang) ============
+    function render(s, lang) {
+      const L = i18n[lang];
+
+      document.getElementById('model-time').innerText = s.modelTime ? `Updated: ${s.modelTime}` : 'Updated: —';
+
+      // --- Tier 1 banner ---
+      const banner = document.getElementById('tier1-banner');
+      const badgeEl = document.getElementById('tier1-badge');
+      const actionEl = document.getElementById('tier1-action');
+      const iconEl = document.getElementById('tier1-icon');
+      let bannerBg, badgeCls, icon, badgeText, actionText;
+      if (!insideCoverage) {
+        bannerBg = "bg-sky-50 border-2 border-sky-200"; badgeCls = "bg-sky-100 text-sky-800"; icon = "📍";
+        badgeText = L.tier1.outBadge; actionText = L.tier1.outAction;
+      } else if (s.tier1 === 'danger') {
+        bannerBg = "bg-purple-600 border-2 border-purple-700 animate-pulse"; badgeCls = "bg-white text-purple-700"; icon = "🌊";
+        badgeText = L.tier1.dangerBadge; actionText = L.tier1.dangerAction;
+        actionEl.className = "text-sm sm:text-base font-black text-white mt-1";
+      } else if (s.tier1 === 'pondingWarning') {
+        bannerBg = "bg-red-600 border-2 border-red-700"; badgeCls = "bg-white text-red-700"; icon = "⚠️";
+        badgeText = L.tier1.pondingBadge; actionText = L.tier1.pondingAction;
+        actionEl.className = "text-sm sm:text-base font-black text-white mt-1";
+      } else if (s.tier1 === 'slopeWarning') {
+        bannerBg = "bg-amber-500 border-2 border-amber-600"; badgeCls = "bg-white text-amber-700"; icon = "⛰️";
+        badgeText = L.tier1.slopeBadge; actionText = L.tier1.slopeAction;
+        actionEl.className = "text-sm sm:text-base font-black text-white mt-1";
+      } else {
+        bannerBg = "bg-emerald-50 border-2 border-emerald-200"; badgeCls = "bg-emerald-100 text-emerald-800"; icon = "✅";
+        badgeText = L.tier1.clearBadge; actionText = L.tier1.clearAction;
+      }
+      banner.className = `rounded-2xl shadow-lg p-4 sm:p-5 flex items-center gap-4 transition-colors ${bannerBg}`;
+      badgeEl.className = `inline-block px-2.5 py-1 text-xs sm:text-sm font-black rounded-lg ${badgeCls}`;
+      badgeEl.innerText = badgeText;
+      iconEl.innerText = icon;
+      actionEl.innerText = actionText;
+      if (!insideCoverage || s.tier1 === 'clear') actionEl.className = "text-sm sm:text-base font-black text-slate-800 mt-1";
+
+      // --- Sky regime ---
+      const regimeMap = { drizzle: 'drizzle', stormy: 'stormy', squalls: 'squalls', showers: 'showers', gloomy: 'gloomy', partly: 'partly', bright: 'bright' };
+      const rk = regimeMap[s.regime];
+      const regimeText = {
+        drizzle: [L.regime.drizzleTitle, L.regime.drizzleDesc], stormy: [L.regime.stormyTitle, L.regime.stormyDesc],
+        squalls: [L.regime.squallsTitle, L.regime.squallsDesc], showers: [L.regime.showersTitle, L.regime.showersDesc],
+        gloomy: [L.regime.gloomyTitle, L.regime.gloomyDesc], partly: [L.regime.partlyTitle, L.regime.partlyDesc],
+        bright: [L.regime.brightTitle, L.regime.brightDesc],
+      }[rk];
+      document.getElementById('user-regime-title').innerText = regimeText[0];
+      document.getElementById('user-regime-desc').innerText = regimeText[1];
+
+      // --- Cloud layers ---
+      document.getElementById('cloud-low').innerText = `${s.cloudLow}%`;
+      document.getElementById('cloud-mid').innerText = `${s.cloudMid}%`;
+      document.getElementById('cloud-high').innerText = `${s.cloudHigh}%`;
+
+      // --- 24h rain grid ---
+      const rainGrid = document.getElementById('rain-24h-grid');
+      rainGrid.innerHTML = "";
+      s.rain24h.forEach(({ t: tStr, v: rVal }) => {
+        let bgCol = "bg-slate-100 text-slate-700";
+        if (rVal >= 10) bgCol = "bg-red-500 text-white font-black";
+        else if (rVal >= 2) bgCol = "bg-amber-400 text-slate-900 font-bold";
+        else if (rVal > 0) bgCol = "bg-sky-200 text-sky-900 font-bold";
+        rainGrid.innerHTML += `
+          <div class="${bgCol} p-1.5 rounded flex flex-col items-center">
+            <span class="opacity-75 text-[8px]">${tStr}</span>
+            <span class="text-[10px] leading-tight">${rVal.toFixed(1)}mm</span>
+          </div>`;
+      });
+
+      document.getElementById('steer-dest-val').innerText = `${s.destStr} (${s.steerDir}°)`;
+
+      // --- Sounding ---
+      document.getElementById('cape-val').innerText = `${Math.round(s.cape)} J/kg`;
+      let cI = document.getElementById('cape-interp');
+      if (s.cape < 1000) { cI.innerText = L.sky.capeLow; cI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
+      else if (s.cape < 2500) { cI.innerText = L.sky.capeMod; cI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
+      else { cI.innerText = L.sky.capeHigh; cI.className = "text-[10px] font-black text-red-600 mt-1"; }
+
+      document.getElementById('cin-val').innerText = `${Math.round(s.cin)} J/kg`;
+      let ciI = document.getElementById('cin-interp');
+      if (s.cin > -50) { ciI.innerText = L.sky.cinWeak; ciI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
+      else if (s.cin > -150) { ciI.innerText = L.sky.cinMod; ciI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else { ciI.innerText = L.sky.cinStrong; ciI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
+
+      document.getElementById('rh700-val').innerText = `${Math.round(s.rh700)}%`;
+      let rhI = document.getElementById('rh700-interp');
+      if (s.rh700 < 60) { rhI.innerText = L.sky.rhDry; rhI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else if (s.rh700 < 80) { rhI.innerText = L.sky.rhBalanced; rhI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else { rhI.innerText = L.sky.rhSaturated; rhI.className = "text-[10px] font-bold text-sky-700 mt-1"; }
+
+      document.getElementById('shear-val').innerText = `${s.bulkShearSpeed} km/h`;
+      let shI = document.getElementById('shear-interp');
+      if (s.bulkShearSpeed < 20) { shI.innerText = L.sky.shearLow; shI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
+      else if (s.bulkShearSpeed < 40) { shI.innerText = L.sky.shearMod; shI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
+      else { shI.innerText = L.sky.shearHigh; shI.className = "text-[10px] font-black text-red-600 mt-1"; }
+
+      document.getElementById('steer-speed-val').innerText = `${s.steerSpeed} km/h`;
+      let spI = document.getElementById('steer-interp');
+      if (s.steerSpeed < 10) { spI.innerText = L.sky.steerStall; spI.className = "text-[10px] font-black text-red-600 mt-1"; }
+      else if (s.steerSpeed < 30) { spI.innerText = L.sky.steerNormal; spI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else { spI.innerText = L.sky.steerFast; spI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
+
+      document.getElementById('ai-analysis-text').innerText = generateAIAnalysisText(s, lang);
+
+      // --- AC ---
+      const acBadge = document.getElementById('ac-badge');
+      document.getElementById('idx-temp').innerText = `${s.currentTemp.toFixed(1)} °C`;
+      document.getElementById('idx-hum').innerText = `${s.currentRH.toFixed(0)} %`;
+      if (s.ac === 'high') {
+        acBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-red-100 text-red-700 border border-red-200"; acBadge.innerText = L.household.ac.highBadge;
+        document.getElementById('ac-desc').innerText = L.household.ac.highDesc;
+      } else {
+        acBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; acBadge.innerText = L.household.ac.effBadge;
+        document.getElementById('ac-desc').innerText = L.household.ac.effDesc;
+      }
+
+      // --- Laundry ---
+      document.getElementById('idx-l-rain').innerText = `${s.totalRain4h.toFixed(1)} mm`;
+      document.getElementById('idx-l-cloud').innerText = `${s.avgCloud.toFixed(0)} %`;
+      document.getElementById('idx-l-hum').innerText = `${s.avgRH4h.toFixed(0)} %`;
+      const lBadge = document.getElementById('laundry-badge');
+      const LL = L.household.laundry;
+      if (s.laundry === 'raining') {
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-red-600 text-white animate-pulse"; lBadge.innerText = LL.rainingBadge;
+        document.getElementById('laundry-desc').innerText = LL.rainingDesc;
+      } else if (s.laundry === 'rainSoonUrgent' || s.laundry === 'rainSoon') {
+        lBadge.className = s.laundry === 'rainSoonUrgent' ? "px-2 py-0.5 text-[10px] font-black rounded-full bg-red-100 text-red-700 border border-red-200" : "px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-100 text-amber-800 border border-amber-200";
+        lBadge.innerText = LL.rainInBadge(s.dryHoursCount);
+        document.getElementById('laundry-desc').innerText = LL.rainInDesc(s.dryHoursCount, s.rainTimeStr);
+      } else if (s.laundry === 'excellent') {
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.excellentBadge;
+        document.getElementById('laundry-desc').innerText = LL.excellentDesc;
+      } else if (s.laundry === 'damp') {
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700 border border-slate-300"; lBadge.innerText = LL.dampBadge;
+        document.getElementById('laundry-desc').innerText = LL.dampDesc;
+      } else {
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.safeBadge;
+        document.getElementById('laundry-desc').innerText = LL.safeDesc;
+      }
+
+      // --- Garden ---
+      document.getElementById('idx-g-soil').innerText = s.currentSoil.toFixed(2);
+      document.getElementById('idx-g-et').innerText = s.currentET.toFixed(1);
+      document.getElementById('idx-g-past').innerText = `${s.past24hRain.toFixed(1)} mm`;
+      const gBadge = document.getElementById('garden-badge');
+      const GG = L.household.garden;
+      if (s.garden === 'skip') { gBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-sky-100 text-sky-800 border border-sky-200"; gBadge.innerText = GG.skipBadge; document.getElementById('garden-desc').innerText = GG.skipDesc; }
+      else if (s.garden === 'deep') { gBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-100 text-amber-800 border border-amber-200"; gBadge.innerText = GG.deepBadge; document.getElementById('garden-desc').innerText = GG.deepDesc; }
+      else { gBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; gBadge.innerText = GG.maintBadge; document.getElementById('garden-desc').innerText = GG.maintDesc; }
+
+      // --- Spray ---
+      document.getElementById('idx-s-wind').innerText = `${s.currentWind.toFixed(1)} km/h`;
+      document.getElementById('idx-s-hum').innerText = `${s.currentRH.toFixed(0)} %`;
+      document.getElementById('idx-s-rain').innerText = `${s.next6hRain.toFixed(1)} mm`;
+      const sBadge = document.getElementById('spray-badge');
+      const SS = L.household.spray;
+      if (s.spray === 'washout') { sBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-red-100 text-red-700 border border-red-200"; sBadge.innerText = SS.washoutBadge; document.getElementById('spray-desc').innerText = SS.washoutDesc; }
+      else if (s.spray === 'drift') { sBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-100 text-amber-800 border border-amber-200"; sBadge.innerText = SS.driftBadge; document.getElementById('spray-desc').innerText = SS.driftDesc; }
+      else if (s.spray === 'evap') { sBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-100 text-amber-800 border border-amber-200"; sBadge.innerText = SS.evapBadge; document.getElementById('spray-desc').innerText = SS.evapDesc; }
+      else if (s.spray === 'dilution') { sBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700 border border-slate-300"; sBadge.innerText = SS.dilutionBadge; document.getElementById('spray-desc').innerText = SS.dilutionDesc; }
+      else { sBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; sBadge.innerText = SS.optimalBadge; document.getElementById('spray-desc').innerText = SS.optimalDesc; }
+
+      // --- Kolopis hazard card ---
+      document.getElementById('kolopis-rain-adjusted').innerText = `${s.rawRain.toFixed(1)} mm/hr`;
+      document.getElementById('pond-24h').innerText = `${s.past24hRain.toFixed(1)} mm`;
+      document.getElementById('pond-tide').innerText = `${s.currentTide.toFixed(2)} m`;
+      document.getElementById('tide-forecast-peak').innerText = `${s.peakTide.toFixed(2)} m`;
+      const kBadge = document.getElementById('kolopis-badge'), kAct = document.getElementById('kolopis-action');
+      if (s.kolopis === 'tidalLock') { kBadge.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-purple-600 text-white animate-pulse"; kBadge.innerText = L.hazard.tidalLockBadge; kAct.innerText = L.hazard.tidalLockAction; }
+      else if (s.kolopis === 'ponding') { kBadge.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-red-600 text-white"; kBadge.innerText = L.hazard.pondingBadge; kAct.innerText = L.hazard.pondingAction; }
+      else { kBadge.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200"; kBadge.innerText = L.hazard.clearBadge; kAct.innerText = L.hazard.clearAction; }
+
+      // --- Sarapung hazard card ---
+      document.getElementById('sarapung-7day-val').innerText = s.sum7.toFixed(1);
+      const sP = Math.min(100, (s.sum7 / 200) * 100);
+      document.getElementById('slope-bar').style.width = `${sP}%`;
+      const sb = document.getElementById('sarapung-badge');
+      if (s.sarapung === 'highRisk') { sb.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-red-600 text-white"; sb.innerText = L.hazard.highRiskBadge; document.getElementById('sarapung-action').innerText = L.hazard.highRiskAction; }
+      else { sb.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200"; sb.innerText = L.hazard.normalBadge; document.getElementById('sarapung-action').innerText = L.hazard.normalAction; }
+
+      // --- Drought / water security ---
+      document.getElementById('drought-90d-val').innerText = s.est90;
+      document.getElementById('drought-bar').style.width = `${Math.min(100, (s.est90 / 650) * 100)}%`;
+      const db = document.getElementById('drought-badge');
+      if (s.drought === 'rationing') { db.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-red-600 text-white"; db.innerText = L.macro.rationingBadge; document.getElementById('drought-action').innerText = L.macro.rationingAction; }
+      else { db.className = "px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200"; db.innerText = L.macro.stableBadge; document.getElementById('drought-action').innerText = L.macro.stableAction; }
+
+      document.getElementById('sync-dot').classList.remove('animate-pulse');
+      document.getElementById('update-time').innerText = `${lang === 'bm' ? 'Segerak' : 'Sync'}: ${s.nowLocaleTime}`;
+    }
+
+    // ============ CHART ============
+    function renderDualChart(chartData, lang) {
+      lastChartData = chartData;
+      const { dates: dArr, rain: rainArr, temp: tempArr } = chartData;
+      if (!rainArr || !rainArr.length) return;
+      const L = i18n[lang].maps;
+      const labels = dArr.map(d => { let p = d.split('-'); return `${p[2]}-${p[1]}`; });
+      const rainCols = rainArr.map((v, i) => v >= 60 ? '#ef4444' : v >= 20 ? '#f59e0b' : i < 7 ? '#94a3b8' : '#38bdf8');
+
+      if (rainTempChartInstance) rainTempChartInstance.destroy();
+      if (typeof ChartAnnotation !== 'undefined') Chart.register(ChartAnnotation);
+
+      rainTempChartInstance = new Chart(document.getElementById('rainTempChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { type: 'line', label: L.tempLabel, data: tempArr, borderColor: '#f97316', backgroundColor: '#f97316', borderWidth: 2.5, pointRadius: 3, tension: 0.3, yAxisID: 'yTemp' },
+            { type: 'bar', label: L.rainLabel, data: rainArr, backgroundColor: rainCols, borderRadius: 4, yAxisID: 'yRain' },
+          ],
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
+            yRain: { type: 'linear', display: true, position: 'left', title: { display: true, text: L.rainLabel, font: { size: 10, weight: 'bold' }, color: '#64748b' }, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' }, suggestedMax: 100 },
+            yTemp: { type: 'linear', display: true, position: 'right', title: { display: true, text: L.tempLabel, font: { size: 10, weight: 'bold' }, color: '#f97316' }, ticks: { color: '#f97316' }, grid: { display: false } },
+          },
+          plugins: {
+            legend: { display: false },
+            annotation: {
+              annotations: {
+                line20: { type: 'line', yMin: 20, yMax: 20, yScaleID: 'yRain', borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], label: { display: true, content: L.alert20, position: 'start', backgroundColor: '#f59e0b', color: '#fff', font: { size: 9, weight: 'bold' } } },
+                line60: { type: 'line', yMin: 60, yMax: 60, yScaleID: 'yRain', borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 6], label: { display: true, content: L.flood60, position: 'center', backgroundColor: '#ef4444', color: '#fff', font: { size: 9, weight: 'bold' } } },
+                line100: { type: 'line', yMin: 100, yMax: 100, yScaleID: 'yRain', borderColor: '#7c3aed', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.extreme100, position: 'end', backgroundColor: '#7c3aed', color: '#fff', font: { size: 9, weight: 'bold' } } },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    // ============ MAIN FETCH LOOP ============
+    async function runEWS() {
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latPenampang}&longitude=${lonPenampang}&current=precipitation,temperature_2m,relative_humidity_2m&hourly=precipitation,cape,convective_inhibition,relative_humidity_700hPa,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,wind_speed_700hPa,wind_direction_700hPa,wind_speed_500hPa,wind_direction_500hPa,temperature_2m&daily=precipitation_sum,temperature_2m_max,et0_fao_evapotranspiration&past_days=7&forecast_days=7&timezone=Asia%2FSingapore`;
+      const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${latCoast}&longitude=${lonCoast}&hourly=sea_level&timezone=Asia%2FSingapore`;
+
+      let data = null, marineData = null;
+      try {
+        const wRes = await fetch(weatherUrl);
+        if (!wRes.ok) throw new Error("Weather Fetch failed");
+        data = await wRes.json();
+      } catch (err) {
+        console.error("Fetch Error:", err);
+        document.getElementById('update-time').innerText = i18n[currentLang].meta.fetchError || "Fetch Error";
+        return;
+      }
+      try {
+        const mRes = await fetch(marineUrl);
+        if (mRes.ok) marineData = await mRes.json();
+      } catch (err) { /* tide is supplementary; kolopis calc treats missing tide as 0 */ }
+
+      lastState = computeState(data, marineData);
+      render(lastState, currentLang);
+    }
+
+    // ============ FEEDBACK MODAL ============
+    function openFeedbackModal() {
+      document.getElementById('feedback-modal-overlay').classList.remove('hidden');
+      const latInput = document.getElementById('feedback-lat');
+      const lonInput = document.getElementById('feedback-lon');
+      const locateStatus = document.getElementById('feedback-locate-status');
+      locateStatus.innerText = i18n[currentLang].feedback.locating;
+      locateStatus.classList.remove('hidden');
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            latInput.value = pos.coords.latitude.toFixed(6);
+            lonInput.value = pos.coords.longitude.toFixed(6);
+            locateStatus.classList.add('hidden');
+          },
+          () => { locateStatus.innerText = i18n[currentLang].feedback.locateFailed; },
+          { timeout: 8000 }
+        );
+      } else {
+        locateStatus.innerText = i18n[currentLang].feedback.locateFailed;
+      }
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedback-modal-overlay').classList.add('hidden');
+      document.getElementById('feedback-status').innerText = '';
+      document.getElementById('feedback-form').reset();
+    }
+
+    async function submitFloodReport(e) {
+      e.preventDefault();
+      const btn = document.getElementById('feedback-submit-btn');
+      const statusEl = document.getElementById('feedback-status');
+      const L = i18n[currentLang].feedback;
+      btn.disabled = true; btn.innerText = L.submitting;
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch(FORMSPREE_ENDPOINT, { method: 'POST', body: formData, headers: { 'Accept': 'application/json' } });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        statusEl.innerText = L.success;
+        statusEl.className = "text-xs font-bold text-emerald-700";
+        e.target.reset();
+      } catch (err) {
+        console.error("Flood report submit failed:", err);
+        statusEl.innerText = L.error;
+        statusEl.className = "text-xs font-bold text-red-600";
+      } finally {
+        btn.disabled = false; btn.innerText = L.submit;
+      }
+    }
+
+    // ============ INIT ============
+    document.getElementById('tab-btn-overview').addEventListener('click', () => switchTab('overview'));
+    document.getElementById('tab-btn-deepdive').addEventListener('click', () => switchTab('deepdive'));
+    document.getElementById('lang-toggle-btn').addEventListener('click', () => setLang(currentLang === 'en' ? 'bm' : 'en'));
+    document.getElementById('feedback-fab').addEventListener('click', openFeedbackModal);
+    document.getElementById('feedback-cancel-btn').addEventListener('click', closeFeedbackModal);
+    document.getElementById('feedback-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'feedback-modal-overlay') closeFeedbackModal(); });
+    document.getElementById('feedback-form').addEventListener('submit', submitFloodReport);
+
+    applyStaticI18n(currentLang);
+    renderClimateUnavailable(currentLang);
+    runEWS();
+    checkMetMalaysiaWarning();
+    fetchMoyogLevel();
+    fetchClimateIndices();
+    checkGeofence();
+  </script>
+</body>
+</html>

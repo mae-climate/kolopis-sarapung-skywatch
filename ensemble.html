@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECMWF Ensemble Forecast | Sarapung-Kolopis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-200 p-6 font-sans min-h-screen">
+  
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-2">
+      <h2 class="text-2xl font-bold text-sky-400">ECMWF Ensemble Precipitation Forecast (Raw Grid-Cell)</h2>
+      <a href="index.html" class="text-slate-400 hover:text-white text-sm font-semibold underline">← Back to Dashboard</a>
+    </div>
+    <p class="text-sm text-slate-400 mb-6">Sarapung-Kolopis (5.925840, 116.143360) | Timezone: GMT+8</p>
+    
+    <div class="bg-slate-900 border border-slate-700 p-4 rounded-xl shadow-lg w-full h-[600px] flex items-center justify-center relative">
+      <p id="loading-text" class="absolute text-slate-400 font-semibold animate-pulse">Fetching 51-member ensemble data...</p>
+      <canvas id="ensembleChart" style="display:none;"></canvas>
+    </div>
+  </div>
+
+  <script>
+    async function fetchAndPlotEnsemble() {
+      const url = 'https://ensemble-api.open-meteo.com/v1/ensemble?latitude=5.925840&longitude=116.143360&elevation=nan&hourly=precipitation&models=ecmwf_ifs025&timezone=Asia%2FSingapore';
+      
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("API Status Error");
+        const data = await res.json();
+        
+        const hourly = data.hourly;
+        // Format to 'MM-DD HH:mm'
+        const labels = hourly.time.map(t => t.slice(5, 10) + ' ' + t.slice(11, 16));
+        
+        const datasets = [];
+        for (const key in hourly) {
+          // Loop through all 51 members
+          if (key.includes('precipitation') && key.includes('member')) {
+            datasets.push({
+              label: key,
+              data: hourly[key],
+              borderColor: 'rgba(59, 130, 246, 0.3)', // Solid Blue with 30% opacity (like alpha=0.15 in python)
+              borderWidth: 1.5,
+              pointRadius: 0,
+              fill: false,
+              tension: 0.3
+            });
+          }
+        }
+        
+        // Hide loading text, show canvas
+        document.getElementById('loading-text').style.display = 'none';
+        const canvas = document.getElementById('ensembleChart');
+        canvas.style.display = 'block';
+
+        new Chart(canvas.getContext('2d'), {
+          type: 'line',
+          data: { labels, datasets },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { 
+                ticks: { color: '#94a3b8', maxTicksLimit: 24, maxRotation: 45, minRotation: 45 },
+                grid: { color: '#1e293b' }
+              },
+              y: { 
+                title: { display: true, text: 'Precipitation (mm)', color: '#94a3b8' },
+                ticks: { color: '#94a3b8' },
+                grid: { color: '#334155' }
+              }
+            }
+          }
+        });
+      } catch (e) {
+        console.error("Ensemble API Error:", e);
+        document.getElementById('loading-text').innerText = "Failed to load ensemble data.";
+        document.getElementById('loading-text').classList.replace("text-slate-400", "text-red-400");
+      }
+    }
+    fetchAndPlotEnsemble();
+  </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "generated_utc": "2026-07-28T08:00:32Z",
+  "enso": {
+    "latest_week_ending": "2026-07-27",
+    "nino34_weekly_anomaly_c": 2.1,
+    "nino34_3mo_running_avg_c": 1.62,
+    "phase": "El Nino",
+    "strength": "Strong",
+    "note": "3-month running average used for phase/strength classification (closer to official RONI methodology than the single latest week).",
+    "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
+  },
+  "mjo": {
+    "date": "2026-07-27",
+    "rmm1": -0.38,
+    "rmm2": 1.48,
+    "phase": 4,
+    "amplitude": 1.529,
+    "active": true,
+    "impact_category": "active",
+    "impact_text": "Active wave over the Maritime Continent \u2014 favours monsoon rain bursts and storm outbreaks over Sabah.",
+    "source": "http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt"
+  }
+}

@@ -1,0 +1,6 @@
+Method: Wheeler and Hendon (2004), see BOM website for citation
+year,month,day,RMM1,RMM2,phase,amplitude,Missing Value
+2026    7    24  -0.812   1.203      3    1.451      0
+2026    7    25  -0.650   1.310      3    1.462      0
+2026    7    26  -0.510   1.402      4    1.494      0
+2026    7    27  -0.380   1.480      4    1.529      0
