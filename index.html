@@ -7,7 +7,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.2.1/dist/chartjs-plugin-annotation.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     details > summary::-webkit-details-marker { display: none; }
     .tab-btn.active { background-color: #0369a1; color: white; }
@@ -18,17 +17,6 @@
 <body class="bg-slate-100 text-slate-800 font-sans p-2 sm:p-4 md:p-6 min-h-screen pb-24">
 
   <div class="max-w-7xl mx-auto space-y-4 sm:space-y-6">
-
-    <!-- OCR Alert Banner -->
-    <div id="met-alert-banner" class="hidden bg-red-600 text-white p-4 rounded-2xl shadow-lg flex items-center gap-3 animate-bounce">
-      <span class="text-3xl">🚨</span>
-      <div>
-        <h2 data-i18n="meta.metAlertTitle" class="font-black text-base sm:text-lg tracking-wide uppercase">Official MetMalaysia Severe Warning Active</h2>
-        <p id="met-alert-text" data-i18n="meta.metAlertDefault" class="text-xs sm:text-sm mt-0.5 text-red-100">
-          Thunderstorm Warning active for Sabah / Pantai Barat. Check nowcasting immediately!
-        </p>
-      </div>
-    </div>
 
     <!-- Header -->
     <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm gap-3">
@@ -68,110 +56,12 @@
     <!-- ===================== OVERVIEW TAB ===================== -->
     <div id="tab-overview" class="tab-panel space-y-4 sm:space-y-6">
 
-      <div id="coverage-content" class="space-y-4 sm:space-y-6">
-        <!-- Official Alerts & River Level -->
-        <div>
-          <h2 data-i18n="alerts.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🚨 Official Alerts &amp; River Level</h2>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
 
-            <!-- MetMalaysia Warning -->
-            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <h3 data-i18n="alerts.metTitle" class="font-black text-slate-800 text-sm flex items-center gap-2">⛈️ MetMalaysia Alert</h3>
-                <p id="ocr-status-text" data-i18n="alerts.scanning" class="text-xs font-bold text-slate-600 mt-1">Scanning MetMalaysia images...</p>
-              </div>
-              <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" data-i18n="alerts.viewImage" class="mt-3 text-center px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-300 transition-colors shrink-0">View Image ↗</a>
-            </div>
-
-            <!-- River Telemetry -->
-            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <div class="flex justify-between items-start mb-1">
-                  <h3 data-i18n="alerts.moyogTitle" class="font-black text-slate-800 text-sm flex items-center gap-2">💧 Sg. Moyog</h3>
-                  <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="alerts.table" class="px-2 py-1 bg-sky-50 hover:bg-sky-100 text-sky-700 text-[10px] font-bold rounded-lg border border-sky-200 transition-colors shrink-0">Table ↗</a>
-                </div>
-                <p data-i18n="alerts.station" class="text-[9px] text-slate-400 font-mono">Station 26312 (Donggongon)</p>
-
-                <div class="my-2 flex items-baseline gap-1">
-                  <span id="moyog-live-val" class="text-2xl font-black text-slate-900">FETCHING...</span>
-                  <span id="moyog-live-status" class="ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-emerald-100 text-emerald-800 border border-emerald-200">SCANNING</span>
-                </div>
-              </div>
-
-              <div class="bg-slate-50 p-1.5 rounded-xl border border-slate-100 flex justify-between items-center text-center text-[9px]">
-                 <div><span class="block font-black text-emerald-600" data-i18n="alerts.thresholds.norm">NORM</span><span class="font-bold text-slate-700">4.30m</span></div>
-                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-amber-500" data-i18n="alerts.thresholds.alert">ALERT</span><span class="font-bold text-slate-700">7.00m</span></div>
-                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-orange-500" data-i18n="alerts.thresholds.warn">WARN</span><span class="font-bold text-slate-700">7.30m</span></div>
-                 <div class="border-l border-slate-200 pl-1"><span class="block font-black text-red-600" data-i18n="alerts.thresholds.danger">DANGER</span><span class="font-bold text-slate-700">8.00m</span></div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        <!-- Primary Hazards (Tier 2 — collapsed by default) -->
-        <div>
-          <h2 data-i18n="hazard.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">⚠️ Local Hazard Risk</h2>
-          <div class="space-y-3">
-
-            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
-              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 data-i18n="hazard.kolopisTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">🌊 Tidal Lock &amp; Flash Flood Risk</h3>
-                    <p id="kolopis-action" data-i18n="hazard.kolopisCalc" class="text-xs font-bold text-slate-600 mt-1">Calculating coastal tide lock...</p>
-                  </div>
-                  <span id="kolopis-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
-                </div>
-              </summary>
-              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs space-y-2">
-                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.currentTide">Current Tide Level:</span><strong id="pond-tide" class="text-slate-900">0.00 m</strong></div>
-                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.peakTide">Next 12h Peak Tide Forecast:</span><strong id="tide-forecast-peak" class="text-sky-700">0.00 m</strong></div>
-                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.rainIntensity">Current Rain Intensity:</span><strong id="kolopis-rain-adjusted" class="text-slate-900">0.0 mm/hr</strong></div>
-                <div class="flex justify-between"><span data-i18n="hazard.saturation">Ground Saturation (24h):</span><strong id="pond-24h" class="text-slate-900">0.0 mm</strong></div>
-
-                <div class="pt-2 flex justify-between items-center text-[10px]">
-                  <span data-i18n="hazard.sourceTide" class="text-slate-400 font-mono">Source: Open-Meteo Coastal API</span>
-                  <a href="https://www.windfinder.com/tide/kota_kinabalu" target="_blank" data-i18n="hazard.fullTideTable" class="font-bold text-sky-600 hover:underline">Full Tide Table ↗</a>
-                </div>
-              </div>
-            </details>
-
-            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
-              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <h3 data-i18n="hazard.sarapungTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛰️ Kg. Sarapung Slope Risk</h3>
-                    <p id="sarapung-action" data-i18n="hazard.sarapungCalc" class="text-xs font-bold text-slate-600 mt-1">Evaluating hillside soaking...</p>
-                  </div>
-                  <span id="sarapung-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
-                </div>
-              </summary>
-              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
-                <p data-i18n="hazard.soaking" class="text-slate-600 mb-1">7-Day Total Soaking Rain:</p>
-                <div class="flex items-baseline gap-2">
-                  <span id="sarapung-7day-val" class="text-2xl font-black text-slate-900">0.0</span>
-                  <span data-i18n="hazard.trigger" class="text-slate-500">/ 200 mm trigger threshold</span>
-                </div>
-                <div class="w-full bg-slate-200 rounded-full h-2.5 mt-2 overflow-hidden"><div id="slope-bar" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div></div>
-                <p data-i18n="hazard.sourceEcmwf" class="text-[9px] text-slate-400 text-right mt-2 font-mono">Source: Open-Meteo ECMWF IFS</p>
-              </div>
-            </details>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Out-of-coverage message (shown instead of coverage-content when outside geofence) -->
-      <div id="out-of-coverage-msg" class="hidden bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 sm:p-5">
-        <h3 data-i18n="coverage.msgTitle" class="font-black text-sky-800 text-sm sm:text-base">🚧 Outside the calibrated hazard area</h3>
-        <p data-i18n="coverage.msgBody" class="text-xs sm:text-sm text-sky-900 mt-2 leading-relaxed">The flood/landslide thresholds on this page are calibrated specifically for Kolopis &amp; Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips below still apply anywhere.</p>
-      </div>
-
-      <!-- Daily Household Guide (demoted, always visible) -->
-      <section>
-        <h2 data-i18n="household.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🏠 Daily Household Guide</h2>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 items-start">
+        <!-- LEFT: Daily Household Guide (2nd on mobile, left column on desktop) -->
+        <section class="order-2 lg:order-1">
+          <h2 data-i18n="household.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🏠 Daily Household Guide</h2>
+          <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
 
           <!-- LAUNDRY -->
           <details class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm group outline-none cursor-pointer hover:border-sky-300 transition-all overflow-hidden">
@@ -256,8 +146,101 @@
             </div>
           </details>
 
+          </div>
+        </section>
+
+        <!-- RIGHT: Local Hazard Risk (1st on mobile, right column on desktop) -->
+        <div class="order-1 lg:order-2 space-y-4 sm:space-y-6">
+
+          <div id="coverage-content" class="space-y-3">
+            <h2 data-i18n="hazard.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">⚠️ Local Hazard Risk</h2>
+
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 data-i18n="hazard.kolopisTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">🌊 Flash Flood Risk</h3>
+                    <p id="kolopis-action" data-i18n="hazard.kolopisCalc" class="text-xs font-bold text-slate-600 mt-1">Calculating coastal tide lock...</p>
+                  </div>
+                  <span id="kolopis-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                </div>
+              </summary>
+              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs space-y-2">
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.currentTide">Current Tide Level:</span><strong id="pond-tide" class="text-slate-900">0.00 m</strong></div>
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.peakTide">Next 12h Peak Tide Forecast:</span><strong id="tide-forecast-peak" class="text-sky-700">0.00 m</strong></div>
+                <div class="flex justify-between border-b border-slate-200 pb-1"><span data-i18n="hazard.rainIntensity">Current Rain Intensity:</span><strong id="kolopis-rain-adjusted" class="text-slate-900">0.0 mm/hr</strong></div>
+                <div class="flex justify-between"><span data-i18n="hazard.saturation">Ground Saturation (24h):</span><strong id="pond-24h" class="text-slate-900">0.0 mm</strong></div>
+
+                <div class="pt-2 flex justify-between items-center text-[10px]">
+                  <span data-i18n="hazard.sourceTide" class="text-slate-400 font-mono">Source: Open-Meteo Coastal API</span>
+                  <a href="https://www.windfinder.com/tide/kota_kinabalu" target="_blank" data-i18n="hazard.fullTideTable" class="font-bold text-sky-600 hover:underline">Full Tide Table ↗</a>
+                </div>
+              </div>
+            </details>
+
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 data-i18n="hazard.sarapungTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛰️ Kg. Sarapung Slope Risk</h3>
+                    <p id="sarapung-action" data-i18n="hazard.sarapungCalc" class="text-xs font-bold text-slate-600 mt-1">Evaluating hillside soaking...</p>
+                  </div>
+                  <span id="sarapung-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                </div>
+              </summary>
+              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
+                <p data-i18n="hazard.soaking" class="text-slate-600 mb-1">7-Day Total Soaking Rain:</p>
+                <div class="flex items-baseline gap-2">
+                  <span id="sarapung-7day-val" class="text-2xl font-black text-slate-900">0.0</span>
+                  <span data-i18n="hazard.trigger" class="text-slate-500">/ 200 mm trigger threshold</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2.5 mt-2 overflow-hidden"><div id="slope-bar" class="bg-amber-500 h-2.5 rounded-full" style="width: 0%"></div></div>
+                <p data-i18n="hazard.sourceEcmwf" class="text-[9px] text-slate-400 text-right mt-2 font-mono">Source: Open-Meteo ECMWF IFS</p>
+              </div>
+            </details>
+
+            <!-- Sg. Moyog — manual check only, no automated scraping (unreliable proxy source) -->
+            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex items-center justify-between gap-3">
+              <div>
+                <h3 data-i18n="hazard.moyogTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Sg. Moyog Water Level</h3>
+                <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+              </div>
+              <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="hazard.table" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-xl border border-sky-200 transition-colors shrink-0">Table ↗</a>
+            </div>
+
+            <!-- MetMalaysia — manual check only, no automated OCR (unreliable proxy source) -->
+            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+              <h3 data-i18n="hazard.metTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛈️ MetMalaysia Warnings</h3>
+              <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 mb-2 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+                <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                  <span data-i18n="hazard.warnThunder">⛈️ Thunderstorm</span><span>↗</span>
+                </a>
+                <a href="https://www.met.gov.my/data/AmaranHujanLebat.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                  <span data-i18n="hazard.warnRain">🌧️ Continuous Rain</span><span>↗</span>
+                </a>
+                <a href="https://www.met.gov.my/data/AmaranRibutTaufan.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                  <span data-i18n="hazard.warnCyclone">🌀 Tropical Cyclone</span><span>↗</span>
+                </a>
+                <a href="https://www.met.gov.my/data/imap-gempa-1.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                  <span data-i18n="hazard.warnQuake">🌎 Earthquake / Tsunami</span><span>↗</span>
+                </a>
+                <a href="https://www.met.gov.my/data/AmaranAnginKencangLaut.jpg" target="_blank" class="sm:col-span-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                  <span data-i18n="hazard.warnWind">🌬️ Strong Wind &amp; Rough Seas</span><span>↗</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Out-of-coverage message (shown instead of coverage-content when outside geofence) -->
+          <div id="out-of-coverage-msg" class="hidden bg-sky-50 border-2 border-sky-200 rounded-2xl p-4 sm:p-5">
+            <h3 data-i18n="coverage.msgTitle" class="font-black text-sky-800 text-sm sm:text-base">🚧 Outside the calibrated hazard area</h3>
+            <p data-i18n="coverage.msgBody" class="text-xs sm:text-sm text-sky-900 mt-2 leading-relaxed">The flood/landslide thresholds on this page are calibrated specifically for Kolopis &amp; Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips still apply anywhere.</p>
+          </div>
+
         </div>
-      </section>
+
+      </div>
     </div>
 
     <!-- ===================== DEEP DIVE TAB ===================== -->
@@ -553,14 +536,13 @@
           headerTitle: "📡 Penampang Weather & Hazard Watch",
           headerSubtitle: "Coverage: Penampang, Kg. Sarapung & Kolopis (5.925840, 116.143360)",
           syncing: "Syncing live data...",
+          fetchError: "Fetch Error",
           tabOverview: "Overview",
           tabDeepDive: "Deep Dive",
-          metAlertTitle: "Official MetMalaysia Severe Warning Active",
-          metAlertDefault: "Thunderstorm Warning active for Sabah / Pantai Barat. Check nowcasting immediately!",
         },
         tier1: {
           loadingBadge: "LOADING", loadingAction: "Assessing current hazard status...",
-          dangerBadge: "🌊 TIDAL LOCK FLOOD", dangerAction: "Heavy rain + high tide — drains blocked. Avoid low roads now.",
+          dangerBadge: "🌊 SEVERE FLOOD RISK", dangerAction: "Heavy rain + high tide — drains blocked. Avoid low roads now.",
           pondingBadge: "⚠️ PONDING RISK", pondingAction: "Intense local rain. Expect road puddling — drive carefully.",
           slopeBadge: "⛰️ SLOPE RISK", slopeAction: "Kg. Sarapung hillside soil is saturated — landslide risk.",
           clearBadge: "✅ ALL CLEAR", clearAction: "No flood or landslide risk detected right now.",
@@ -653,25 +635,10 @@
           stable: "The atmosphere is stable right now. Rain is unlikely to be violent. ",
           stalling: (s) => `Sluggish steering winds (${s} km/h) mean rain clouds will stall directly overhead, elevating flash flood risks.`,
         },
-        alerts: {
-          heading: "🚨 Official Alerts & River Level",
-          metTitle: "⛈️ MetMalaysia Alert", scanning: "Scanning MetMalaysia images...",
-          station: "Station 26312 (Donggongon)",
-          noWarning: "✅ No Thunderstorm Warning Issued",
-          warningActive: "🚨 Sabah Thunderstorm Warning Active!",
-          warningOther: "ℹ️ Warning active for other states",
-          unavailable: "⚠️ Could not scan MetMalaysia image — data unavailable. Check the official image directly.",
-          viewImage: "View Image ↗",
-          moyogTitle: "💧 Sg. Moyog", table: "Table ↗",
-          fetching: "FETCHING...", scanningBadge: "SCANNING",
-          danger: "DANGER", warning: "WARNING", alert: "ALERT", normal: "NORMAL", unavailableBadge: "⚠ UNAVAILABLE",
-          unavailableVal: "—",
-          thresholds: { norm: "NORM", alert: "ALERT", warn: "WARN", danger: "DANGER" },
-        },
         hazard: {
           heading: "⚠️ Local Hazard Risk",
-          kolopisTitle: "🌊 Tidal Lock & Flash Flood Risk", kolopisCalc: "Calculating coastal tide lock...",
-          tidalLockBadge: "TIDAL LOCK FLOOD", tidalLockAction: "Heavy rain + High Tide. Drains blocked. Avoid low roads.",
+          kolopisTitle: "🌊 Flash Flood Risk", kolopisCalc: "Calculating coastal tide lock...",
+          tidalLockBadge: "SEVERE FLOOD RISK", tidalLockAction: "Heavy rain + High Tide. Drains blocked. Avoid low roads.",
           pondingBadge: "PONDING RISK", pondingAction: "Intense local rain. Expect road puddling.",
           clearBadge: "CLEAR", clearAction: "Road drains functioning normally.",
           currentTide: "Current Tide Level:", peakTide: "Next 12h Peak Tide Forecast:", rainIntensity: "Current Rain Intensity:", saturation: "Ground Saturation (24h):",
@@ -680,6 +647,11 @@
           highRiskBadge: "HIGH RISK", highRiskAction: "Soil is completely saturated.",
           normalBadge: "NORMAL", normalAction: "Slope stability normal.",
           soaking: "7-Day Total Soaking Rain:", trigger: "/ 200 mm trigger threshold", sourceEcmwf: "Source: Open-Meteo ECMWF IFS",
+          moyogTitle: "💧 Sg. Moyog Water Level", table: "Table ↗",
+          checkManually: "Check manually",
+          metTitle: "⛈️ MetMalaysia Warnings",
+          warnThunder: "⛈️ Thunderstorm", warnRain: "🌧️ Continuous Rain", warnCyclone: "🌀 Tropical Cyclone",
+          warnQuake: "🌎 Earthquake / Tsunami", warnWind: "🌬️ Strong Wind & Rough Seas",
         },
         macro: {
           heading: "🌍 Macro-Climate Drivers",
@@ -741,14 +713,13 @@
           headerTitle: "📡 Pemantau Cuaca & Bencana Penampang",
           headerSubtitle: "Liputan: Penampang, Kg. Sarapung & Kolopis (5.925840, 116.143360)",
           syncing: "Menyegerak data langsung...",
+          fetchError: "Ralat Mengambil Data",
           tabOverview: "Ringkasan",
           tabDeepDive: "Kajian Mendalam",
-          metAlertTitle: "Amaran Rasmi MetMalaysia Aktif",
-          metAlertDefault: "Amaran ribut petir aktif untuk Sabah / Pantai Barat. Semak nowcasting segera!",
         },
         tier1: {
           loadingBadge: "MEMUAT", loadingAction: "Menilai status bencana semasa...",
-          dangerBadge: "🌊 BANJIR KUNCI PASANG SURUT", dangerAction: "Hujan lebat + air pasang tinggi — perparitan tersumbat. Elakkan jalan rendah sekarang.",
+          dangerBadge: "🌊 RISIKO BANJIR TERUK", dangerAction: "Hujan lebat + air pasang tinggi — perparitan tersumbat. Elakkan jalan rendah sekarang.",
           pondingBadge: "⚠️ RISIKO TAKUNGAN AIR", pondingAction: "Hujan lebat setempat. Jangkakan jalan bertakung — pandu dengan berhati-hati.",
           slopeBadge: "⛰️ RISIKO CERUN", slopeAction: "Tanah cerun Kg. Sarapung sudah tepu air — risiko tanah runtuh.",
           clearBadge: "✅ SELAMAT", clearAction: "Tiada risiko banjir atau tanah runtuh dikesan sekarang.",
@@ -841,25 +812,10 @@
           stable: "Atmosfera stabil sekarang. Hujan tidak dijangka ganas. ",
           stalling: (s) => `Angin kemudi perlahan (${s} km/j) bermakna awan hujan akan terhenti di atas kawasan ini, meningkatkan risiko banjir kilat.`,
         },
-        alerts: {
-          heading: "🚨 Amaran Rasmi & Paras Sungai",
-          metTitle: "⛈️ Amaran MetMalaysia", scanning: "Mengimbas imej MetMalaysia...",
-          station: "Stesen 26312 (Donggongon)",
-          noWarning: "✅ Tiada Amaran Ribut Petir Dikeluarkan",
-          warningActive: "🚨 Amaran Ribut Petir Sabah Aktif!",
-          warningOther: "ℹ️ Amaran aktif untuk negeri lain",
-          unavailable: "⚠️ Tidak dapat mengimbas imej MetMalaysia — data tidak tersedia. Semak imej rasmi terus.",
-          viewImage: "Lihat Imej ↗",
-          moyogTitle: "💧 Sg. Moyog", table: "Jadual ↗",
-          fetching: "MEMUAT...", scanningBadge: "MENGIMBAS",
-          danger: "BAHAYA", warning: "AMARAN", alert: "AWAS", normal: "NORMAL", unavailableBadge: "⚠ TIDAK TERSEDIA",
-          unavailableVal: "—",
-          thresholds: { norm: "NORM", alert: "AWAS", warn: "AMARAN", danger: "BAHAYA" },
-        },
         hazard: {
           heading: "⚠️ Risiko Bencana Setempat",
-          kolopisTitle: "🌊 Risiko Kunci Pasang Surut & Banjir Kilat", kolopisCalc: "Mengira kunci pasang surut pantai...",
-          tidalLockBadge: "BANJIR KUNCI PASANG", tidalLockAction: "Hujan lebat + Air Pasang Tinggi. Perparitan tersumbat. Elakkan jalan rendah.",
+          kolopisTitle: "🌊 Risiko Banjir Kilat", kolopisCalc: "Mengira kunci pasang surut pantai...",
+          tidalLockBadge: "RISIKO BANJIR TERUK", tidalLockAction: "Hujan lebat + Air Pasang Tinggi. Perparitan tersumbat. Elakkan jalan rendah.",
           pondingBadge: "RISIKO TAKUNGAN", pondingAction: "Hujan lebat setempat. Jangkakan jalan bertakung.",
           clearBadge: "SELAMAT", clearAction: "Perparitan jalan berfungsi normal.",
           currentTide: "Paras Air Pasang Semasa:", peakTide: "Ramalan Puncak Pasang 12 Jam:", rainIntensity: "Keamatan Hujan Semasa:", saturation: "Ketepuan Tanah (24j):",
@@ -868,6 +824,11 @@
           highRiskBadge: "RISIKO TINGGI", highRiskAction: "Tanah sudah tepu sepenuhnya.",
           normalBadge: "NORMAL", normalAction: "Kestabilan cerun normal.",
           soaking: "Jumlah Hujan Rendaman 7-Hari:", trigger: "/ ambang cetusan 200 mm", sourceEcmwf: "Sumber: Open-Meteo ECMWF IFS",
+          moyogTitle: "💧 Paras Air Sg. Moyog", table: "Jadual ↗",
+          checkManually: "Semak secara manual",
+          metTitle: "⛈️ Amaran MetMalaysia",
+          warnThunder: "⛈️ Ribut Petir", warnRain: "🌧️ Hujan Berterusan", warnCyclone: "🌀 Ribut Taufan Tropika",
+          warnQuake: "🌎 Gempa Bumi / Tsunami", warnWind: "🌬️ Angin Kencang & Laut Bergelora",
         },
         macro: {
           heading: "🌍 Penggerak Iklim Makro",
@@ -1002,85 +963,10 @@
       );
     }
 
-    // ============ MetMalaysia OCR (Known Issue 2: honest failure state) ============
-    async function checkMetMalaysiaWarning() {
-      const banner = document.getElementById('met-alert-banner');
-      const ocrStatusText = document.getElementById('ocr-status-text');
-      try {
-        const targetUrl = "https://www.met.gov.my/data/AmaranRibutPetir.jpg";
-        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(targetUrl);
-        const worker = await Tesseract.createWorker('eng');
-        const ret = await worker.recognize(proxyUrl);
-        const text = ret.data.text.toLowerCase();
-        await worker.terminate();
-
-        if (text.includes("tiada amaran")) {
-          ocrStatusText.innerText = i18n[currentLang].alerts.noWarning;
-          ocrStatusText.className = "text-xs font-bold text-emerald-700 mt-1";
-        } else if (text.includes("pantai barat") || text.includes("sabah") || text.includes("penampang")) {
-          banner.classList.remove('hidden');
-          ocrStatusText.innerText = i18n[currentLang].alerts.warningActive;
-          ocrStatusText.className = "text-xs font-black text-red-600 mt-1 animate-pulse";
-        } else {
-          ocrStatusText.innerText = i18n[currentLang].alerts.warningOther;
-          ocrStatusText.className = "text-xs font-bold text-amber-600 mt-1";
-        }
-      } catch (err) {
-        console.error("MetMalaysia OCR failed:", err);
-        ocrStatusText.innerText = i18n[currentLang].alerts.unavailable;
-        ocrStatusText.className = "text-xs font-black text-amber-700 mt-1";
-      }
-    }
-
-    // ============ Moyog River Telemetry (Known Issue 2: honest failure state) ============
-    async function fetchMoyogLevel() {
-      const liveVal = document.getElementById('moyog-live-val');
-      const liveStatus = document.getElementById('moyog-live-status');
-      try {
-        const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent("https://infobanjir.sabah.gov.my/WaterLevel/District/13");
-        const res = await fetch(proxyUrl);
-        const htmlString = await res.text();
-
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(htmlString, 'text/html');
-        let waterLevel = null;
-        const rows = doc.querySelectorAll('tr');
-
-        for (let row of rows) {
-            if (row.innerText.includes('Moyog') || row.innerText.includes('Penampang')) {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 8) {
-                    let potentialLevel = parseFloat(cells[7].innerText.trim());
-                    if (!isNaN(potentialLevel) && potentialLevel > 0 && potentialLevel < 20) {
-                        waterLevel = potentialLevel.toFixed(2);
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (waterLevel) {
-          liveVal.innerText = `${waterLevel} m`;
-          let level = parseFloat(waterLevel);
-          if (level >= 8.0) {
-            liveStatus.innerText = i18n[currentLang].alerts.danger; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-red-600 text-white animate-pulse";
-          } else if (level >= 7.30) {
-            liveStatus.innerText = i18n[currentLang].alerts.warning; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-orange-500 text-white";
-          } else if (level >= 7.00) {
-            liveStatus.innerText = i18n[currentLang].alerts.alert; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-400 text-slate-900";
-          } else {
-            liveStatus.innerText = i18n[currentLang].alerts.normal; liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-emerald-100 text-emerald-800 border border-emerald-200";
-          }
-        } else {
-          throw new Error("Parse Error");
-        }
-      } catch (err) {
-        console.error("Moyog fetch failed:", err);
-        liveVal.innerText = i18n[currentLang].alerts.unavailableVal;
-        liveStatus.innerText = i18n[currentLang].alerts.unavailableBadge;
-        liveStatus.className = "ml-1 px-1.5 py-0.5 text-[10px] font-black rounded bg-amber-100 text-amber-800 border border-amber-300";
-      }
-    }
+    // NOTE: MetMalaysia warning OCR and Moyog river-level scraping were removed —
+    // both depended on a public CORS proxy (api.allorigins.win) that was too
+    // unreliable to trust for a safety tool. Those cards now link straight to the
+    // official sources for a manual check instead of showing a live-but-flaky value.
 
     // ============ Climate indices (Known Issue 1: dynamic ENSO/MJO) ============
     async function fetchClimateIndices() {
@@ -1626,8 +1512,6 @@
     applyStaticI18n(currentLang);
     renderClimateUnavailable(currentLang);
     runEWS();
-    checkMetMalaysiaWarning();
-    fetchMoyogLevel();
     fetchClimateIndices();
     checkGeofence();
   </script>
