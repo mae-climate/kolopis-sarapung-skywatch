@@ -563,9 +563,9 @@
             rainingBadge: "RAINING NOW", rainingDesc: "🌧️ Take in laundry immediately!",
             rainInBadge: (h) => `RAIN IN ~${h}H`,
             rainInDesc: (h, t) => `⏳ Safe window: ~${h} hrs (rain expected ~${t}).`,
-            excellentBadge: "EXCELLENT", excellentDesc: "Fast drying! Sunny & dry air window.",
-            dampBadge: "DAMP AIR", dampDesc: "High air humidity (clothes dry slowly).",
-            safeBadge: "SAFE (12H+)", safeDesc: "12+ dry hours expected. Safe to hang clothes.",
+            excellentBadge: (h) => `EXCELLENT (${h}H+)`, excellentDesc: (h) => `Fast drying! Sunny & dry air window for at least ${h}h.`,
+            dampBadge: (h) => `DAMP AIR (${h}H+)`, dampDesc: (h) => `No rain for at least ${h}h, but high air humidity means clothes dry slowly.`,
+            safeBadge: (h) => `SAFE (${h}H+)`, safeDesc: (h) => `${h}+ dry hours expected. Safe to hang clothes.`,
             rain4h: "4-Hour Rain Total:", cloud: "Cloud Cover:", humidity: "Air Humidity:", source: "Source: ECMWF 9km Model",
           },
           ac: {
@@ -740,9 +740,9 @@
             rainingBadge: "HUJAN SEKARANG", rainingDesc: "🌧️ Angkat pakaian segera!",
             rainInBadge: (h) => `HUJAN ~${h}J LAGI`,
             rainInDesc: (h, t) => `⏳ Tempoh selamat: ~${h} jam (hujan dijangka ~${t}).`,
-            excellentBadge: "CEMERLANG", excellentDesc: "Cepat kering! Tempoh cerah & udara kering.",
-            dampBadge: "UDARA LEMBAP", dampDesc: "Kelembapan udara tinggi (pakaian kering perlahan).",
-            safeBadge: "SELAMAT (12J+)", safeDesc: "12+ jam kering dijangka. Selamat untuk menyidai.",
+            excellentBadge: (h) => `CEMERLANG (${h}J+)`, excellentDesc: (h) => `Cepat kering! Tempoh cerah & udara kering sekurang-kurangnya ${h} jam.`,
+            dampBadge: (h) => `UDARA LEMBAP (${h}J+)`, dampDesc: (h) => `Tiada hujan sekurang-kurangnya ${h} jam, tetapi kelembapan udara tinggi menyebabkan pakaian kering perlahan.`,
+            safeBadge: (h) => `SELAMAT (${h}J+)`, safeDesc: (h) => `${h}+ jam kering dijangka. Selamat untuk menyidai.`,
             rain4h: "Jumlah Hujan 4-Jam:", cloud: "Litupan Awan:", humidity: "Kelembapan Udara:", source: "Sumber: Model ECMWF 9km",
           },
           ac: {
@@ -1112,8 +1112,12 @@
       let totalRain4h = 0; for (let i = 0; i < 4; i++) totalRain4h += data.hourly?.precipitation?.[currIdx + i] ?? 0;
       s.avgRH4h = avgRH4h; s.totalRain4h = totalRain4h;
 
+      // Look ahead 24h (matches the 24-Hour Rain Forecast grid elsewhere) rather than
+      // capping at 12h — a fixed 12h search meant rain arriving at, say, hour 18 was
+      // invisible to this check and laundry got falsely marked "safe".
+      const LAUNDRY_LOOKAHEAD_H = 24;
       let dryHoursCount = 0, rainFound = false;
-      for (let h = 0; h < 12; h++) {
+      for (let h = 0; h < LAUNDRY_LOOKAHEAD_H; h++) {
         let pVal = data.hourly?.precipitation?.[currIdx + h] ?? 0;
         if (pVal >= 0.2) { rainFound = true; break; }
         dryHoursCount++;
@@ -1322,14 +1326,14 @@
         lBadge.innerText = LL.rainInBadge(s.dryHoursCount);
         document.getElementById('laundry-desc').innerText = LL.rainInDesc(s.dryHoursCount, s.rainTimeStr);
       } else if (s.laundry === 'excellent') {
-        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.excellentBadge;
-        document.getElementById('laundry-desc').innerText = LL.excellentDesc;
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.excellentBadge(s.dryHoursCount);
+        document.getElementById('laundry-desc').innerText = LL.excellentDesc(s.dryHoursCount);
       } else if (s.laundry === 'damp') {
-        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700 border border-slate-300"; lBadge.innerText = LL.dampBadge;
-        document.getElementById('laundry-desc').innerText = LL.dampDesc;
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700 border border-slate-300"; lBadge.innerText = LL.dampBadge(s.dryHoursCount);
+        document.getElementById('laundry-desc').innerText = LL.dampDesc(s.dryHoursCount);
       } else {
-        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.safeBadge;
-        document.getElementById('laundry-desc').innerText = LL.safeDesc;
+        lBadge.className = "px-2 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200"; lBadge.innerText = LL.safeBadge(s.dryHoursCount);
+        document.getElementById('laundry-desc').innerText = LL.safeDesc(s.dryHoursCount);
       }
 
       // --- Garden ---
@@ -1381,6 +1385,8 @@
 
       document.getElementById('sync-dot').classList.remove('animate-pulse');
       document.getElementById('update-time').innerText = `${lang === 'bm' ? 'Segerak' : 'Sync'}: ${s.nowLocaleTime}`;
+
+      renderDualChart(s.chart, lang);
     }
 
     // ============ CHART ============
