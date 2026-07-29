@@ -5868,6 +5868,10 @@
   },
   "today_in_history": {
     "date": "2025-07-29",
+    "enso_phase": {
+      "phase": "neutral",
+      "season_label": "Jun-Aug"
+    },
     "rain": {
       "actual_mm": 15.23,
       "vs_30yr": {
@@ -5905,6 +5909,8 @@
     },
     "temp": {
       "actual_c": 28.5,
+      "actual_min_c": 25.0,
+      "actual_max_c": 32.2,
       "vs_30yr": {
         "actual": 28.5,
         "normal": 26.6,
@@ -5937,6 +5943,350 @@
         "n_years": 18,
         "low_confidence": false
       }
-    }
+    },
+    "years": [
+      {
+        "year": 1996,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 26.8
+      },
+      {
+        "year": 1997,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 11.8,
+        "temp_c": 25.9
+      },
+      {
+        "year": 1998,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 25.3
+      },
+      {
+        "year": 1999,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 26.9
+      },
+      {
+        "year": 2000,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 26.0
+      },
+      {
+        "year": 2001,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 5.0,
+        "temp_c": 26.8
+      },
+      {
+        "year": 2002,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 27.4
+      },
+      {
+        "year": 2003,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 26.6
+      },
+      {
+        "year": 2004,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 22.0,
+        "temp_c": 25.3
+      },
+      {
+        "year": 2005,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 27.1
+      },
+      {
+        "year": 2006,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 7.3,
+        "temp_c": 26.2
+      },
+      {
+        "year": 2007,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 8.4,
+        "temp_c": 25.8
+      },
+      {
+        "year": 2008,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 12.0,
+        "temp_c": 26.8
+      },
+      {
+        "year": 2009,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 11.9,
+        "temp_c": 26.2
+      },
+      {
+        "year": 2010,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 19.9,
+        "temp_c": 25.3
+      },
+      {
+        "year": 2011,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Aug"
+          },
+          {
+            "phase": "la_nina",
+            "season_label": "Jul-Sep"
+          }
+        ],
+        "rain_mm": 3.2,
+        "temp_c": 26.8
+      },
+      {
+        "year": 2012,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 25.9
+      },
+      {
+        "year": 2013,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 13.4,
+        "temp_c": 26.6
+      },
+      {
+        "year": 2014,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 5.6,
+        "temp_c": 26.4
+      },
+      {
+        "year": 2015,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 25.5
+      },
+      {
+        "year": 2016,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Aug"
+          },
+          {
+            "phase": "la_nina",
+            "season_label": "Jul-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 25.6
+      },
+      {
+        "year": 2017,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 26.8,
+        "temp_c": 28.0
+      },
+      {
+        "year": 2018,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 3.5,
+        "temp_c": 26.9
+      },
+      {
+        "year": 2019,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 26.4,
+        "temp_c": 26.6
+      },
+      {
+        "year": 2020,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Aug"
+          },
+          {
+            "phase": "la_nina",
+            "season_label": "Jul-Sep"
+          }
+        ],
+        "rain_mm": 10.8,
+        "temp_c": 25.4
+      },
+      {
+        "year": 2021,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 3.7,
+        "temp_c": 28.1
+      },
+      {
+        "year": 2022,
+        "phases": [
+          {
+            "phase": "la_nina",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 17.7,
+        "temp_c": 26.8
+      },
+      {
+        "year": 2023,
+        "phases": [
+          {
+            "phase": "el_nino",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 28.0
+      },
+      {
+        "year": 2024,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 0.0,
+        "temp_c": 27.6
+      },
+      {
+        "year": 2025,
+        "phases": [
+          {
+            "phase": "neutral",
+            "season_label": "Jun-Sep"
+          }
+        ],
+        "rain_mm": 15.2,
+        "temp_c": 28.5
+      }
+    ]
   }
 }
