@@ -12,6 +12,8 @@
     .tab-btn.active { background-color: #0369a1; color: white; }
     .tab-btn:not(.active) { background-color: white; color: #475569; }
     .tab-panel.hidden { display: none; }
+    .chart-tab-btn.active { background-color: #0369a1; color: white; border-color: #0369a1; }
+    .chart-tab-btn:not(.active) { background-color: white; color: #64748b; border-color: #e2e8f0; }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans p-2 sm:p-4 md:p-6 min-h-screen pb-24">
@@ -50,7 +52,8 @@
     <!-- TAB BAR -->
     <div class="flex gap-2">
       <button id="tab-btn-overview" class="tab-btn active flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-sky-700 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabOverview">Overview</button>
-      <button id="tab-btn-deepdive" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabDeepDive">Deep Dive</button>
+      <button id="tab-btn-atmprofile" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabAtmProfile">Atm Profile</button>
+      <button id="tab-btn-14day" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tab14Day">14-Day Outlook</button>
     </div>
 
     <!-- ===================== OVERVIEW TAB ===================== -->
@@ -147,6 +150,31 @@
           </details>
 
           </div>
+
+          <!-- MetMalaysia — manual check only, no automated OCR (unreliable proxy source).
+               National warning links, not geofence-specific -- always visible. -->
+          <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm mt-4">
+            <h3 data-i18n="hazard.metTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛈️ MetMalaysia Warnings</h3>
+            <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 mb-2 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+              <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                <span data-i18n="hazard.warnThunder">⛈️ Thunderstorm</span><span>↗</span>
+              </a>
+              <a href="https://www.met.gov.my/data/AmaranHujanLebat.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                <span data-i18n="hazard.warnRain">🌧️ Continuous Rain</span><span>↗</span>
+              </a>
+              <a href="https://www.met.gov.my/data/AmaranRibutTaufan.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                <span data-i18n="hazard.warnCyclone">🌀 Tropical Cyclone</span><span>↗</span>
+              </a>
+              <a href="https://www.met.gov.my/data/imap-gempa-1.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                <span data-i18n="hazard.warnQuake">🌎 Earthquake / Tsunami</span><span>↗</span>
+              </a>
+              <a href="https://www.met.gov.my/data/AmaranAnginKencangLaut.jpg" target="_blank" class="sm:col-span-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+                <span data-i18n="hazard.warnWind">🌬️ Strong Wind &amp; Rough Seas</span><span>↗</span>
+              </a>
+            </div>
+          </div>
+
         </section>
 
         <!-- RIGHT: Local Hazard Risk (1st on mobile, right column on desktop) -->
@@ -207,29 +235,6 @@
               </div>
               <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="hazard.table" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-xl border border-sky-200 transition-colors shrink-0">Table ↗</a>
             </div>
-
-            <!-- MetMalaysia — manual check only, no automated OCR (unreliable proxy source) -->
-            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
-              <h3 data-i18n="hazard.metTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛈️ MetMalaysia Warnings</h3>
-              <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 mb-2 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                  <span data-i18n="hazard.warnThunder">⛈️ Thunderstorm</span><span>↗</span>
-                </a>
-                <a href="https://www.met.gov.my/data/AmaranHujanLebat.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                  <span data-i18n="hazard.warnRain">🌧️ Continuous Rain</span><span>↗</span>
-                </a>
-                <a href="https://www.met.gov.my/data/AmaranRibutTaufan.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                  <span data-i18n="hazard.warnCyclone">🌀 Tropical Cyclone</span><span>↗</span>
-                </a>
-                <a href="https://www.met.gov.my/data/imap-gempa-1.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                  <span data-i18n="hazard.warnQuake">🌎 Earthquake / Tsunami</span><span>↗</span>
-                </a>
-                <a href="https://www.met.gov.my/data/AmaranAnginKencangLaut.jpg" target="_blank" class="sm:col-span-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                  <span data-i18n="hazard.warnWind">🌬️ Strong Wind &amp; Rough Seas</span><span>↗</span>
-                </a>
-              </div>
-            </div>
           </div>
 
           <!-- Out-of-coverage message (shown instead of coverage-content when outside geofence) -->
@@ -238,106 +243,7 @@
             <p data-i18n="coverage.msgBody" class="text-xs sm:text-sm text-sky-900 mt-2 leading-relaxed">The flood/landslide thresholds on this page are calibrated specifically for Kolopis &amp; Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips still apply anywhere.</p>
           </div>
 
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ===================== DEEP DIVE TAB ===================== -->
-    <div id="tab-deepdive" class="tab-panel hidden space-y-4 sm:space-y-6">
-
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
-
-        <!-- Sky & Atmosphere -->
-        <div class="space-y-5">
-          <div>
-            <h2 data-i18n="sky.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">☁️ Sky &amp; Atmosphere Profile</h2>
-            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none" open>
-              <summary class="list-none p-4 sm:p-5 cursor-pointer flex justify-between items-start hover:bg-slate-50">
-                <div>
-                  <h3 id="user-regime-title" class="text-base sm:text-lg font-black text-amber-600">Analyzing Sky...</h3>
-                  <p id="user-regime-desc" class="text-xs sm:text-sm text-slate-600 font-bold mt-1">Fetching conditions...</p>
-                </div>
-                <span data-i18n="sky.tapData" class="text-xs font-bold text-sky-600 border border-sky-200 px-2 py-1 rounded-lg bg-sky-50 shrink-0">Tap for Data ▼</span>
-              </summary>
-
-              <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-4">
-
-                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm space-y-2">
-                  <span data-i18n="sky.rain24h" class="text-slate-500 font-bold text-[10px] uppercase tracking-wide">🌧️ 24-Hour Rain Forecast (3-Hour Intervals)</span>
-                  <div id="rain-24h-grid" class="grid grid-cols-4 sm:grid-cols-8 gap-1 text-center text-[10px]">
-                    <div class="p-1 bg-slate-50 rounded" data-i18n="sky.loading">Loading...</div>
-                  </div>
-                </div>
-
-                <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between text-center items-center shadow-sm">
-                   <div class="w-1/3">
-                      <p data-i18n="sky.lowClouds" class="text-[10px] font-black text-slate-400">LOW CLOUDS</p>
-                      <p class="text-base font-black text-slate-800" id="cloud-low">--%</p>
-                      <p data-i18n="sky.lowCloudsSub" class="text-[9px] text-slate-500">Low gloom/drizzle</p>
-                   </div>
-                   <div class="w-1/3 border-l border-slate-200">
-                      <p data-i18n="sky.midClouds" class="text-[10px] font-black text-slate-400">MID CLOUDS</p>
-                      <p class="text-base font-black text-slate-800" id="cloud-mid">--%</p>
-                      <p data-i18n="sky.midCloudsSub" class="text-[9px] text-slate-500">3km high</p>
-                   </div>
-                   <div class="w-1/3 border-l border-slate-200">
-                      <p data-i18n="sky.highClouds" class="text-[10px] font-black text-slate-400">HIGH CLOUDS</p>
-                      <p class="text-base font-black text-slate-800" id="cloud-high">--%</p>
-                      <p data-i18n="sky.highCloudsSub" class="text-[9px] text-slate-500">Thin wisps</p>
-                   </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
-                    <span data-i18n="sky.cape" class="text-slate-500 font-bold text-[10px]">THUNDERSTORM FUEL (CAPE)</span>
-                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cape-val">-- J/kg</p>
-                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cape-interp">Calculating...</p>
-                    <p data-i18n="sky.capeRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;1000 | Mod: 1000-2500 | High: &gt;2500</p>
-                  </div>
-
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
-                    <span data-i18n="sky.cin" class="text-slate-500 font-bold text-[10px]">ATMOSPHERIC LID (CIN)</span>
-                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cin-val">-- J/kg</p>
-                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cin-interp">Calculating...</p>
-                    <p data-i18n="sky.cinRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Weak Cap: &gt; -50 | Strong Lid: &lt; -150</p>
-                  </div>
-
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
-                    <span data-i18n="sky.rh700" class="text-slate-500 font-bold text-[10px]">MID-SKY MOISTURE (3KM HIGH)</span>
-                    <p class="text-sm font-black text-slate-800 mt-0.5" id="rh700-val">--%</p>
-                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="rh700-interp">Calculating...</p>
-                    <p data-i18n="sky.rh700Range" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Dry: &lt;60% | Normal: 60-80% | Heavy Rain: &gt;80%</p>
-                  </div>
-
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
-                    <span data-i18n="sky.shear" class="text-slate-500 font-bold text-[10px]">WIND SHEAR (ORGANIZATION)</span>
-                    <p class="text-sm font-black text-sky-700 mt-0.5" id="shear-val">-- km/h</p>
-                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="shear-interp">Calculating...</p>
-                    <p data-i18n="sky.shearRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;20 | Mod: 20-40 | High: &gt;40 km/h</p>
-                  </div>
-
-                  <div class="bg-white p-3 rounded-xl border border-slate-200 sm:col-span-2">
-                    <span class="text-slate-500 font-bold text-[10px] flex justify-between"><span data-i18n="sky.storm">STORM MOVEMENT</span> <span data-i18n="sky.upperWinds" class="text-amber-600">Upper Winds (1.5 - 5.5km)</span></span>
-                    <p class="text-sm font-black text-sky-700 mt-0.5"><span id="steer-speed-val">-- km/h</span> | <span data-i18n="sky.movingToward">Moving toward:</span> <strong id="steer-dest-val" class="text-slate-900">--</strong></p>
-                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="steer-interp">Calculating...</p>
-                  </div>
-                </div>
-
-                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
-                  <span data-i18n="sky.aiHeading" class="font-black text-indigo-900 text-xs flex items-center gap-1 mb-1">🤖 AI Thermodynamic Assessment</span>
-                  <p id="ai-analysis-text" data-i18n="sky.aiWaiting" class="text-xs text-indigo-950 font-medium leading-relaxed">Waiting for data...</p>
-                </div>
-                <p data-i18n="sky.sourceEcmwf" class="text-[9px] text-slate-400 text-right font-mono">Source: Open-Meteo ECMWF IFS (9km Grid Resolution)</p>
-              </div>
-            </details>
-          </div>
-        </div>
-
-        <!-- Macro Climate -->
-        <div class="space-y-5">
-
+          <!-- Macro Climate Drivers (regional, not geofence-specific -- stays visible either way) -->
           <div>
             <h2 data-i18n="macro.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🌍 Macro-Climate Drivers</h2>
             <div class="space-y-3">
@@ -422,10 +328,171 @@
         </div>
 
       </div>
+    </div>
 
-      <!-- SPATIAL MAPS & DUAL AXIS TIMELINE -->
+    <!-- ===================== DEEP DIVE TAB ===================== -->
+    <div id="tab-atmprofile" class="tab-panel hidden space-y-4 sm:space-y-6">
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+        <!-- Sky & Atmosphere -->
+        <div class="space-y-5">
+          <div>
+            <h2 data-i18n="sky.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">☁️ Sky &amp; Atmosphere Profile</h2>
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none" open>
+              <summary class="list-none p-4 sm:p-5 cursor-pointer flex justify-between items-start hover:bg-slate-50">
+                <div>
+                  <h3 id="user-regime-title" class="text-base sm:text-lg font-black text-amber-600">Analyzing Sky...</h3>
+                  <p id="user-regime-desc" class="text-xs sm:text-sm text-slate-600 font-bold mt-1">Fetching conditions...</p>
+                </div>
+                <span data-i18n="sky.tapData" class="text-xs font-bold text-sky-600 border border-sky-200 px-2 py-1 rounded-lg bg-sky-50 shrink-0">Tap for Data ▼</span>
+              </summary>
+
+              <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-4">
+
+                <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between text-center items-center shadow-sm">
+                   <div class="w-1/3">
+                      <p data-i18n="sky.lowClouds" class="text-[10px] font-black text-slate-400">LOW CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-low">--%</p>
+                      <p data-i18n="sky.lowCloudsSub" class="text-[9px] text-slate-500">Low gloom/drizzle</p>
+                   </div>
+                   <div class="w-1/3 border-l border-slate-200">
+                      <p data-i18n="sky.midClouds" class="text-[10px] font-black text-slate-400">MID CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-mid">--%</p>
+                      <p data-i18n="sky.midCloudsSub" class="text-[9px] text-slate-500">3km high</p>
+                   </div>
+                   <div class="w-1/3 border-l border-slate-200">
+                      <p data-i18n="sky.highClouds" class="text-[10px] font-black text-slate-400">HIGH CLOUDS</p>
+                      <p class="text-base font-black text-slate-800" id="cloud-high">--%</p>
+                      <p data-i18n="sky.highCloudsSub" class="text-[9px] text-slate-500">Thin wisps</p>
+                   </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.cape" class="text-slate-500 font-bold text-[10px]">THUNDERSTORM FUEL (CAPE)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cape-val">-- J/kg</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cape-interp">Calculating...</p>
+                    <p data-i18n="sky.capeRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;1000 | Mod: 1000-2500 | High: &gt;2500</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.cin" class="text-slate-500 font-bold text-[10px]">ATMOSPHERIC LID (CIN)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="cin-val">-- J/kg</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="cin-interp">Calculating...</p>
+                    <p data-i18n="sky.cinRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Weak Cap: &gt; -50 | Strong Lid: &lt; -150</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.rh700" class="text-slate-500 font-bold text-[10px]">MID-SKY MOISTURE (3KM HIGH)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="rh700-val">--%</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="rh700-interp">Calculating...</p>
+                    <p data-i18n="sky.rh700Range" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Dry: &lt;60% | Normal: 60-80% | Heavy Rain: &gt;80%</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.shear" class="text-slate-500 font-bold text-[10px]">WIND SHEAR (ORGANIZATION)</span>
+                    <p class="text-sm font-black text-sky-700 mt-0.5" id="shear-val">-- km/h</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="shear-interp">Calculating...</p>
+                    <p data-i18n="sky.shearRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Low: &lt;20 | Mod: 20-40 | High: &gt;40 km/h</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.pw" class="text-slate-500 font-bold text-[10px]">PRECIPITABLE WATER (COLUMN)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="pw-val">-- mm</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="pw-interp">Calculating...</p>
+                    <p data-i18n="sky.pwRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Generic tropics guide (not locally calibrated): Low &lt;45 | Mod 45-60 | High &gt;60mm</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.freezingLevel" class="text-slate-500 font-bold text-[10px]">FREEZING LEVEL (0°C HEIGHT)</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="freezing-val">-- m</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="freezing-interp">Calculating...</p>
+                    <p data-i18n="sky.freezingRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Approx. tropical guide: Suppressed &lt;4700 | Typical 4700-5100 | Elevated &gt;5100m</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.li" class="text-slate-500 font-bold text-[10px]">LIFTED INDEX</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="li-val">-- °C</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="li-interp">Calculating...</p>
+                    <p data-i18n="sky.liRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Stable: &gt;0 | Marginal: 0 to -3 | Unstable: -3 to -6 | Very unstable: &lt;-6</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <span data-i18n="sky.pbl" class="text-slate-500 font-bold text-[10px]">BOUNDARY LAYER HEIGHT</span>
+                    <p class="text-sm font-black text-slate-800 mt-0.5" id="pbl-val">-- m</p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="pbl-interp">Calculating...</p>
+                    <p data-i18n="sky.pblRange" class="text-[9px] text-slate-400 mt-1 pt-1 border-t border-slate-100">Rough guide only: Shallow (night/morning) &lt;700 | Deep (afternoon mixing) &gt;1200m</p>
+                  </div>
+
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 sm:col-span-2">
+                    <span class="text-slate-500 font-bold text-[10px] flex justify-between"><span data-i18n="sky.storm">STORM MOVEMENT</span> <span data-i18n="sky.upperWinds" class="text-amber-600">Upper Winds (1.5 - 5.5km)</span></span>
+                    <p class="text-sm font-black text-sky-700 mt-0.5"><span id="steer-speed-val">-- km/h</span> | <span data-i18n="sky.movingToward">Moving toward:</span> <strong id="steer-dest-val" class="text-slate-900">--</strong></p>
+                    <p class="text-[10px] font-bold text-slate-600 mt-1" id="steer-interp">Calculating...</p>
+                  </div>
+                </div>
+
+                <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
+                  <span data-i18n="sky.aiHeading" class="font-black text-indigo-900 text-xs flex items-center gap-1 mb-1">🤖 AI Thermodynamic Assessment</span>
+                  <p id="ai-analysis-text" data-i18n="sky.aiWaiting" class="text-xs text-indigo-950 font-medium leading-relaxed">Waiting for data...</p>
+                </div>
+
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm space-y-1.5 overflow-x-auto">
+                  <span data-i18n="sky.forecast24h" class="text-slate-500 font-bold text-[10px] uppercase tracking-wide">📅 24-Hour Forecast (3-Hour Intervals)</span>
+                  <table class="w-full text-center border-collapse" style="min-width: 760px;">
+                    <tbody id="forecast-24h-table" class="text-[9px] sm:text-[10px]">
+                      <tr><td colspan="15" class="text-slate-400 py-1" data-i18n="sky.loading">Loading...</td></tr>
+                    </tbody>
+                  </table>
+                  <p data-i18n="sky.forecastLegend" class="text-[8px] text-slate-400 pt-1 border-t border-slate-100">L/M/H = Low/Mid/High cloud %. RH = surface humidity. Red rain = ≥10mm/hr, amber = ≥2mm/hr.</p>
+                </div>
+
+                <p data-i18n="sky.sourceEcmwf" class="text-[9px] text-slate-400 text-right font-mono">Source: Open-Meteo ECMWF IFS (9km Grid Resolution)</p>
+              </div>
+            </details>
+          </div>
+        </div>
+
+        <!-- This Day in Climate History -->
+        <div class="space-y-5">
+          <div>
+            <h2 data-i18n="tdch.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">📅 This Day in Climate History</h2>
+            <div class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
+              <p id="tdch-date" class="text-[10px] text-slate-400">Loading...</p>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- RAIN -->
+                <div class="space-y-2">
+                  <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p data-i18n="tdch.rainLabel" class="text-[10px] font-black text-slate-400">RAIN</p>
+                    <p id="tdch-rain-actual" class="text-xl font-black text-slate-800">-- mm</p>
+                  </div>
+                  <p data-i18n="tdch.rainVsTitle" class="text-[10px] font-black text-slate-500 uppercase">Rain vs. Baselines</p>
+                  <div id="tdch-rain-boxes" class="grid grid-cols-2 gap-2"></div>
+                </div>
+
+                <!-- TEMP -->
+                <div class="space-y-2">
+                  <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <p data-i18n="tdch.tempLabel" class="text-[10px] font-black text-slate-400">TEMP</p>
+                    <p id="tdch-temp-actual" class="text-xl font-black text-slate-800">-- °C</p>
+                  </div>
+                  <p data-i18n="tdch.tempVsTitle" class="text-[10px] font-black text-slate-500 uppercase">Temp vs. Baselines</p>
+                  <div id="tdch-temp-boxes" class="grid grid-cols-2 gap-2"></div>
+                </div>
+              </div>
+
+              <p data-i18n="tdch.footnote" class="text-[9px] text-slate-400 pt-1 border-t border-slate-100">Baselines: 1996-2025 climatology. ENSO phases via NOAA ONI (5+ consecutive season persistence rule). Boxes built on fewer years are flagged low-confidence.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- LIVE WEATHER APPS -->
       <section class="space-y-4 pt-2">
-        <h2 data-i18n="maps.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 px-1">🗺️ Live Satellite Maps &amp; 14-Day Outlook</h2>
+        <h2 data-i18n="maps.liveAppsHeading" class="text-sm font-black uppercase tracking-wider text-slate-600 px-1">🗺️ Live Weather Apps</h2>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div class="bg-white p-3 sm:p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex flex-col h-[360px]">
@@ -437,17 +504,6 @@
             <h3 data-i18n="maps.radarTitle" class="text-xs font-bold text-slate-700 mb-2">Live Radar &amp; Rain (Ventusky.com)</h3>
             <iframe class="rounded-xl border border-slate-200 flex-grow" src="https://embed.ventusky.com/?p=5.926;116.143;10&l=rain-3h&pin=5.926;116.143;dot;Kg.%20Kolopis" frameborder="0"></iframe>
           </div>
-        </div>
-
-        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
-           <div class="flex justify-between items-center mb-3">
-              <div>
-                <h3 data-i18n="maps.chartTitle" class="text-xs font-black text-slate-800 uppercase tracking-wide">14-Day Rain &amp; Temperature Outlook</h3>
-                <p data-i18n="maps.chartRef" class="text-[9px] text-slate-400 font-mono">Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)</p>
-              </div>
-              <a href="ensemble.html" target="_blank" data-i18n="maps.ensembleLink" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors">Rainfall Ensemble ↗</a>
-           </div>
-           <div class="h-64 w-full relative"><canvas id="rainTempChart"></canvas></div>
         </div>
       </section>
 
@@ -465,6 +521,41 @@
           </a>
         </div>
       </section>
+
+    </div>
+
+    <!-- ===================== 14-DAY OUTLOOK TAB ===================== -->
+    <div id="tab-14day" class="tab-panel hidden space-y-4 sm:space-y-6">
+
+      <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+         <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 data-i18n="maps.rainChartTitle" class="text-xs font-black text-slate-800 uppercase tracking-wide">14-Day Rain Outlook</h3>
+              <p id="rain-chart-ref-note" data-i18n="maps.chartRef" class="text-[9px] text-slate-400 font-mono">Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)</p>
+            </div>
+            <a href="ensemble.html" target="_blank" data-i18n="maps.ensembleLink" class="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors shrink-0">Rainfall Ensemble ↗</a>
+         </div>
+         <div class="flex gap-1.5 mb-3">
+            <button id="rain-tab-hazard" class="chart-tab-btn active px-3 py-1 text-[10px] font-black rounded-lg border" data-i18n="maps.tabHazard">Hazard</button>
+            <button id="rain-tab-clim" class="chart-tab-btn px-3 py-1 text-[10px] font-black rounded-lg border" data-i18n="maps.tabClimate">Climate Normal</button>
+         </div>
+         <div class="h-64 w-full relative"><canvas id="rainChart"></canvas></div>
+      </div>
+
+      <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+         <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 data-i18n="maps.tempChartTitle" class="text-xs font-black text-slate-800 uppercase tracking-wide">14-Day Temperature Outlook</h3>
+              <p id="temp-chart-ref-note" data-i18n="maps.tempChartRef" class="text-[9px] text-slate-400 font-mono">Reference Lines: MetMalaysia Heatwave Levels — 35°C (Alert), 37°C (Heatwave), 40°C (Extreme)</p>
+            </div>
+         </div>
+         <div class="flex gap-1.5 mb-3">
+            <button id="temp-tab-hazard" class="chart-tab-btn active px-3 py-1 text-[10px] font-black rounded-lg border" data-i18n="maps.tabHazard">Hazard</button>
+            <button id="temp-tab-clim" class="chart-tab-btn px-3 py-1 text-[10px] font-black rounded-lg border" data-i18n="maps.tabClimate">Climate Normal</button>
+         </div>
+         <div class="h-64 w-full relative"><canvas id="tempChart"></canvas></div>
+         <p id="temp-hazard-caveat" data-i18n="maps.tempHazardCaveat" class="text-[9px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1 mt-2">Note: MetMalaysia's heatwave levels require the threshold to hold for 3 consecutive days — a single day touching a line isn't itself a declared heatwave.</p>
+      </div>
 
     </div>
 
@@ -538,7 +629,8 @@
           syncing: "Syncing live data...",
           fetchError: "Fetch Error",
           tabOverview: "Overview",
-          tabDeepDive: "Deep Dive",
+          tabAtmProfile: "Atm Profile",
+          tab14Day: "14-Day Outlook",
         },
         tier1: {
           loadingBadge: "LOADING", loadingAction: "Assessing current hazard status...",
@@ -599,6 +691,9 @@
           analyzing: "Analyzing Sky...", fetchingConditions: "Fetching conditions...",
           tapData: "Tap for Data ▼",
           rain24h: "🌧️ 24-Hour Rain Forecast (3-Hour Intervals)",
+          forecast24h: "📅 24-Hour Forecast (3-Hour Intervals)",
+          forecastLegend: "First 9h shown hourly, then 3h totals. Rain color = implied mm/hr rate (red ≥10, amber ≥2) so it's comparable across both. L/M/H = avg Low/Mid/High cloud %. RH = avg surface humidity.",
+          forecastHourlyGroup: "Hourly", forecast3hGroup: "3-Hour",
           loading: "Loading...",
           lowClouds: "LOW CLOUDS", lowCloudsSub: "Low gloom/drizzle",
           midClouds: "MID CLOUDS", midCloudsSub: "3km high",
@@ -607,6 +702,10 @@
           cin: "ATMOSPHERIC LID (CIN)", cinRange: "Weak Cap: > -50 | Strong Lid: < -150",
           rh700: "MID-SKY MOISTURE (3KM HIGH)", rh700Range: "Dry: <60% | Normal: 60-80% | Heavy Rain: >80%",
           shear: "WIND SHEAR (ORGANIZATION)", shearRange: "Low: <20 | Mod: 20-40 | High: >40 km/h",
+          pw: "PRECIPITABLE WATER (COLUMN)", pwRange: "Generic tropics guide (not locally calibrated): Low <45 | Mod 45-60 | High >60mm",
+          freezingLevel: "FREEZING LEVEL (0°C HEIGHT)", freezingRange: "Approx. tropical guide: Suppressed <4700 | Typical 4700-5100 | Elevated >5100m",
+          li: "LIFTED INDEX", liRange: "Stable: >0 | Marginal: 0 to -3 | Unstable: -3 to -6 | Very unstable: <-6",
+          pbl: "BOUNDARY LAYER HEIGHT", pblRange: "Rough guide only: Shallow (night/morning) <700 | Deep (afternoon mixing) >1200m",
           storm: "STORM MOVEMENT", upperWinds: "Upper Winds (1.5 - 5.5km)",
           movingToward: "Moving toward:",
           calculating: "Calculating...",
@@ -616,6 +715,10 @@
           cinWeak: "Weak (Updraft clouds can easily initiate)", cinMod: "Moderate (Requires mountain heat to break lid)", cinStrong: "Strong (Atmosphere safely capped)",
           rhDry: "Dry air (Clouds evaporate easily)", rhBalanced: "Balanced air (Normal rain clouds supported)", rhSaturated: "Saturated air (Supports torrential downpours)",
           shearLow: "Low shear (Storm clouds collapse quickly)", shearMod: "Moderate shear (Multi-cloud storm clusters possible)", shearHigh: "High shear (Long-lasting severe storms favored)",
+          pwLow: "Low column moisture (limited rainfall efficiency)", pwMod: "Moderate column moisture (typical tropical fuel)", pwHigh: "High column moisture (efficient heavy-rain potential)",
+          freezingLow: "Suppressed (more ice-phase potential, taller mixed-phase storms possible)", freezingMod: "Typical tropical freezing level", freezingHigh: "Elevated (deep warm-rain layer — collision-coalescence regime, radar may underdetect)",
+          liStable: "Stable (little lift needed to suppress convection)", liMarginal: "Marginally unstable", liUnstable: "Unstable", liVeryUnstable: "Very unstable (strong lift available)",
+          pblShallow: "Shallow (typically night/early morning)", pblGrowing: "Growing (daytime mixing developing)", pblDeep: "Deep (afternoon mixing, cap likely eroded)",
           steerStall: "Stalling winds (High flood accumulation risk)", steerNormal: "Normal movement (~15 km/h - Storms won't linger too long)", steerFast: "Fast winds (Storms clear the area quickly)",
         },
         regime: {
@@ -681,11 +784,26 @@
           },
           crossAnalysis: (ensoPhase, mjoImpact) => `${ensoPhase} base state combined with a ${mjoImpact} MJO wave — watch for compounding effects on rainfall over the next 1-2 weeks.`,
         },
+        tdch: {
+          heading: "📅 This Day in Climate History",
+          rainLabel: "RAIN", tempLabel: "TEMP",
+          rainVsTitle: "Rain vs. Baselines", tempVsTitle: "Temp vs. Baselines",
+          comparingTo: "Comparing to",
+          box30yr: "30-YR AVG", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
+          footnote: "Baselines: 1996-2025 climatology. ENSO phases via NOAA ONI (5+ consecutive season persistence rule). Boxes built on fewer years are flagged low-confidence.",
+          unavailable: "Climate history data unavailable",
+        },
         maps: {
           heading: "🗺️ Live Satellite Maps & 14-Day Outlook",
+          liveAppsHeading: "🗺️ Live Weather Apps",
           windTitle: "Live Wind & Clouds (Windy.com)", radarTitle: "Live Radar & Rain (Ventusky.com)",
           chartTitle: "14-Day Rain & Temperature Outlook",
+          rainChartTitle: "14-Day Rain Outlook", tempChartTitle: "14-Day Temperature Outlook",
           chartRef: "Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)",
+          tempChartRef: "Reference Lines: MetMalaysia Heatwave Levels — 35°C (Alert), 37°C (Heatwave), 40°C (Extreme)",
+          tabHazard: "Hazard", tabClimate: "Climate Normal", climNormalLabel: "30-yr Normal",
+          heat35: "35°C Alert", heat37: "37°C Heatwave", heat40: "40°C Extreme",
+          tempHazardCaveat: "Note: MetMalaysia's heatwave levels require the threshold to hold for 3 consecutive days — a single day touching a line isn't itself a declared heatwave.",
           ensembleLink: "Rainfall Ensemble ↗",
           alert20: "20mm Alert", flood60: "60mm Sept 2025 Flood Baseline", extreme100: "100mm Extreme Hazard",
           rainLabel: "Rain (mm)", tempLabel: "Temp (°C)",
@@ -715,7 +833,8 @@
           syncing: "Menyegerak data langsung...",
           fetchError: "Ralat Mengambil Data",
           tabOverview: "Ringkasan",
-          tabDeepDive: "Kajian Mendalam",
+          tabAtmProfile: "Profil Atmosfera",
+          tab14Day: "Ramalan 14-Hari",
         },
         tier1: {
           loadingBadge: "MEMUAT", loadingAction: "Menilai status bencana semasa...",
@@ -776,6 +895,9 @@
           analyzing: "Menganalisis Langit...", fetchingConditions: "Mengambil keadaan cuaca...",
           tapData: "Ketik untuk Data ▼",
           rain24h: "🌧️ Ramalan Hujan 24-Jam (Selang 3 Jam)",
+          forecast24h: "📅 Ramalan 24-Jam (Selang 3 Jam)",
+          forecastLegend: "9 jam pertama setiap jam, kemudian jumlah 3 jam. Warna hujan = kadar mm/jam tersirat (merah ≥10, kuning ≥2). R/S/T = purata Awan Rendah/Sederhana/Tinggi %. RH = purata kelembapan permukaan.",
+          forecastHourlyGroup: "Setiap Jam", forecast3hGroup: "3-Jam",
           loading: "Memuat...",
           lowClouds: "AWAN RENDAH", lowCloudsSub: "Kabus/hujan renyai rendah",
           midClouds: "AWAN PERTENGAHAN", midCloudsSub: "Ketinggian 3km",
@@ -784,6 +906,10 @@
           cin: "PENUTUP ATMOSFERA (CIN)", cinRange: "Tudung Lemah: > -50 | Tudung Kuat: < -150",
           rh700: "KELEMBAPAN LANGIT PERTENGAHAN (3KM)", rh700Range: "Kering: <60% | Normal: 60-80% | Hujan Lebat: >80%",
           shear: "RICIH ANGIN (ORGANISASI)", shearRange: "Rendah: <20 | Sederhana: 20-40 | Tinggi: >40 km/j",
+          pw: "AIR BOLEH HUJAN (LAJUR)", pwRange: "Panduan tropika umum (bukan kalibrasi tempatan): Rendah <45 | Sederhana 45-60 | Tinggi >60mm",
+          freezingLevel: "ARAS BEKU (KETINGGIAN 0°C)", freezingRange: "Panduan tropika anggaran: Tertekan <4700 | Biasa 4700-5100 | Tinggi >5100m",
+          li: "INDEKS TERANGKAT", liRange: "Stabil: >0 | Marginal: 0 hingga -3 | Tidak stabil: -3 hingga -6 | Sangat tidak stabil: <-6",
+          pbl: "KETINGGIAN LAPISAN SEMPADAN", pblRange: "Panduan kasar sahaja: Cetek (malam/pagi) <700 | Dalam (pencampuran petang) >1200m",
           storm: "PERGERAKAN RIBUT", upperWinds: "Angin Atas (1.5 - 5.5km)",
           movingToward: "Bergerak ke arah:",
           calculating: "Mengira...",
@@ -793,6 +919,10 @@
           cinWeak: "Lemah (Awan updraft mudah bermula)", cinMod: "Sederhana (Perlukan haba gunung untuk pecahkan tudung)", cinStrong: "Kuat (Atmosfera selamat tertutup)",
           rhDry: "Udara kering (Awan mudah sejat)", rhBalanced: "Udara seimbang (Awan hujan normal disokong)", rhSaturated: "Udara tepu (Menyokong hujan lebat)",
           shearLow: "Ricih rendah (Awan ribut cepat runtuh)", shearMod: "Ricih sederhana (Kluster ribut berbilang awan mungkin)", shearHigh: "Ricih tinggi (Ribut teruk berpanjangan disokong)",
+          pwLow: "Lembapan lajur rendah (kecekapan hujan terhad)", pwMod: "Lembapan lajur sederhana (bahan bakar tropika biasa)", pwHigh: "Lembapan lajur tinggi (potensi hujan lebat cekap)",
+          freezingLow: "Tertekan (lebih berpotensi fasa ais, ribut fasa-campuran lebih tinggi mungkin)", freezingMod: "Aras beku tropika biasa", freezingHigh: "Tinggi (lapisan hujan-suam dalam — rejim gabungan-perlanggaran, radar mungkin kurang kesan)",
+          liStable: "Stabil (sedikit angkatan diperlukan untuk menekan konveksi)", liMarginal: "Tidak stabil marginal", liUnstable: "Tidak stabil", liVeryUnstable: "Sangat tidak stabil (angkatan kuat tersedia)",
+          pblShallow: "Cetek (biasanya malam/awal pagi)", pblGrowing: "Berkembang (pencampuran siang berkembang)", pblDeep: "Dalam (pencampuran petang, tudung berkemungkinan terhakis)",
           steerStall: "Angin perlahan (Risiko banjir kilat tinggi)", steerNormal: "Pergerakan normal (~15 km/j - Ribut tidak berlama-lama)", steerFast: "Angin laju (Ribut cepat berlalu)",
         },
         regime: {
@@ -858,11 +988,26 @@
           },
           crossAnalysis: (ensoPhase, mjoImpact) => `Keadaan asas ${ensoPhase} bergabung dengan gelombang MJO ${mjoImpact} — perhatikan kesan bertindih pada hujan dalam 1-2 minggu akan datang.`,
         },
+        tdch: {
+          heading: "📅 Hari Ini Dalam Sejarah Iklim",
+          rainLabel: "HUJAN", tempLabel: "SUHU",
+          rainVsTitle: "Hujan lwn. Garis Dasar", tempVsTitle: "Suhu lwn. Garis Dasar",
+          comparingTo: "Berbanding dengan",
+          box30yr: "PURATA 30-TAHUN", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
+          footnote: "Garis dasar: klimatologi 1996-2025. Fasa ENSO melalui ONI NOAA (peraturan kegigihan 5+ musim berturut-turut). Kotak dibina daripada tahun yang lebih sedikit ditanda keyakinan rendah.",
+          unavailable: "Data sejarah iklim tidak tersedia",
+        },
         maps: {
           heading: "🗺️ Peta Satelit Langsung & Ramalan 14-Hari",
+          liveAppsHeading: "🗺️ Aplikasi Cuaca Langsung",
           windTitle: "Angin & Awan Langsung (Windy.com)", radarTitle: "Radar & Hujan Langsung (Ventusky.com)",
           chartTitle: "Ramalan Hujan & Suhu 14-Hari",
+          rainChartTitle: "Ramalan Hujan 14-Hari", tempChartTitle: "Ramalan Suhu 14-Hari",
           chartRef: "Garis Rujukan: 20mm (Awas), 60mm (Garis Dasar Banjir Sept 2025), 100mm (Bahaya Melampau)",
+          tempChartRef: "Garis Rujukan: Tahap Gelombang Haba MetMalaysia — 35°C (Awas), 37°C (Gelombang Haba), 40°C (Melampau)",
+          tabHazard: "Bahaya", tabClimate: "Normal Iklim", climNormalLabel: "Normal 30-tahun",
+          heat35: "Awas 35°C", heat37: "Gelombang Haba 37°C", heat40: "Melampau 40°C",
+          tempHazardCaveat: "Nota: Tahap gelombang haba MetMalaysia memerlukan ambang dikekalkan selama 3 hari berturut-turut — satu hari sahaja menyentuh garis bukan bermakna gelombang haba diisytiharkan.",
           ensembleLink: "Ensembel Hujan ↗",
           alert20: "Awas 20mm", flood60: "Garis Dasar Banjir Sept 2025", extreme100: "Bahaya Melampau 100mm",
           rainLabel: "Hujan (mm)", tempLabel: "Suhu (°C)",
@@ -893,7 +1038,11 @@
     let lastChartData = null;
     let lastClimate = null;
     let insideCoverage = true; // default assumption; refined once/if geolocation resolves
-    let rainTempChartInstance = null;
+    let rainChartInstance = null;
+    let tempChartInstance = null;
+    let rainChartMode = 'hazard';   // 'hazard' | 'climatology'
+    let tempChartMode = 'hazard';   // 'hazard' | 'climatology'
+    let climateReference = null;    // fetched climate_reference.json (static, precomputed offline)
 
     function t(lang, path) {
       return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), i18n[lang]);
@@ -919,24 +1068,28 @@
       applyStaticI18n(lang);
       if (lastState) render(lastState, lang);
       if (lastClimate) renderClimate(lastClimate, lang); else renderClimateUnavailable(lang);
-      if (lastChartData) renderDualChart(lastChartData, lang);
+      if (lastChartData) { renderRainChart(lastChartData, lang); renderTempChart(lastChartData, lang); }
+      if (climateReference) renderTodayInHistory(climateReference, lang);
     }
 
     // ============ TABS ============
-    function switchTab(name) {
-      const overviewBtn = document.getElementById('tab-btn-overview');
-      const deepdiveBtn = document.getElementById('tab-btn-deepdive');
-      const overviewPanel = document.getElementById('tab-overview');
-      const deepdivePanel = document.getElementById('tab-deepdive');
-      const isOverview = name === 'overview';
-      overviewBtn.classList.toggle('active', isOverview);
-      deepdiveBtn.classList.toggle('active', !isOverview);
-      overviewPanel.classList.toggle('hidden', !isOverview);
-      deepdivePanel.classList.toggle('hidden', isOverview);
+    const TAB_NAMES = ['overview', 'atmprofile', '14day'];
 
-      if (!isOverview && !deepdivePanel.dataset.mapsLoaded) {
-        document.querySelectorAll('#tab-deepdive iframe').forEach(f => { f.src = f.src; });
-        deepdivePanel.dataset.mapsLoaded = 'true';
+    function switchTab(name) {
+      TAB_NAMES.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const panel = document.getElementById(`tab-${t}`);
+        const active = (t === name);
+        btn.classList.toggle('active', active);
+        panel.classList.toggle('hidden', !active);
+      });
+
+      if (name === 'atmprofile') {
+        const panel = document.getElementById('tab-atmprofile');
+        if (!panel.dataset.mapsLoaded) {
+          document.querySelectorAll('#tab-atmprofile iframe').forEach(f => { f.src = f.src; });
+          panel.dataset.mapsLoaded = 'true';
+        }
       }
     }
 
@@ -1025,10 +1178,20 @@
       const s = {};
       s.modelTime = data.current?.time ? data.current.time.replace('T', ' ') : null;
 
-      let currIdx = 168; // Default past_days=7
-      if (data.hourly?.time) {
-        const found = data.hourly.time.indexOf(data.current.time);
-        if (found !== -1) currIdx = found;
+      // NOTE: previously used data.hourly.time.indexOf(data.current.time), which
+      // silently falls back to the hardcoded default (today 00:00) whenever
+      // Open-Meteo's `current.time` isn't exactly hour-aligned (e.g. returns
+      // minute-level timestamps like ...T10:24 while hourly.time is always
+      // ...T10:00, ...T11:00). That mismatch was quietly anchoring the ENTIRE
+      // "current state" — laundry lookahead, the 24h table, CAPE/CIN, storm
+      // steering, everything — to midnight instead of now. Arithmetic offset
+      // from the first hourly timestamp is robust to that formatting quirk.
+      let currIdx = 168; // fallback only if hourly.time is missing/empty
+      if (data.hourly?.time?.length) {
+        const t0 = new Date(data.hourly.time[0]).getTime();
+        const nowMs = Date.now();
+        currIdx = Math.round((nowMs - t0) / 3600000);
+        currIdx = Math.max(0, Math.min(currIdx, data.hourly.time.length - 1));
       }
 
       const rawRain = data.current?.precipitation ?? 0;
@@ -1048,18 +1211,64 @@
       const cape = data.hourly?.cape?.[currIdx] ?? 0;
       const cin = data.hourly?.convective_inhibition?.[currIdx] ?? 0;
       const rh700 = data.hourly?.relative_humidity_700hPa?.[currIdx] ?? 0;
+      const pw = data.hourly?.total_column_integrated_water_vapour?.[currIdx] ?? 0;
+      const li = data.hourly?.lifted_index?.[currIdx] ?? 0;
+      const freezingLevel = data.hourly?.freezing_level_height?.[currIdx] ?? 0;
+      const pblHeight = data.hourly?.boundary_layer_height?.[currIdx] ?? 0;
 
       s.cloudLow = data.hourly?.cloud_cover_low?.[currIdx] ?? 0;
       s.cloudMid = data.hourly?.cloud_cover_mid?.[currIdx] ?? 0;
       s.cloudHigh = data.hourly?.cloud_cover_high?.[currIdx] ?? 0;
 
-      s.rain24h = [];
-      for (let i = 0; i < 24; i += 3) {
-        let fIdx = currIdx + i;
-        let rVal = data.hourly?.precipitation?.[fIdx] ?? 0;
-        let tStr = data.hourly?.time?.[fIdx] ? data.hourly.time[fIdx].split('T')[1].substring(0, 5) : `+${i}h`;
-        s.rain24h.push({ t: tStr, v: rVal });
+      // Hourly for the near-term window (0-9h) where "which hour exactly" matters
+      // for real decisions (laundry, immediate flood risk) — no aggregation, so
+      // no ambiguity about timing. 3h sums beyond that, where day-ahead planning
+      // cares less about the exact hour and more about the outlook shape.
+      // Each entry carries windowH so rain-rate coloring stays consistent
+      // across the hourly/3h boundary (see rate calc in renderForecastTable).
+      const HOURLY_SPAN_H = 9;
+      s.forecast24h = [];
+      s.forecastHourlySpan = HOURLY_SPAN_H;
+
+      for (let h = 0; h < HOURLY_SPAN_H; h++) {
+        const idx = currIdx + h;
+        const tStr = data.hourly?.time?.[idx] ? data.hourly.time[idx].split('T')[1].substring(0, 5) : `+${h}h`;
+        s.forecast24h.push({
+          t: tStr, windowH: 1,
+          rain: data.hourly?.precipitation?.[idx] ?? 0,
+          cLow: data.hourly?.cloud_cover_low?.[idx] ?? 0,
+          cMid: data.hourly?.cloud_cover_mid?.[idx] ?? 0,
+          cHigh: data.hourly?.cloud_cover_high?.[idx] ?? 0,
+          rh: data.hourly?.relative_humidity_2m?.[idx] ?? 0,
+          temp: data.hourly?.temperature_2m?.[idx] ?? 0,
+          pw: data.hourly?.total_column_integrated_water_vapour?.[idx] ?? 0,
+        });
       }
+
+      for (let i = HOURLY_SPAN_H; i < 24; i += 3) {
+        let fIdx = currIdx + i;
+        let tStr = data.hourly?.time?.[fIdx] ? data.hourly.time[fIdx].split('T')[1].substring(0, 5) : `+${i}h`;
+        let rainSum = 0, cLowSum = 0, cMidSum = 0, cHighSum = 0, rhSum = 0, tempSum = 0, pwSum = 0, n = 0;
+        for (let w = 0; w < 3; w++) {
+          const wIdx = fIdx + w;
+          if (data.hourly?.time?.[wIdx] === undefined) continue;
+          rainSum += data.hourly?.precipitation?.[wIdx] ?? 0;
+          cLowSum += data.hourly?.cloud_cover_low?.[wIdx] ?? 0;
+          cMidSum += data.hourly?.cloud_cover_mid?.[wIdx] ?? 0;
+          cHighSum += data.hourly?.cloud_cover_high?.[wIdx] ?? 0;
+          rhSum += data.hourly?.relative_humidity_2m?.[wIdx] ?? 0;
+          tempSum += data.hourly?.temperature_2m?.[wIdx] ?? 0;
+          pwSum += data.hourly?.total_column_integrated_water_vapour?.[wIdx] ?? 0;
+          n++;
+        }
+        n = n || 1;
+        s.forecast24h.push({
+          t: tStr, windowH: n,
+          rain: rainSum, // sum across the window — additive quantity
+          cLow: cLowSum / n, cMid: cMidSum / n, cHigh: cHighSum / n, rh: rhSum / n, temp: tempSum / n, pw: pwSum / n,
+        });
+      }
+
 
       let past24hRain = 0, past3hRain = 0, next12hRain = 0, next6hRain = 0;
       for (let i = 1; i <= 24; i++) past24hRain += data.hourly?.precipitation?.[currIdx - i] ?? 0;
@@ -1087,7 +1296,7 @@
       else if (steerDir >= 247.5 && steerDir < 292.5) destStr = "KK City / South China Sea";
       else if (steerDir >= 292.5 && steerDir < 337.5) destStr = "Likas / Sepanggar";
 
-      s.cape = cape; s.cin = cin; s.rh700 = rh700;
+      s.cape = cape; s.cin = cin; s.rh700 = rh700; s.pw = pw; s.li = li; s.freezingLevel = freezingLevel; s.pblHeight = pblHeight;
       s.steerSpeed = steerSpeed; s.steerDir = steerDir; s.destStr = destStr; s.bulkShearSpeed = bulkShearSpeed;
       s.rawRain = rawRain; s.currentTemp = currentTemp; s.currentRH = currentRH; s.currentWind = currentWind;
       s.currentTide = currentTide; s.peakTide = peakTide;
@@ -1128,7 +1337,14 @@
         dryHoursCount++;
       }
       s.dryHoursCount = dryHoursCount;
-      s.rainTimeStr = new Date(now.getTime() + dryHoursCount * 3600000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      // Previously: new Date(now.getTime() + dryHoursCount*3600000) — this used the
+      // browser's wall-clock as the anchor, so whenever dryHoursCount was 0 it just
+      // printed whatever time it currently was, dressed up as a "predicted" rain
+      // time. Read the model's actual timestamp for that hour instead.
+      const rainHourIso = data.hourly?.time?.[currIdx + dryHoursCount];
+      s.rainTimeStr = rainHourIso
+        ? new Date(rainHourIso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : '--';
 
       if (rawRain > 0.2) s.laundry = 'raining';
       else if (rainFound) s.laundry = dryHoursCount <= 2 ? 'rainSoonUrgent' : 'rainSoon';
@@ -1255,20 +1471,8 @@
       document.getElementById('cloud-mid').innerText = `${s.cloudMid}%`;
       document.getElementById('cloud-high').innerText = `${s.cloudHigh}%`;
 
-      // --- 24h rain grid ---
-      const rainGrid = document.getElementById('rain-24h-grid');
-      rainGrid.innerHTML = "";
-      s.rain24h.forEach(({ t: tStr, v: rVal }) => {
-        let bgCol = "bg-slate-100 text-slate-700";
-        if (rVal >= 10) bgCol = "bg-red-500 text-white font-black";
-        else if (rVal >= 2) bgCol = "bg-amber-400 text-slate-900 font-bold";
-        else if (rVal > 0) bgCol = "bg-sky-200 text-sky-900 font-bold";
-        rainGrid.innerHTML += `
-          <div class="${bgCol} p-1.5 rounded flex flex-col items-center">
-            <span class="opacity-75 text-[8px]">${tStr}</span>
-            <span class="text-[10px] leading-tight">${rVal.toFixed(1)}mm</span>
-          </div>`;
-      });
+      // --- 24h forecast table (rain, cloud L/M/H, RH, temp) ---
+      renderForecastTable(s.forecast24h, s.forecastHourlySpan);
 
       document.getElementById('steer-dest-val').innerText = `${s.destStr} (${s.steerDir}°)`;
 
@@ -1296,6 +1500,43 @@
       if (s.bulkShearSpeed < 20) { shI.innerText = L.sky.shearLow; shI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
       else if (s.bulkShearSpeed < 40) { shI.innerText = L.sky.shearMod; shI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
       else { shI.innerText = L.sky.shearHigh; shI.className = "text-[10px] font-black text-red-600 mt-1"; }
+
+      // Precipitable water — generic tropics banding only, NOT locally calibrated.
+      // Treat as provisional until a proper ERA5-derived percentile-vs-climatology exists.
+      document.getElementById('pw-val').innerText = `${s.pw.toFixed(1)} mm`;
+      let pwI = document.getElementById('pw-interp');
+      if (s.pw < 45) { pwI.innerText = L.sky.pwLow; pwI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else if (s.pw < 60) { pwI.innerText = L.sky.pwMod; pwI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
+      else { pwI.innerText = L.sky.pwHigh; pwI.className = "text-[10px] font-black text-sky-700 mt-1"; }
+
+      // Freezing level — ties directly to the warm-rain vs mixed-phase classification
+      // work: elevated freezing level = deeper warm-rain layer = collision-coalescence
+      // regime = higher radar-underdetection risk. Banding is approximate tropical
+      // climatology, not a locally verified baseline.
+      document.getElementById('freezing-val').innerText = `${Math.round(s.freezingLevel)} m`;
+      let flI = document.getElementById('freezing-interp');
+      if (s.freezingLevel < 4700) { flI.innerText = L.sky.freezingLow; flI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else if (s.freezingLevel < 5100) { flI.innerText = L.sky.freezingMod; flI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else { flI.innerText = L.sky.freezingHigh; flI.className = "text-[10px] font-black text-amber-700 mt-1"; }
+
+      // Lifted Index — cross-check to CAPE. Threshold convention is fairly universal
+      // (it's a normalized single-level parcel-vs-environment difference), less
+      // climate-dependent than CAPE's absolute magnitude, so less caveat needed.
+      document.getElementById('li-val').innerText = `${s.li.toFixed(1)} °C`;
+      let liI = document.getElementById('li-interp');
+      if (s.li > 0) { liI.innerText = L.sky.liStable; liI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
+      else if (s.li > -3) { liI.innerText = L.sky.liMarginal; liI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else if (s.li > -6) { liI.innerText = L.sky.liUnstable; liI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
+      else { liI.innerText = L.sky.liVeryUnstable; liI.className = "text-[10px] font-black text-red-600 mt-1"; }
+
+      // PBL height — highly diurnal/site-dependent, no universal hazard scale. Shown
+      // as a rough shallow/deep descriptor only, useful for watching the cap-erosion
+      // trend through the morning rather than as a single-reading alert.
+      document.getElementById('pbl-val').innerText = `${Math.round(s.pblHeight)} m`;
+      let pblI = document.getElementById('pbl-interp');
+      if (s.pblHeight < 700) { pblI.innerText = L.sky.pblShallow; pblI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else if (s.pblHeight < 1200) { pblI.innerText = L.sky.pblGrowing; pblI.className = "text-[10px] font-bold text-slate-600 mt-1"; }
+      else { pblI.innerText = L.sky.pblDeep; pblI.className = "text-[10px] font-bold text-amber-700 mt-1"; }
 
       document.getElementById('steer-speed-val').innerText = `${s.steerSpeed} km/h`;
       let spI = document.getElementById('steer-interp');
@@ -1391,54 +1632,243 @@
       document.getElementById('sync-dot').classList.remove('animate-pulse');
       document.getElementById('update-time').innerText = `${lang === 'bm' ? 'Segerak' : 'Sync'}: ${s.nowLocaleTime}`;
 
-      renderDualChart(s.chart, lang);
+      renderRainChart(s.chart, lang);
+      renderTempChart(s.chart, lang);
+    }
+
+    // ============ 24H FORECAST TABLE (rain / cloud L-M-H / RH / temp) ============
+    // forecast24h: hourly entries (windowH=1) for the near term, then 3h-summed
+    // entries (windowH=3) beyond hourlySpan. Rain coloring is rate-based
+    // (mm per window-hour) so a color means the same intensity regardless of
+    // which zone the column is in.
+    function renderForecastTable(forecast24h, hourlySpan) {
+      const tbody = document.getElementById('forecast-24h-table');
+      if (!tbody || !forecast24h || !forecast24h.length) return;
+      hourlySpan = hourlySpan || 0;
+
+      const rainCls = (f) => {
+        const rate = f.rain / (f.windowH || 1); // implied mm/hr, comparable across zones
+        return rate >= 10 ? 'bg-red-500 text-white font-black rounded' : rate >= 2 ? 'bg-amber-400 text-slate-900 font-bold rounded' : f.rain > 0 ? 'bg-sky-100 text-sky-900 font-bold rounded' : 'text-slate-400';
+      };
+
+      const rows = [
+        { key: 'rain', label: '🌧️mm', fmt: v => v.toFixed(1), cls: (v, f) => rainCls(f) },
+        { key: 'temp', label: '°C', fmt: v => v.toFixed(1), cls: v => v >= 32 ? 'text-red-600 font-bold' : 'text-slate-600' },
+        { key: 'rh', label: 'RH%', fmt: v => Math.round(v), cls: v => v >= 85 ? 'text-sky-700 font-bold' : 'text-slate-600' },
+        { key: 'pw', label: 'PW mm', fmt: v => v.toFixed(0), cls: v => v >= 60 ? 'text-sky-700 font-bold' : 'text-slate-600' },
+        { key: 'cLow', label: 'Low%', fmt: v => Math.round(v), cls: () => 'text-slate-600' },
+        { key: 'cMid', label: 'Mid%', fmt: v => Math.round(v), cls: () => 'text-slate-600' },
+        { key: 'cHigh', label: 'High%', fmt: v => Math.round(v), cls: () => 'text-slate-500' },
+      ];
+
+      const threeHrCount = forecast24h.length - hourlySpan;
+      const L = i18n[currentLang].sky;
+
+      // Group header: "Hourly" spanning the near-term block, "3-Hour" spanning the rest
+      let html = `<tr class="text-slate-400"><td class="py-0.5"></td>`;
+      if (hourlySpan > 0) html += `<td colspan="${hourlySpan}" class="py-0.5 text-[8px] font-black uppercase tracking-wide border-r-2 border-slate-200">${L.forecastHourlyGroup || 'Hourly'}</td>`;
+      if (threeHrCount > 0) html += `<td colspan="${threeHrCount}" class="py-0.5 text-[8px] font-black uppercase tracking-wide">${L.forecast3hGroup || '3-Hour'}</td>`;
+      html += `</tr>`;
+
+      // Time labels, with a divider border on the last hourly column
+      html += `<tr class="text-slate-400 border-b border-slate-100"><td class="text-left font-bold py-1 pr-2"></td>`;
+      forecast24h.forEach((f, i) => {
+        const divider = (i === hourlySpan - 1) ? ' border-r-2 border-slate-200' : '';
+        html += `<td class="py-1 opacity-75${divider}">${f.t}</td>`;
+      });
+      html += `</tr>`;
+
+      rows.forEach(r => {
+        html += `<tr class="border-b border-slate-50"><td class="text-left font-bold text-slate-500 py-1 pr-2">${r.label}</td>`;
+        forecast24h.forEach((f, i) => {
+          const divider = (i === hourlySpan - 1) ? ' border-r-2 border-slate-200' : '';
+          html += `<td class="py-1 ${r.cls(f[r.key], f)}${divider}">${r.fmt(f[r.key])}</td>`;
+        });
+        html += `</tr>`;
+      });
+
+      tbody.innerHTML = html;
     }
 
     // ============ CHART ============
-    function renderDualChart(chartData, lang) {
+    // Looks up a climatology entry for a given (month, day) from the fetched
+    // climate_reference.json's flat 366-entry lookup list.
+    function climLookup(list, month, day) {
+      if (!list) return null;
+      return list.find(e => e.month === month && e.day === day) || null;
+    }
+
+    function renderRainChart(chartData, lang) {
       lastChartData = chartData;
-      const { dates: dArr, rain: rainArr, temp: tempArr } = chartData;
+      const { dates: dArr, rain: rainArr } = chartData;
       if (!rainArr || !rainArr.length) return;
       const L = i18n[lang].maps;
       const labels = dArr.map(d => { let p = d.split('-'); return `${p[2]}-${p[1]}`; });
       const rainCols = rainArr.map((v, i) => v >= 60 ? '#ef4444' : v >= 20 ? '#f59e0b' : i < 7 ? '#94a3b8' : '#38bdf8');
 
-      if (rainTempChartInstance) rainTempChartInstance.destroy();
+      if (rainChartInstance) rainChartInstance.destroy();
       if (typeof ChartAnnotation !== 'undefined') Chart.register(ChartAnnotation);
 
-      rainTempChartInstance = new Chart(document.getElementById('rainTempChart').getContext('2d'), {
+      const datasets = [
+        { type: 'bar', label: L.rainLabel, data: rainArr, backgroundColor: rainCols, borderRadius: 4, yAxisID: 'yRain' },
+      ];
+
+      const annotations = {};
+      if (rainChartMode === 'hazard') {
+        annotations.line20 = { type: 'line', yMin: 20, yMax: 20, yScaleID: 'yRain', borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], label: { display: true, content: L.alert20, position: 'start', backgroundColor: '#f59e0b', color: '#fff', font: { size: 9, weight: 'bold' } } };
+        annotations.line60 = { type: 'line', yMin: 60, yMax: 60, yScaleID: 'yRain', borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 6], label: { display: true, content: L.flood60, position: 'center', backgroundColor: '#ef4444', color: '#fff', font: { size: 9, weight: 'bold' } } };
+        annotations.line100 = { type: 'line', yMin: 100, yMax: 100, yScaleID: 'yRain', borderColor: '#7c3aed', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.extreme100, position: 'end', backgroundColor: '#7c3aed', color: '#fff', font: { size: 9, weight: 'bold' } } };
+      } else if (rainChartMode === 'climatology' && climateReference) {
+        const climArr = dArr.map(dstr => {
+          const [, m, dd] = dstr.split('-').map(Number);
+          const e = climLookup(climateReference.chart_climatology?.rain, m, dd);
+          return e ? e.mean : null;
+        });
+        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, tension: 0.3, yAxisID: 'yRain' });
+      }
+
+      rainChartInstance = new Chart(document.getElementById('rainChart').getContext('2d'), {
         type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            { type: 'line', label: L.tempLabel, data: tempArr, borderColor: '#f97316', backgroundColor: '#f97316', borderWidth: 2.5, pointRadius: 3, tension: 0.3, yAxisID: 'yTemp' },
-            { type: 'bar', label: L.rainLabel, data: rainArr, backgroundColor: rainCols, borderRadius: 4, yAxisID: 'yRain' },
-          ],
-        },
+        data: { labels, datasets },
         options: {
           responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
           scales: {
             x: { ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
             yRain: { type: 'linear', display: true, position: 'left', title: { display: true, text: L.rainLabel, font: { size: 10, weight: 'bold' }, color: '#64748b' }, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' }, suggestedMax: 100 },
-            yTemp: { type: 'linear', display: true, position: 'right', title: { display: true, text: L.tempLabel, font: { size: 10, weight: 'bold' }, color: '#f97316' }, ticks: { color: '#f97316' }, grid: { display: false } },
           },
           plugins: {
-            legend: { display: false },
-            annotation: {
-              annotations: {
-                line20: { type: 'line', yMin: 20, yMax: 20, yScaleID: 'yRain', borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], label: { display: true, content: L.alert20, position: 'start', backgroundColor: '#f59e0b', color: '#fff', font: { size: 9, weight: 'bold' } } },
-                line60: { type: 'line', yMin: 60, yMax: 60, yScaleID: 'yRain', borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 6], label: { display: true, content: L.flood60, position: 'center', backgroundColor: '#ef4444', color: '#fff', font: { size: 9, weight: 'bold' } } },
-                line100: { type: 'line', yMin: 100, yMax: 100, yScaleID: 'yRain', borderColor: '#7c3aed', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.extreme100, position: 'end', backgroundColor: '#7c3aed', color: '#fff', font: { size: 9, weight: 'bold' } } },
-              },
-            },
+            legend: { display: rainChartMode === 'climatology' },
+            annotation: { annotations },
           },
         },
       });
     }
 
+    function renderTempChart(chartData, lang) {
+      const { dates: dArr, temp: tempArr } = chartData;
+      if (!tempArr || !tempArr.length) return;
+      const L = i18n[lang].maps;
+      const labels = dArr.map(d => { let p = d.split('-'); return `${p[2]}-${p[1]}`; });
+
+      if (tempChartInstance) tempChartInstance.destroy();
+      if (typeof ChartAnnotation !== 'undefined') Chart.register(ChartAnnotation);
+
+      const datasets = [
+        { type: 'line', label: L.tempLabel, data: tempArr, borderColor: '#f97316', backgroundColor: '#f97316', borderWidth: 2.5, pointRadius: 3, tension: 0.3, yAxisID: 'yTemp' },
+      ];
+
+      const annotations = {};
+      if (tempChartMode === 'hazard') {
+        annotations.heat35 = { type: 'line', yMin: 35, yMax: 35, yScaleID: 'yTemp', borderColor: '#f59e0b', borderWidth: 1.5, borderDash: [4, 4], label: { display: true, content: L.heat35, position: 'start', backgroundColor: '#f59e0b', color: '#fff', font: { size: 9, weight: 'bold' } } };
+        annotations.heat37 = { type: 'line', yMin: 37, yMax: 37, yScaleID: 'yTemp', borderColor: '#ef4444', borderWidth: 2, borderDash: [6, 6], label: { display: true, content: L.heat37, position: 'center', backgroundColor: '#ef4444', color: '#fff', font: { size: 9, weight: 'bold' } } };
+        annotations.heat40 = { type: 'line', yMin: 40, yMax: 40, yScaleID: 'yTemp', borderColor: '#7c3aed', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.heat40, position: 'end', backgroundColor: '#7c3aed', color: '#fff', font: { size: 9, weight: 'bold' } } };
+      } else if (tempChartMode === 'climatology' && climateReference) {
+        const climArr = dArr.map(dstr => {
+          const [, m, dd] = dstr.split('-').map(Number);
+          const e = climLookup(climateReference.chart_climatology?.temp, m, dd);
+          return e ? e.mean : null;
+        });
+        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, tension: 0.3, yAxisID: 'yTemp' });
+      }
+
+      const tempVals = tempArr.filter(v => v != null);
+      const yMin = Math.floor(Math.min(22, ...tempVals) - 1);
+      const yMax = Math.ceil(Math.max(32, ...tempVals, tempChartMode === 'hazard' ? 40 : 0) + 1);
+
+      tempChartInstance = new Chart(document.getElementById('tempChart').getContext('2d'), {
+        type: 'line',
+        data: { labels, datasets },
+        options: {
+          responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
+            yTemp: { type: 'linear', display: true, position: 'left', min: yMin, max: yMax, title: { display: true, text: L.tempLabel, font: { size: 10, weight: 'bold' }, color: '#f97316' }, ticks: { color: '#f97316' }, grid: { color: '#f1f5f9' } },
+          },
+          plugins: {
+            legend: { display: tempChartMode === 'climatology' },
+            annotation: { annotations },
+          },
+        },
+      });
+    }
+
+    function setChartTab(chart, mode) {
+      if (chart === 'rain') {
+        rainChartMode = mode;
+        document.getElementById('rain-tab-hazard').classList.toggle('active', mode === 'hazard');
+        document.getElementById('rain-tab-clim').classList.toggle('active', mode === 'climatology');
+        document.getElementById('rain-chart-ref-note').classList.toggle('hidden', mode !== 'hazard');
+        if (lastChartData) renderRainChart(lastChartData, currentLang);
+      } else {
+        tempChartMode = mode;
+        document.getElementById('temp-tab-hazard').classList.toggle('active', mode === 'hazard');
+        document.getElementById('temp-tab-clim').classList.toggle('active', mode === 'climatology');
+        document.getElementById('temp-chart-ref-note').classList.toggle('hidden', mode !== 'hazard');
+        document.getElementById('temp-hazard-caveat').classList.toggle('hidden', mode !== 'hazard');
+        if (lastChartData) renderTempChart(lastChartData, currentLang);
+      }
+    }
+
+    // ============ CLIMATE REFERENCE (static, precomputed offline by
+    // build_climate_reference.py -- see that script for why this is a
+    // fetch of a small static file rather than anything computed live) ============
+    async function fetchClimateReference() {
+      try {
+        const res = await fetch('./data/climate_reference.json');
+        if (!res.ok) throw new Error('climate_reference.json fetch failed: ' + res.status);
+        climateReference = await res.json();
+        renderTodayInHistory(climateReference, currentLang);
+        // Re-render charts in case they already drew before this resolved
+        if (lastChartData) { renderRainChart(lastChartData, currentLang); renderTempChart(lastChartData, currentLang); }
+      } catch (err) {
+        console.error('Climate reference unavailable:', err);
+        const dateEl = document.getElementById('tdch-date');
+        if (dateEl) dateEl.innerText = i18n[currentLang].tdch?.unavailable || 'Climate history data unavailable';
+      }
+    }
+
+    function comparisonBoxHtml(label, box, unit) {
+      if (!box) return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center"><p class="text-[9px] font-black text-slate-400">${label}</p><p class="text-xs font-bold text-slate-400 mt-1">--</p></div>`;
+      const above = box.delta > 0;
+      const colorCls = box.low_confidence ? 'text-slate-500' : (above ? 'text-sky-700' : 'text-amber-700');
+      const sign = box.delta > 0 ? '+' : '';
+      const confBadge = box.low_confidence ? `<p class="text-[8px] text-slate-400 mt-0.5">n=${box.n_years}y, low conf.</p>` : `<p class="text-[8px] text-slate-400 mt-0.5">n=${box.n_years}y</p>`;
+      return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center">
+        <p class="text-[9px] font-black text-slate-400">${label}</p>
+        <p class="text-xs font-black ${colorCls} mt-1">${sign}${box.delta}${unit}</p>
+        <p class="text-[8px] text-slate-500">normal ${box.normal}${unit}</p>
+        ${confBadge}
+      </div>`;
+    }
+
+    function renderTodayInHistory(data, lang) {
+      const T = i18n[lang].tdch;
+      const h = data?.today_in_history;
+      if (!h) return;
+
+      document.getElementById('tdch-date').innerText = `${T.comparingTo || 'Comparing to'}: ${h.date}`;
+      document.getElementById('tdch-rain-actual').innerText = h.rain.actual_mm != null ? `${h.rain.actual_mm.toFixed(1)} mm` : '--';
+      document.getElementById('tdch-temp-actual').innerText = h.temp.actual_c != null ? `${h.temp.actual_c.toFixed(1)} °C` : '--';
+
+      document.getElementById('tdch-rain-boxes').innerHTML = [
+        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm'),
+        comparisonBoxHtml(T.boxElNino, h.rain.vs_el_nino, 'mm'),
+        comparisonBoxHtml(T.boxLaNina, h.rain.vs_la_nina, 'mm'),
+        comparisonBoxHtml(T.boxNeutral, h.rain.vs_neutral, 'mm'),
+      ].join('');
+
+      document.getElementById('tdch-temp-boxes').innerHTML = [
+        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C'),
+        comparisonBoxHtml(T.boxElNino, h.temp.vs_el_nino, '°C'),
+        comparisonBoxHtml(T.boxLaNina, h.temp.vs_la_nina, '°C'),
+        comparisonBoxHtml(T.boxNeutral, h.temp.vs_neutral, '°C'),
+      ].join('');
+    }
+
+
     // ============ MAIN FETCH LOOP ============
     async function runEWS() {
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latPenampang}&longitude=${lonPenampang}&current=precipitation,temperature_2m,relative_humidity_2m&hourly=precipitation,cape,convective_inhibition,relative_humidity_700hPa,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,wind_speed_700hPa,wind_direction_700hPa,wind_speed_500hPa,wind_direction_500hPa,temperature_2m&daily=precipitation_sum,temperature_2m_max,et0_fao_evapotranspiration&past_days=7&forecast_days=7&timezone=Asia%2FSingapore`;
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latPenampang}&longitude=${lonPenampang}&current=precipitation,temperature_2m,relative_humidity_2m&hourly=precipitation,cape,convective_inhibition,relative_humidity_700hPa,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,wind_speed_700hPa,wind_direction_700hPa,wind_speed_500hPa,wind_direction_500hPa,temperature_2m,total_column_integrated_water_vapour,lifted_index,freezing_level_height,boundary_layer_height&daily=precipitation_sum,temperature_2m_max,et0_fao_evapotranspiration&past_days=7&forecast_days=7&timezone=Asia%2FSingapore`;
       const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${latCoast}&longitude=${lonCoast}&hourly=sea_level&timezone=Asia%2FSingapore`;
 
       let data = null, marineData = null;
@@ -1513,17 +1943,23 @@
 
     // ============ INIT ============
     document.getElementById('tab-btn-overview').addEventListener('click', () => switchTab('overview'));
-    document.getElementById('tab-btn-deepdive').addEventListener('click', () => switchTab('deepdive'));
+    document.getElementById('tab-btn-atmprofile').addEventListener('click', () => switchTab('atmprofile'));
+    document.getElementById('tab-btn-14day').addEventListener('click', () => switchTab('14day'));
     document.getElementById('lang-toggle-btn').addEventListener('click', () => setLang(currentLang === 'en' ? 'bm' : 'en'));
     document.getElementById('feedback-fab').addEventListener('click', openFeedbackModal);
     document.getElementById('feedback-cancel-btn').addEventListener('click', closeFeedbackModal);
     document.getElementById('feedback-modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'feedback-modal-overlay') closeFeedbackModal(); });
     document.getElementById('feedback-form').addEventListener('submit', submitFloodReport);
+    document.getElementById('rain-tab-hazard').addEventListener('click', () => setChartTab('rain', 'hazard'));
+    document.getElementById('rain-tab-clim').addEventListener('click', () => setChartTab('rain', 'climatology'));
+    document.getElementById('temp-tab-hazard').addEventListener('click', () => setChartTab('temp', 'hazard'));
+    document.getElementById('temp-tab-clim').addEventListener('click', () => setChartTab('temp', 'climatology'));
 
     applyStaticI18n(currentLang);
     renderClimateUnavailable(currentLang);
     runEWS();
     fetchClimateIndices();
+    fetchClimateReference();
     checkGeofence();
   </script>
 </body>
