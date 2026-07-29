@@ -350,6 +350,18 @@
 
               <div class="p-4 border-t border-slate-100 bg-slate-50 space-y-4">
 
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <p data-i18n="sky.rainExpectedLabel" class="text-[10px] font-black text-slate-400">TOTAL RAINFALL EXPECTED TODAY</p>
+                    <p class="text-xl font-black text-slate-800" id="sky-rain-expected">-- mm</p>
+                  </div>
+                  <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <p data-i18n="sky.currentTempLabel" class="text-[10px] font-black text-slate-400">CURRENT TEMP</p>
+                    <p class="text-xl font-black text-slate-800" id="sky-temp-current">-- °C</p>
+                    <p class="text-[9px] text-slate-500 mt-0.5" id="sky-temp-minmax">Min -- · Max -- · Avg --</p>
+                  </div>
+                </div>
+
                 <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-between text-center items-center shadow-sm">
                    <div class="w-1/3">
                       <p data-i18n="sky.lowClouds" class="text-[10px] font-black text-slate-400">LOW CLOUDS</p>
@@ -459,14 +471,18 @@
           <div>
             <h2 data-i18n="tdch.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">📅 This Day in Climate History</h2>
             <div class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm p-4 sm:p-5 space-y-4">
-              <p id="tdch-date" class="text-[10px] text-slate-400">Loading...</p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <p id="tdch-date" class="text-sm font-bold text-slate-700">Loading...</p>
+                <span id="tdch-enso-badge" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-lg"></span>
+              </div>
 
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <!-- RAIN -->
                 <div class="space-y-2">
                   <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
-                    <p data-i18n="tdch.rainLabel" class="text-[10px] font-black text-slate-400">RAIN</p>
+                    <p data-i18n="tdch.rainLabel" class="text-[10px] font-black text-slate-400">TOTAL RAINFALL</p>
                     <p id="tdch-rain-actual" class="text-xl font-black text-slate-800">-- mm</p>
+                    <p id="tdch-rain-trend" class="text-[9px] font-bold mt-0.5">&nbsp;</p>
                   </div>
                   <p data-i18n="tdch.rainVsTitle" class="text-[10px] font-black text-slate-500 uppercase">Rain vs. Baselines</p>
                   <div id="tdch-rain-boxes" class="grid grid-cols-2 gap-2"></div>
@@ -477,9 +493,30 @@
                   <div class="bg-slate-50 rounded-xl p-3 border border-slate-200">
                     <p data-i18n="tdch.tempLabel" class="text-[10px] font-black text-slate-400">TEMP</p>
                     <p id="tdch-temp-actual" class="text-xl font-black text-slate-800">-- °C</p>
+                    <p id="tdch-temp-minmax" class="text-[9px] text-slate-500 mt-0.5">Min -- · Max --</p>
                   </div>
                   <p data-i18n="tdch.tempVsTitle" class="text-[10px] font-black text-slate-500 uppercase">Temp vs. Baselines</p>
                   <div id="tdch-temp-boxes" class="grid grid-cols-2 gap-2"></div>
+                </div>
+              </div>
+
+              <button id="tdch-years-toggle" data-i18n="tdch.yearsToggle" class="w-full text-center text-xs font-bold text-sky-600 border border-sky-200 py-2 rounded-lg bg-sky-50 hover:bg-sky-100">View all years ▾</button>
+
+              <div id="tdch-years-panel" class="hidden space-y-2">
+                <p id="tdch-years-caption" class="text-[10px] text-slate-400 italic"></p>
+                <div id="tdch-years-filters" class="flex gap-1.5 flex-wrap"></div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-[11px] border-collapse">
+                    <thead>
+                      <tr class="text-slate-400 text-left">
+                        <th class="font-black py-1 pr-2">Year</th>
+                        <th data-i18n="tdch.yearsColPhase" class="font-black py-1 pr-2">ENSO phase</th>
+                        <th data-i18n="tdch.yearsColRain" class="font-black py-1 pr-2 text-right">Total rainfall (mm)</th>
+                        <th data-i18n="tdch.yearsColTemp" class="font-black py-1 text-right">Average temp (°C)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tdch-years-body"></tbody>
+                  </table>
                 </div>
               </div>
 
@@ -695,6 +732,7 @@
           forecastLegend: "First 9h shown hourly, then 3h totals. Rain color = implied mm/hr rate (red ≥10, amber ≥2) so it's comparable across both. L/M/H = avg Low/Mid/High cloud %. RH = avg surface humidity.",
           forecastHourlyGroup: "Hourly", forecast3hGroup: "3-Hour",
           loading: "Loading...",
+          rainExpectedLabel: "TOTAL RAINFALL EXPECTED TODAY", currentTempLabel: "CURRENT TEMP",
           lowClouds: "LOW CLOUDS", lowCloudsSub: "Low gloom/drizzle",
           midClouds: "MID CLOUDS", midCloudsSub: "3km high",
           highClouds: "HIGH CLOUDS", highCloudsSub: "Thin wisps",
@@ -786,12 +824,16 @@
         },
         tdch: {
           heading: "📅 This Day in Climate History",
-          rainLabel: "RAIN", tempLabel: "TEMP",
+          rainLabel: "TOTAL RAINFALL", tempLabel: "AVERAGE TEMPERATURE",
           rainVsTitle: "Rain vs. Baselines", tempVsTitle: "Temp vs. Baselines",
-          comparingTo: "Comparing to",
+          comparingTo: "Comparing to", ensoPhaseLabel: "ENSO phase",
           box30yr: "30-YR AVG", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
           footnote: "Baselines: 1996-2025 climatology. ENSO phases via NOAA ONI (5+ consecutive season persistence rule). Boxes built on fewer years are flagged low-confidence.",
           unavailable: "Climate history data unavailable",
+          yearsToggle: "How {date} looked in past years ▾", yearsToggleClose: "Hide past years ▴",
+          yearsCaption: "How {date} looked like in the past",
+          yearsColPhase: "ENSO phase", yearsColRain: "Total rainfall (mm)", yearsColTemp: "Average temp (°C)",
+          filterAll: "All", filterElNino: "El Niño", filterLaNina: "La Niña", filterNeutral: "Neutral",
         },
         maps: {
           heading: "🗺️ Live Satellite Maps & 14-Day Outlook",
@@ -899,6 +941,7 @@
           forecastLegend: "9 jam pertama setiap jam, kemudian jumlah 3 jam. Warna hujan = kadar mm/jam tersirat (merah ≥10, kuning ≥2). R/S/T = purata Awan Rendah/Sederhana/Tinggi %. RH = purata kelembapan permukaan.",
           forecastHourlyGroup: "Setiap Jam", forecast3hGroup: "3-Jam",
           loading: "Memuat...",
+          rainExpectedLabel: "JUMLAH HUJAN DIJANGKA HARI INI", currentTempLabel: "SUHU SEMASA",
           lowClouds: "AWAN RENDAH", lowCloudsSub: "Kabus/hujan renyai rendah",
           midClouds: "AWAN PERTENGAHAN", midCloudsSub: "Ketinggian 3km",
           highClouds: "AWAN TINGGI", highCloudsSub: "Awan nipis",
@@ -990,12 +1033,16 @@
         },
         tdch: {
           heading: "📅 Hari Ini Dalam Sejarah Iklim",
-          rainLabel: "HUJAN", tempLabel: "SUHU",
+          rainLabel: "JUMLAH HUJAN", tempLabel: "PURATA SUHU",
           rainVsTitle: "Hujan lwn. Garis Dasar", tempVsTitle: "Suhu lwn. Garis Dasar",
-          comparingTo: "Berbanding dengan",
+          comparingTo: "Berbanding dengan", ensoPhaseLabel: "Fasa ENSO",
           box30yr: "PURATA 30-TAHUN", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
           footnote: "Garis dasar: klimatologi 1996-2025. Fasa ENSO melalui ONI NOAA (peraturan kegigihan 5+ musim berturut-turut). Kotak dibina daripada tahun yang lebih sedikit ditanda keyakinan rendah.",
           unavailable: "Data sejarah iklim tidak tersedia",
+          yearsToggle: "Bagaimana {date} pada tahun lalu ▾", yearsToggleClose: "Sembunyi tahun lalu ▴",
+          yearsCaption: "Bagaimana {date} pada tahun-tahun lalu",
+          yearsColPhase: "Fasa ENSO", yearsColRain: "Jumlah hujan (mm)", yearsColTemp: "Purata suhu (°C)",
+          filterAll: "Semua", filterElNino: "El Niño", filterLaNina: "La Niña", filterNeutral: "Neutral",
         },
         maps: {
           heading: "🗺️ Peta Satelit Langsung & Ramalan 14-Hari",
@@ -1043,6 +1090,8 @@
     let rainChartMode = 'hazard';   // 'hazard' | 'climatology'
     let tempChartMode = 'hazard';   // 'hazard' | 'climatology'
     let climateReference = null;    // fetched climate_reference.json (static, precomputed offline)
+    let tdchYearsOpen = false;      // preserved across re-render so a language switch doesn't collapse it
+    let tdchYearsFilter = 'all';    // 'all' | 'el_nino' | 'la_nina' | 'neutral'
 
     function t(lang, path) {
       return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), i18n[lang]);
@@ -1200,6 +1249,15 @@
       const currentWind = data.hourly?.wind_speed_10m?.[currIdx] ?? 0;
       const currentTide = marineData?.hourly?.sea_level?.[currIdx] ?? 0;
 
+      // Today's forecast total rain + temp range, for the Sky Profile card.
+      // Index 7 = today, same past_days=7/forecast_days=7 convention used
+      // elsewhere (see currentET below).
+      const rainExpectedToday = data.daily?.precipitation_sum?.[7] ?? null;
+      const todayTempMax = data.daily?.temperature_2m_max?.[7] ?? null;
+      const todayTempMin = data.daily?.temperature_2m_min?.[7] ?? null;
+      const todayTempAvg = (todayTempMax != null && todayTempMin != null)
+        ? (todayTempMax + todayTempMin) / 2 : null;
+
       let peakTide = currentTide;
       if (marineData?.hourly?.sea_level) {
         for (let i = 0; i < 12; i++) {
@@ -1299,6 +1357,7 @@
       s.cape = cape; s.cin = cin; s.rh700 = rh700; s.pw = pw; s.li = li; s.freezingLevel = freezingLevel; s.pblHeight = pblHeight;
       s.steerSpeed = steerSpeed; s.steerDir = steerDir; s.destStr = destStr; s.bulkShearSpeed = bulkShearSpeed;
       s.rawRain = rawRain; s.currentTemp = currentTemp; s.currentRH = currentRH; s.currentWind = currentWind;
+      s.rainExpectedToday = rainExpectedToday; s.todayTempMax = todayTempMax; s.todayTempMin = todayTempMin; s.todayTempAvg = todayTempAvg;
       s.currentTide = currentTide; s.peakTide = peakTide;
       s.past24hRain = past24hRain; s.past3hRain = past3hRain; s.next12hRain = next12hRain; s.next6hRain = next6hRain;
 
@@ -1545,6 +1604,19 @@
       else { spI.innerText = L.sky.steerFast; spI.className = "text-[10px] font-bold text-emerald-700 mt-1"; }
 
       document.getElementById('ai-analysis-text').innerText = generateAIAnalysisText(s, lang);
+
+      // --- Sky Profile: today's rain total + temp range ---
+      const skyRainEl = document.getElementById('sky-rain-expected');
+      if (skyRainEl) skyRainEl.innerText = s.rainExpectedToday != null ? `${s.rainExpectedToday.toFixed(1)} mm` : '-- mm';
+      const skyTempEl = document.getElementById('sky-temp-current');
+      if (skyTempEl) skyTempEl.innerText = `${s.currentTemp.toFixed(1)} °C`;
+      const skyMinMaxEl = document.getElementById('sky-temp-minmax');
+      if (skyMinMaxEl) {
+        const minTxt = s.todayTempMin != null ? `${s.todayTempMin.toFixed(1)}°` : '--';
+        const maxTxt = s.todayTempMax != null ? `${s.todayTempMax.toFixed(1)}°` : '--';
+        const avgTxt = s.todayTempAvg != null ? `${s.todayTempAvg.toFixed(1)}°` : '--';
+        skyMinMaxEl.innerText = `Min ${minTxt} · Max ${maxTxt} · Avg ${avgTxt}`;
+      }
 
       // --- AC ---
       const acBadge = document.getElementById('ac-badge');
@@ -1827,18 +1899,41 @@
       }
     }
 
-    function comparisonBoxHtml(label, box, unit) {
+    function trendArrow(delta, metric) {
+      if (!delta) return { arrow: '–', cls: 'text-slate-400' };
+      const up = delta > 0;
+      if (metric === 'temp') {
+        // thermometer convention: warmer = red, cooler = blue
+        return up ? { arrow: '▲', cls: 'text-red-700' } : { arrow: '▼', cls: 'text-sky-700' };
+      }
+      // rain (default): wetter = blue, drier = amber -- met/drought-map
+      // convention, deliberately not a good/bad judgment (more or less rain
+      // isn't inherently good or bad, it's context-dependent)
+      return up ? { arrow: '▲', cls: 'text-sky-700' } : { arrow: '▼', cls: 'text-amber-700' };
+    }
+
+    function comparisonBoxHtml(label, box, unit, metric) {
       if (!box) return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center"><p class="text-[9px] font-black text-slate-400">${label}</p><p class="text-xs font-bold text-slate-400 mt-1">--</p></div>`;
-      const above = box.delta > 0;
-      const colorCls = box.low_confidence ? 'text-slate-500' : (above ? 'text-sky-700' : 'text-amber-700');
+      const { arrow, cls: arrowCls } = trendArrow(box.delta, metric);
+      const colorCls = box.low_confidence ? 'text-slate-500' : arrowCls;
       const sign = box.delta > 0 ? '+' : '';
-      const confBadge = box.low_confidence ? `<p class="text-[8px] text-slate-400 mt-0.5">n=${box.n_years}y, low conf.</p>` : `<p class="text-[8px] text-slate-400 mt-0.5">n=${box.n_years}y</p>`;
-      return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center">
-        <p class="text-[9px] font-black text-slate-400">${label}</p>
-        <p class="text-xs font-black ${colorCls} mt-1">${sign}${box.delta}${unit}</p>
+      // Sample size (n_years) is a methodology detail for internal QA, not
+      // something a general reader needs -- kept in climate_reference.json
+      // as always, just not surfaced here. Low-confidence boxes still get a
+      // quiet visual flag (asterisk + tooltip) without printing the raw count.
+      const labelText = box.low_confidence ? `${label}*` : label;
+      const title = box.low_confidence ? ' title="Based on a smaller sample of years"' : '';
+      return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center"${title}>
+        <p class="text-[9px] font-black text-slate-400">${labelText}</p>
+        <p class="text-xs font-black ${colorCls} mt-1">${arrow} ${sign}${box.delta}${unit}</p>
         <p class="text-[8px] text-slate-500">normal ${box.normal}${unit}</p>
-        ${confBadge}
       </div>`;
+    }
+
+    function phaseDisplay(phase, T) {
+      if (phase === 'el_nino') return { label: T.filterElNino, cls: 'bg-amber-50 text-amber-700 border border-amber-200' };
+      if (phase === 'la_nina') return { label: T.filterLaNina, cls: 'bg-sky-50 text-sky-700 border border-sky-200' };
+      return { label: T.filterNeutral, cls: 'bg-emerald-50 text-emerald-700 border border-emerald-200' };
     }
 
     function renderTodayInHistory(data, lang) {
@@ -1846,29 +1941,141 @@
       const h = data?.today_in_history;
       if (!h) return;
 
-      document.getElementById('tdch-date').innerText = `${T.comparingTo || 'Comparing to'}: ${h.date}`;
+      const [yy] = h.date.split('-');
+      document.getElementById('tdch-date').innerText = `${T.comparingTo || 'Comparing to'} ${formatMonthDay(h.date, lang)}, ${yy}`;
       document.getElementById('tdch-rain-actual').innerText = h.rain.actual_mm != null ? `${h.rain.actual_mm.toFixed(1)} mm` : '--';
       document.getElementById('tdch-temp-actual').innerText = h.temp.actual_c != null ? `${h.temp.actual_c.toFixed(1)} °C` : '--';
 
+      const minMaxEl = document.getElementById('tdch-temp-minmax');
+      if (minMaxEl) {
+        const minTxt = h.temp.actual_min_c != null ? `${h.temp.actual_min_c.toFixed(1)}°` : '--';
+        const maxTxt = h.temp.actual_max_c != null ? `${h.temp.actual_max_c.toFixed(1)}°` : '--';
+        let trendTxt = '';
+        // Compare against TODAY's live figure (from lastState, same source
+        // Sky Profile reads from), not the 30-yr climatology -- that
+        // comparison already exists correctly in the 4 baseline boxes below.
+        if (lastState && lastState.todayTempAvg != null && h.temp.actual_c != null) {
+          const delta = Math.round((lastState.todayTempAvg - h.temp.actual_c) * 10) / 10;
+          const t = trendArrow(delta, 'temp');
+          trendTxt = ` · <span class="${t.cls} font-bold">${t.arrow} Today ${delta > 0 ? '+' : ''}${delta}°</span>`;
+        }
+        minMaxEl.innerHTML = `Min ${minTxt} · Max ${maxTxt}${trendTxt}`;
+      }
+
+      const rainTrendEl = document.getElementById('tdch-rain-trend');
+      if (rainTrendEl) {
+        if (lastState && lastState.rainExpectedToday != null && h.rain.actual_mm != null) {
+          const delta = Math.round((lastState.rainExpectedToday - h.rain.actual_mm) * 10) / 10;
+          const t = trendArrow(delta, 'rain');
+          rainTrendEl.innerHTML = `<span class="${t.cls}">${t.arrow} Today ${delta > 0 ? '+' : ''}${delta}mm</span>`;
+        } else {
+          rainTrendEl.innerHTML = '&nbsp;';
+        }
+      }
+
+      const badgeEl = document.getElementById('tdch-enso-badge');
+      if (badgeEl && h.enso_phase) {
+        const pd = phaseDisplay(h.enso_phase.phase, T);
+        badgeEl.innerText = `${T.ensoPhaseLabel || 'ENSO phase'}: ${pd.label}`;
+        badgeEl.className = `text-[10px] font-bold px-2 py-0.5 rounded-lg ${pd.cls}`;
+      }
+
       document.getElementById('tdch-rain-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm'),
-        comparisonBoxHtml(T.boxElNino, h.rain.vs_el_nino, 'mm'),
-        comparisonBoxHtml(T.boxLaNina, h.rain.vs_la_nina, 'mm'),
-        comparisonBoxHtml(T.boxNeutral, h.rain.vs_neutral, 'mm'),
+        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm', 'rain'),
+        comparisonBoxHtml(T.boxElNino, h.rain.vs_el_nino, 'mm', 'rain'),
+        comparisonBoxHtml(T.boxLaNina, h.rain.vs_la_nina, 'mm', 'rain'),
+        comparisonBoxHtml(T.boxNeutral, h.rain.vs_neutral, 'mm', 'rain'),
       ].join('');
 
       document.getElementById('tdch-temp-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C'),
-        comparisonBoxHtml(T.boxElNino, h.temp.vs_el_nino, '°C'),
-        comparisonBoxHtml(T.boxLaNina, h.temp.vs_la_nina, '°C'),
-        comparisonBoxHtml(T.boxNeutral, h.temp.vs_neutral, '°C'),
+        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C', 'temp'),
+        comparisonBoxHtml(T.boxElNino, h.temp.vs_el_nino, '°C', 'temp'),
+        comparisonBoxHtml(T.boxLaNina, h.temp.vs_la_nina, '°C', 'temp'),
+        comparisonBoxHtml(T.boxNeutral, h.temp.vs_neutral, '°C', 'temp'),
       ].join('');
+
+      renderYearsTable(h.years || [], T);
+
+      const toggleBtn = document.getElementById('tdch-years-toggle');
+      const panel = document.getElementById('tdch-years-panel');
+      const captionEl = document.getElementById('tdch-years-caption');
+      const dateLabel = formatMonthDay(h.date, lang);
+      const toggleOpenTxt = (T.yearsToggle || 'How {date} looked in past years ▾').replace('{date}', dateLabel);
+      const toggleCloseTxt = (T.yearsToggleClose || 'Hide past years ▴');
+      if (captionEl) captionEl.innerText = (T.yearsCaption || '').replace('{date}', dateLabel);
+      if (toggleBtn && panel) {
+        panel.classList.toggle('hidden', !tdchYearsOpen);
+        toggleBtn.innerText = tdchYearsOpen ? toggleCloseTxt : toggleOpenTxt;
+        // assignment, not addEventListener, so re-render (e.g. language switch)
+        // replaces the handler instead of stacking a duplicate on top of it
+        toggleBtn.onclick = () => {
+          tdchYearsOpen = !tdchYearsOpen;
+          panel.classList.toggle('hidden', !tdchYearsOpen);
+          toggleBtn.innerText = tdchYearsOpen ? toggleCloseTxt : toggleOpenTxt;
+        };
+      }
+    }
+
+    const MONTH_ABBR = {
+      en: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+      bm: ['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'],
+    };
+    function formatMonthDay(isoDateStr, lang) {
+      const [, m, d] = isoDateStr.split('-').map(Number);
+      const abbr = (MONTH_ABBR[lang] || MONTH_ABBR.en)[m - 1];
+      return `${abbr} ${d}`;
+    }
+
+    function renderYearsTable(years, T) {
+      const filtersEl = document.getElementById('tdch-years-filters');
+      const bodyEl = document.getElementById('tdch-years-body');
+      if (!filtersEl || !bodyEl) return;
+
+      const filters = [
+        { key: 'all', label: T.filterAll },
+        { key: 'el_nino', label: T.filterElNino },
+        { key: 'la_nina', label: T.filterLaNina },
+        { key: 'neutral', label: T.filterNeutral },
+      ];
+      filtersEl.innerHTML = filters.map(f => {
+        const active = f.key === tdchYearsFilter;
+        const cls = active
+          ? 'bg-slate-700 text-white'
+          : 'bg-slate-100 text-slate-600 hover:bg-slate-200';
+        return `<button data-phase-filter="${f.key}" class="text-[10px] font-bold px-2.5 py-1 rounded-lg ${cls}">${f.label}</button>`;
+      }).join('');
+      filtersEl.querySelectorAll('[data-phase-filter]').forEach(btn => {
+        btn.onclick = () => {
+          tdchYearsFilter = btn.getAttribute('data-phase-filter');
+          renderYearsTable(years, T);
+        };
+      });
+
+      const sorted = [...years].sort((a, b) => b.year - a.year); // most recent first
+      const visible = tdchYearsFilter === 'all'
+        ? sorted
+        : sorted.filter(row => row.phases.some(p => p.phase === tdchYearsFilter));
+
+      bodyEl.innerHTML = visible.map(row => {
+        const badges = row.phases.map(p => {
+          const pd = phaseDisplay(p.phase, T);
+          return `<span class="inline-block text-[9px] font-bold px-1.5 py-0.5 rounded ${pd.cls} mr-1 mb-0.5">${pd.label}</span>`;
+        }).join('');
+        const rainTxt = row.rain_mm != null ? row.rain_mm.toFixed(1) : '--';
+        const tempTxt = row.temp_c != null ? row.temp_c.toFixed(1) : '--';
+        return `<tr class="border-t border-slate-100">
+          <td class="py-1.5 pr-2 font-bold text-slate-700">${row.year}</td>
+          <td class="py-1.5 pr-2">${badges}</td>
+          <td class="py-1.5 pr-2 text-right text-slate-700">${rainTxt}</td>
+          <td class="py-1.5 text-right text-slate-700">${tempTxt}</td>
+        </tr>`;
+      }).join('');
     }
 
 
     // ============ MAIN FETCH LOOP ============
     async function runEWS() {
-      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latPenampang}&longitude=${lonPenampang}&current=precipitation,temperature_2m,relative_humidity_2m&hourly=precipitation,cape,convective_inhibition,relative_humidity_700hPa,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,wind_speed_700hPa,wind_direction_700hPa,wind_speed_500hPa,wind_direction_500hPa,temperature_2m,total_column_integrated_water_vapour,lifted_index,freezing_level_height,boundary_layer_height&daily=precipitation_sum,temperature_2m_max,et0_fao_evapotranspiration&past_days=7&forecast_days=7&timezone=Asia%2FSingapore`;
+      const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latPenampang}&longitude=${lonPenampang}&current=precipitation,temperature_2m,relative_humidity_2m&hourly=precipitation,cape,convective_inhibition,relative_humidity_700hPa,relative_humidity_2m,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high,wind_speed_10m,wind_direction_10m,wind_speed_850hPa,wind_direction_850hPa,wind_speed_700hPa,wind_direction_700hPa,wind_speed_500hPa,wind_direction_500hPa,temperature_2m,total_column_integrated_water_vapour,lifted_index,freezing_level_height,boundary_layer_height&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,et0_fao_evapotranspiration&past_days=7&forecast_days=7&timezone=Asia%2FSingapore`;
       const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${latCoast}&longitude=${lonCoast}&hourly=sea_level&timezone=Asia%2FSingapore`;
 
       let data = null, marineData = null;
@@ -1888,6 +2095,7 @@
 
       lastState = computeState(data, marineData);
       render(lastState, currentLang);
+      if (climateReference) renderTodayInHistory(climateReference, currentLang);
     }
 
     // ============ FEEDBACK MODAL ============
