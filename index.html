@@ -826,7 +826,7 @@
           heading: "📅 This Day in Climate History",
           rainLabel: "TOTAL RAINFALL", tempLabel: "AVERAGE TEMPERATURE",
           rainVsTitle: "Rain vs. Baselines", tempVsTitle: "Temp vs. Baselines",
-          comparingTo: "Comparing to", ensoPhaseLabel: "ENSO phase", avgPrefix: "avg",
+          comparingTo: "Comparing to", ensoPhaseLabel: "ENSO phase", avgPrefix: "avg", label7dAvg: "7-day average", label1dAvg: "single-day avg",
           box30yr: "30-YR AVG", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
           footnote: "Baselines: 1996-2025 climatology. ENSO phases via NOAA ONI (5+ consecutive season persistence rule). Boxes built on fewer years are flagged low-confidence.",
           unavailable: "Climate history data unavailable",
@@ -1035,7 +1035,7 @@
           heading: "📅 Hari Ini Dalam Sejarah Iklim",
           rainLabel: "JUMLAH HUJAN", tempLabel: "PURATA SUHU",
           rainVsTitle: "Hujan lwn. Garis Dasar", tempVsTitle: "Suhu lwn. Garis Dasar",
-          comparingTo: "Berbanding dengan", ensoPhaseLabel: "Fasa ENSO", avgPrefix: "purata",
+          comparingTo: "Berbanding dengan", ensoPhaseLabel: "Fasa ENSO", avgPrefix: "purata", label7dAvg: "purata 7-hari", label1dAvg: "purata 1-hari",
           box30yr: "PURATA 30-TAHUN", boxElNino: "EL NIÑO", boxLaNina: "LA NIÑA", boxNeutral: "NEUTRAL",
           footnote: "Garis dasar: klimatologi 1996-2025. Fasa ENSO melalui ONI NOAA (peraturan kegigihan 5+ musim berturut-turut). Kotak dibina daripada tahun yang lebih sedikit ditanda keyakinan rendah.",
           unavailable: "Data sejarah iklim tidak tersedia",
@@ -1952,7 +1952,7 @@
       return up ? { arrow: '▲', cls: 'text-sky-700' } : { arrow: '▼', cls: 'text-amber-700' };
     }
 
-    function comparisonBoxHtml(label, box, unit, metric, avgLabel) {
+    function comparisonBoxHtml(label, box, unit, metric, avgLabel, singleDayBox, labels7d, labels1d) {
       if (!box) return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center"><p class="text-[9px] font-black text-slate-400">${label}</p><p class="text-xs font-bold text-slate-400 mt-1">--</p></div>`;
       const { arrow, cls: arrowCls } = trendArrow(box.delta, metric);
       const colorCls = box.low_confidence ? 'text-slate-500' : arrowCls;
@@ -1963,10 +1963,17 @@
       // quiet visual flag (asterisk + tooltip) without printing the raw count.
       const labelText = box.low_confidence ? `${label}*` : label;
       const title = box.low_confidence ? ' title="Based on a smaller sample of years"' : '';
+      // Only the 30-yr box gets a singleDayBox passed in -- two explicit
+      // labels rather than bare parentheses, since unlabeled numbers side by
+      // side is exactly the ambiguity that prompted this in the first place.
+      const avgLines = singleDayBox
+        ? `<p class="text-[8px] text-slate-500">${labels7d}: ${box.normal}${unit}</p>
+           <p class="text-[8px] text-slate-500">${labels1d}: ${singleDayBox.normal}${unit}</p>`
+        : `<p class="text-[8px] text-slate-500">${avgLabel || 'avg'} ${box.normal}${unit}</p>`;
       return `<div class="bg-slate-50 rounded-lg p-2 border border-slate-200 text-center"${title}>
         <p class="text-[9px] font-black text-slate-400">${labelText}</p>
         <p class="text-xs font-black ${colorCls} mt-1">${arrow} ${sign}${box.delta}${unit}</p>
-        <p class="text-[8px] text-slate-500">${avgLabel || 'avg'} ${box.normal}${unit}</p>
+        ${avgLines}
       </div>`;
     }
 
@@ -2023,14 +2030,14 @@
       }
 
       document.getElementById('tdch-rain-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm', 'rain', T.avgPrefix),
+        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm', 'rain', T.avgPrefix, h.rain.vs_30yr_singleday, T.label1dAvg, T.label7dAvg),
         comparisonBoxHtml(T.boxElNino, h.rain.vs_el_nino, 'mm', 'rain', T.avgPrefix),
         comparisonBoxHtml(T.boxLaNina, h.rain.vs_la_nina, 'mm', 'rain', T.avgPrefix),
         comparisonBoxHtml(T.boxNeutral, h.rain.vs_neutral, 'mm', 'rain', T.avgPrefix),
       ].join('');
 
       document.getElementById('tdch-temp-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C', 'temp', T.avgPrefix),
+        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C', 'temp', T.avgPrefix, h.temp.vs_30yr_singleday, T.label1dAvg, T.label7dAvg),
         comparisonBoxHtml(T.boxElNino, h.temp.vs_el_nino, '°C', 'temp', T.avgPrefix),
         comparisonBoxHtml(T.boxLaNina, h.temp.vs_la_nina, '°C', 'temp', T.avgPrefix),
         comparisonBoxHtml(T.boxNeutral, h.temp.vs_neutral, '°C', 'temp', T.avgPrefix),
