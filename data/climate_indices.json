@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-07-30T02:29:54Z",
+  "generated_utc": "2026-07-30T03:39:03Z",
   "enso": {
     "latest_week_ending": "2026-07-22",
     "nino34_weekly_anomaly_c": 1.4,
@@ -10,14 +10,14 @@
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2024-02-24",
-    "rmm1": -0.003,
-    "rmm2": 0.128,
-    "phase": 7,
-    "amplitude": 0.128,
+    "date": "2026-07-25",
+    "rmm1": 0.47,
+    "rmm2": -0.019,
+    "phase": 4,
+    "amplitude": 0.47,
     "active": false,
     "impact_category": "transitional",
     "impact_text": "Weak/incoherent MJO signal (amplitude < 1.0) \u2014 little influence expected.",
-    "source": "http://www.bom.gov.au/climate/mjo/graphics/rmm.74toRealtime.txt"
+    "source": "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
   }
 }

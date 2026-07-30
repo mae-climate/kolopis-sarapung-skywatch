@@ -52,9 +52,9 @@ import ee
 LAT, LON = 5.925840, 116.143360   # Kolopis / Kg. Sarapung
 START_YEAR = 1996                  # matches the rolling-recent 30yr window in
 END_YEAR = 2025                    # build_climate_reference.py -- keep in sync
-OUTPUT_CSV = "chirps_kolopis_daily.csv"
+OUTPUT_CSV = "/Users/maeleong/Work/ClimateData-Projects/sabah-climate-data/chirps/kolopis_daily.csv"
 
-EE_PROJECT = "your-gcp-project-id"  # <-- REQUIRED: set to your Earth Engine Cloud project ID
+EE_PROJECT = "sabah-climate-data"  # <-- REQUIRED: set to your Earth Engine Cloud project ID
 
 CHIRPS_COLLECTION = "UCSB-CHG/CHIRPS/DAILY"
 BAND = "precipitation"

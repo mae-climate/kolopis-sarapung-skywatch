@@ -4,7 +4,8 @@ fetch_era5_temp.py
 
 Pulls daily 2m temperature for the Kolopis point from Open-Meteo's Historical
 Weather API (ERA5-Land reanalysis under the hood) and writes it in the exact
-format build_climate_reference.py expects: date, temp_c CSV.
+format build_climate_reference.py expects: date, temp_mean_c, temp_min_c,
+temp_max_c CSV.
 
 No account, no API key, no auth -- this is a plain HTTP GET. Endpoint and
 parameters verified directly against Open-Meteo's docs
@@ -26,7 +27,7 @@ import requests
 LAT, LON = 5.925840, 116.143360   # Kolopis / Kg. Sarapung
 START_DATE = "1996-01-01"          # matches the rolling-recent 30yr window in
 END_DATE = "2025-12-31"            # build_climate_reference.py -- keep these in sync
-OUTPUT_CSV = "era5land_kolopis_daily.csv"
+OUTPUT_CSV = "/Users/maeleong/Work/ClimateData-Projects/sabah-climate-data/era5land/kolopis_daily.csv"
 TIMEZONE = "Asia/Singapore"        # same convention used throughout the rest of your pipeline
 
 # ERA5-Land is the default "Best Match" model for this endpoint at this
@@ -41,7 +42,10 @@ CHUNK_YEARS = None  # e.g. set to 5 to fetch in 5-year chunks if a single call m
 
 
 def fetch_range(start_date, end_date):
-    """One HTTP call, returns list of (date, temp_c) tuples."""
+    """One HTTP call, returns list of (date, mean_c, min_c, max_c) tuples.
+    min/max used to be fetched only as a mean-fallback and then discarded --
+    now kept for real, since This Day in Climate History shows actual daily
+    min/max alongside the mean."""
     url = "https://archive-api.open-meteo.com/v1/archive"
     params = {
         "latitude": LAT,
@@ -74,10 +78,12 @@ def fetch_range(start_date, end_date):
     rows = []
     for i, d in enumerate(dates):
         mean_val = means[i] if means else None
-        if mean_val is None and maxs and mins and maxs[i] is not None and mins[i] is not None:
-            mean_val = round((maxs[i] + mins[i]) / 2, 1)  # fallback if 'mean' unsupported
+        min_val = mins[i] if mins else None
+        max_val = maxs[i] if maxs else None
+        if mean_val is None and min_val is not None and max_val is not None:
+            mean_val = round((min_val + max_val) / 2, 1)  # fallback if 'mean' unsupported
         if mean_val is not None:
-            rows.append((d, mean_val))
+            rows.append((d, mean_val, min_val, max_val))
     return rows
 
 
@@ -102,7 +108,7 @@ def main():
 
     with open(OUTPUT_CSV, "w", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["date", "temp_c"])
+        w.writerow(["date", "temp_mean_c", "temp_min_c", "temp_max_c"])
         w.writerows(all_rows)
 
     print(f"Wrote {len(all_rows)} daily rows to {OUTPUT_CSV}")
