@@ -23,9 +23,10 @@ existing CHIRPS/ERA5 pipeline):
     -> full period of record, ideally 1981-present
 
   TEMP_CSV_PATH: ERA5-Land daily 2m temperature for the same location,
-    columns: date (YYYY-MM-DD), temp_c
-    -> use daily mean T2m (documented choice -- change to max if you'd
-       rather the temp climatology track daily highs instead)
+    columns: date (YYYY-MM-DD), temp_mean_c, temp_min_c, temp_max_c
+    -> climatology/"normal" comparisons use daily mean T2m (documented
+       choice); min/max are carried through separately for This Day in
+       Climate History's actual-day range display, not used in climatology
 
 If your existing pipeline already extracts point time series in a different
 shape, just adjust load_rain_csv() / load_temp_csv() below -- the rest of
@@ -78,9 +79,9 @@ ENSO_SMOOTHING_WINDOW_DAYS = 10        # wider window for ENSO-stratified compos
                                         # size of the plain climatology, so it needs
                                         # more pooling to stay statistically stable
 
-RAIN_CSV_PATH = "chirps_kolopis_daily.csv"
-TEMP_CSV_PATH = "era5land_kolopis_daily.csv"
-OUTPUT_JSON_PATH = "climate_reference.json"
+RAIN_CSV_PATH = "/Users/maeleong/Work/ClimateData-Projects/sabah-climate-data/chirps/kolopis_daily.csv"
+TEMP_CSV_PATH = "/Users/maeleong/Work/ClimateData-Projects/sabah-climate-data/era5land/kolopis_daily.csv"
+OUTPUT_JSON_PATH = "/Users/maeleong/Work/ClimateData-Projects/sabah-climate-data/climate_reference.json"
 
 # Minimum years required in an ENSO bucket before we trust it enough to
 # publish a number for it. Below this, the composite gets flagged as
@@ -100,6 +101,12 @@ MIN_YEARS_FOR_ENSO_COMPOSITE = 6
 # ============================================================================
 SEASON_LABELS = ["DJF", "JFM", "FMA", "MAM", "AMJ", "MJJ",
                   "JJA", "JAS", "ASO", "SON", "OND", "NDJ"]
+
+# Lay-readable equivalent of each 3-letter ONI season code, for display in
+# the UI's year-by-year table. Index-aligned with SEASON_LABELS.
+SEASON_LABELS_READABLE = ["Dec-Feb", "Jan-Mar", "Feb-Apr", "Mar-May",
+                            "Apr-Jun", "May-Jul", "Jun-Aug", "Jul-Sep",
+                            "Aug-Oct", "Sep-Nov", "Oct-Dec", "Nov-Jan"]
 
 ONI = {
     1979: [0.0, 0.1, 0.2, 0.3, 0.2, 0.0, 0.0, 0.2, 0.3, 0.5, 0.5, 0.6],
@@ -250,7 +257,24 @@ def load_rain_csv(path=RAIN_CSV_PATH):
 
 
 def load_temp_csv(path=TEMP_CSV_PATH):
-    return load_daily_csv(path, "temp_c")
+    """Returns {date: {"mean": float, "min": float|None, "max": float|None}}.
+    Unlike rain, temp now carries three numbers per day -- mean drives the
+    climatology/"normal" comparisons exactly as before, min/max are along
+    for the ride for This Day in Climate History's actual-day range."""
+    out = {}
+    with open(path, newline="") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                d = date.fromisoformat(row["date"])
+                out[d] = {
+                    "mean": float(row["temp_mean_c"]),
+                    "min": float(row["temp_min_c"]) if row.get("temp_min_c") else None,
+                    "max": float(row["temp_max_c"]) if row.get("temp_max_c") else None,
+                }
+            except (ValueError, KeyError):
+                continue  # skip malformed/missing rows rather than crash the run
+    return out
 
 
 # ============================================================================
@@ -325,15 +349,32 @@ def build_climatology(daily_data, start_year, end_year, window_days,
 # ============================================================================
 # STEP 4: "this day last year" + the four comparison boxes
 # ============================================================================
-def build_today_in_history(daily_rain, daily_temp, climatology_rain,
-                             climatology_temp, enso_climatologies_rain,
-                             enso_climatologies_temp, today):
-    last_year_date = today.replace(year=today.year - 1)
-    mmdd = (last_year_date.month, last_year_date.day)
+def build_day_history(daily_rain, daily_temp, climatology_rain,
+                        climatology_temp, enso_climatologies_rain,
+                        enso_climatologies_temp, month, day, reference_year,
+                        episode_map):
+    mmdd = (month, day)
 
-    actual_rain = daily_rain.get(last_year_date)
-    actual_temp = daily_temp.get(last_year_date)
-    enso_phase_last_year = None  # filled in by caller if episode_map is in scope
+    try:
+        ref_date = date(reference_year, month, day)
+    except ValueError:
+        ref_date = None  # Feb 29, and reference_year isn't a leap year
+
+    actual_rain = daily_rain.get(ref_date) if ref_date else None
+    temp_entry = daily_temp.get(ref_date) if ref_date else None
+    actual_temp_mean = temp_entry["mean"] if temp_entry else None
+    actual_temp_min = temp_entry["min"] if temp_entry else None
+    actual_temp_max = temp_entry["max"] if temp_entry else None
+
+    # Single specific date -> single season -> single phase. (Unlike the
+    # year-by-year table below, there's no window here to straddle a season
+    # boundary, so this is unambiguous.)
+    if ref_date:
+        phase = enso_phase_for_date(ref_date, episode_map)
+        season_idx = season_index_for_month(ref_date.month)
+        enso_phase_ref = {"phase": phase, "season_label": SEASON_LABELS_READABLE[season_idx]}
+    else:
+        enso_phase_ref = None
 
     def box(value, clim_entry, min_years=MIN_YEARS_FOR_ENSO_COMPOSITE):
         if value is None or clim_entry is None or clim_entry["mean"] is None:
@@ -349,7 +390,11 @@ def build_today_in_history(daily_rain, daily_temp, climatology_rain,
         }
 
     return {
-        "date": last_year_date.isoformat(),
+        # Always a well-formed ISO date string, even for the Feb 29 /
+        # non-leap reference_year case (values inside will just be null --
+        # see ref_date handling above). Keeps every consumer of "date" simple.
+        "date": f"{reference_year:04d}-{month:02d}-{day:02d}",
+        "enso_phase": enso_phase_ref,
         "rain": {
             "actual_mm": actual_rain,
             "vs_30yr": box(actual_rain, climatology_rain.get(mmdd)),
@@ -358,13 +403,95 @@ def build_today_in_history(daily_rain, daily_temp, climatology_rain,
             "vs_neutral": box(actual_rain, enso_climatologies_rain["neutral"].get(mmdd)),
         },
         "temp": {
-            "actual_c": actual_temp,
-            "vs_30yr": box(actual_temp, climatology_temp.get(mmdd)),
-            "vs_el_nino": box(actual_temp, enso_climatologies_temp["el_nino"].get(mmdd)),
-            "vs_la_nina": box(actual_temp, enso_climatologies_temp["la_nina"].get(mmdd)),
-            "vs_neutral": box(actual_temp, enso_climatologies_temp["neutral"].get(mmdd)),
+            "actual_c": actual_temp_mean,
+            "actual_min_c": round(actual_temp_min, 1) if actual_temp_min is not None else None,
+            "actual_max_c": round(actual_temp_max, 1) if actual_temp_max is not None else None,
+            "vs_30yr": box(actual_temp_mean, climatology_temp.get(mmdd)),
+            "vs_el_nino": box(actual_temp_mean, enso_climatologies_temp["el_nino"].get(mmdd)),
+            "vs_la_nina": box(actual_temp_mean, enso_climatologies_temp["la_nina"].get(mmdd)),
+            "vs_neutral": box(actual_temp_mean, enso_climatologies_temp["neutral"].get(mmdd)),
         },
     }
+
+
+# ============================================================================
+# STEP 4a2: precompute build_day_history() + build_year_table() for all 366
+# calendar days (not just one "today") -- this is what lets a static JSON
+# file stay correct every day without needing to be rebuilt daily. The
+# client picks the right entry using its own live date at view time.
+# ============================================================================
+def build_all_days_history(daily_rain, daily_temp, climatology_rain,
+                             climatology_temp, enso_climatologies_rain,
+                             enso_climatologies_temp, episode_map,
+                             reference_year, start_year, end_year, window_days):
+    out = {}
+    d = date(2024, 1, 1)  # 2024 is a leap year, so this enumerates Feb 29 too
+    for _ in range(366):
+        entry = build_day_history(
+            daily_rain, daily_temp, climatology_rain, climatology_temp,
+            enso_climatologies_rain, enso_climatologies_temp,
+            d.month, d.day, reference_year, episode_map
+        )
+        entry["years"] = build_year_table(
+            daily_rain, daily_temp, episode_map, d.month, d.day,
+            start_year, end_year, window_days
+        )
+        out[f"{d.month:02d}-{d.day:02d}"] = entry
+        d += timedelta(days=1)
+    return out
+
+
+# ============================================================================
+# STEP 4b: year-by-year table for the collapsible "view all years" widget --
+# same calendar day (exact date, no window) for every year on record, with
+# the ENSO phase(s) whose composite window that year fell into. A year can
+# show two phase badges if its +/-ENSO_SMOOTHING_WINDOW_DAYS window straddled
+# a season transition (e.g. 2011, 2016, 2020 for a Jul 29 lookup) -- this is
+# the same mechanism that makes n_years sum to more than the year count
+# across the three ENSO boxes above, made visible instead of hidden.
+# ============================================================================
+def build_year_table(daily_rain, daily_temp, episode_map, month, day,
+                       start_year, end_year, window_days):
+    rows = []
+    for year in range(start_year, end_year + 1):
+        try:
+            d = date(year, month, day)
+        except ValueError:
+            continue  # Feb 29 in a non-leap year
+
+        rain_val = daily_rain.get(d)
+        temp_entry = daily_temp.get(d)
+        temp_mean = temp_entry["mean"] if temp_entry else None
+
+        # Collect every season index touched by this year's window, grouped
+        # by phase -- so a phase that spans two adjacent season codes (the
+        # common case) merges into ONE badge with a combined month range,
+        # and only an actual phase change produces a second badge.
+        phase_to_indices = {}
+        for wd in dates_within_window(month, day, window_days, year):
+            ph = enso_phase_for_date(wd, episode_map)
+            si = season_index_for_month(wd.month)
+            phase_to_indices.setdefault(ph, set()).add(si)
+
+        phases = []
+        for ph in sorted(phase_to_indices, key=lambda p: min(phase_to_indices[p])):
+            indices = sorted(phase_to_indices[ph])
+            lo, hi = indices[0], indices[-1]
+            if lo == hi:
+                label = SEASON_LABELS_READABLE[lo]  # full 3-month range, e.g. "Jun-Aug"
+            else:
+                start_label = SEASON_LABELS_READABLE[lo].split("-")[0]
+                end_label = SEASON_LABELS_READABLE[hi].split("-")[1]
+                label = f"{start_label}-{end_label}"
+            phases.append({"phase": ph, "season_label": label})
+
+        rows.append({
+            "year": year,
+            "phases": phases,
+            "rain_mm": round(rain_val, 1) if rain_val is not None else None,
+            "temp_c": round(temp_mean, 1) if temp_mean is not None else None,
+        })
+    return rows
 
 
 # ============================================================================
@@ -403,12 +530,17 @@ def main():
     print("Classifying ENSO episodes from ONI table ...")
     episode_map = classify_enso_episodes(ONI)
 
+    # build_climatology() pools plain {date: float}. daily_temp is now
+    # {date: {mean, min, max}} since we kept min/max for TDCH -- climatology
+    # ("normal") still runs on the mean series only, unchanged from before.
+    daily_temp_mean = {d: v["mean"] for d, v in daily_temp.items()}
+
     print(f"Building {CLIMATOLOGY_START_YEAR}-{CLIMATOLOGY_END_YEAR} climatology (rain) ...")
     clim_rain = build_climatology(daily_rain, CLIMATOLOGY_START_YEAR,
                                     CLIMATOLOGY_END_YEAR, SMOOTHING_WINDOW_DAYS)
 
     print(f"Building {CLIMATOLOGY_START_YEAR}-{CLIMATOLOGY_END_YEAR} climatology (temp) ...")
-    clim_temp = build_climatology(daily_temp, CLIMATOLOGY_START_YEAR,
+    clim_temp = build_climatology(daily_temp_mean, CLIMATOLOGY_START_YEAR,
                                     CLIMATOLOGY_END_YEAR, SMOOTHING_WINDOW_DAYS)
 
     print("Building ENSO-stratified composites (rain) ...")
@@ -420,20 +552,28 @@ def main():
 
     print("Building ENSO-stratified composites (temp) ...")
     enso_clim_temp = {
-        phase: build_climatology(daily_temp, CLIMATOLOGY_START_YEAR, CLIMATOLOGY_END_YEAR,
+        phase: build_climatology(daily_temp_mean, CLIMATOLOGY_START_YEAR, CLIMATOLOGY_END_YEAR,
                                    ENSO_SMOOTHING_WINDOW_DAYS, episode_map, phase)
         for phase in ("el_nino", "la_nina", "neutral")
     }
 
-    today = date.today()
-    print(f"Building 'This Day in Climate History' for {today.isoformat()} ...")
-    today_in_history = build_today_in_history(
+    # reference_year = most recent complete year in the archive. This used to
+    # be implicitly "whenever this script last ran, minus one" -- now that
+    # we're precomputing all 366 days at once rather than one "today", that
+    # no longer means anything, so it's pinned explicitly to
+    # CLIMATOLOGY_END_YEAR instead. Update this (by extending the archive
+    # and rerunning) whenever a newer complete year becomes available.
+    reference_year = CLIMATOLOGY_END_YEAR
+    print(f"Building daily history for all 366 days (reference year {reference_year}) ...")
+    daily_history = build_all_days_history(
         daily_rain, daily_temp, clim_rain, clim_temp,
-        enso_clim_rain, enso_clim_temp, today
+        enso_clim_rain, enso_clim_temp, episode_map,
+        reference_year, CLIMATOLOGY_START_YEAR, CLIMATOLOGY_END_YEAR, ENSO_SMOOTHING_WINDOW_DAYS
     )
 
     output = {
-        "generated": today.isoformat(),
+        "generated": date.today().isoformat(),
+        "reference_year": reference_year,
         "climatology_period": f"{CLIMATOLOGY_START_YEAR}-{CLIMATOLOGY_END_YEAR}",
         "smoothing_window_days": SMOOTHING_WINDOW_DAYS,
         "enso_smoothing_window_days": ENSO_SMOOTHING_WINDOW_DAYS,
@@ -442,7 +582,11 @@ def main():
             "rain": climatology_as_lookup_list(clim_rain),
             "temp": climatology_as_lookup_list(clim_temp),
         },
-        "today_in_history": today_in_history,
+        # Keyed "MM-DD" -> same shape today_in_history used to be, for all
+        # 366 calendar days. The client picks today's key using its own live
+        # date, so this file stays correct every day without a daily rebuild
+        # -- only needs regenerating when you extend the underlying archive.
+        "daily_history": daily_history,
     }
 
     with open(OUTPUT_JSON_PATH, "w") as f:
