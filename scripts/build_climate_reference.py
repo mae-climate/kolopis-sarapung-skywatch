@@ -350,7 +350,8 @@ def build_climatology(daily_data, start_year, end_year, window_days,
 # STEP 4: "this day last year" + the four comparison boxes
 # ============================================================================
 def build_day_history(daily_rain, daily_temp, climatology_rain,
-                        climatology_temp, enso_climatologies_rain,
+                        climatology_temp, climatology_rain_singleday,
+                        climatology_temp_singleday, enso_climatologies_rain,
                         enso_climatologies_temp, month, day, reference_year,
                         episode_map):
     mmdd = (month, day)
@@ -398,6 +399,7 @@ def build_day_history(daily_rain, daily_temp, climatology_rain,
         "rain": {
             "actual_mm": actual_rain,
             "vs_30yr": box(actual_rain, climatology_rain.get(mmdd)),
+            "vs_30yr_singleday": box(actual_rain, climatology_rain_singleday.get(mmdd)),
             "vs_el_nino": box(actual_rain, enso_climatologies_rain["el_nino"].get(mmdd)),
             "vs_la_nina": box(actual_rain, enso_climatologies_rain["la_nina"].get(mmdd)),
             "vs_neutral": box(actual_rain, enso_climatologies_rain["neutral"].get(mmdd)),
@@ -407,6 +409,7 @@ def build_day_history(daily_rain, daily_temp, climatology_rain,
             "actual_min_c": round(actual_temp_min, 1) if actual_temp_min is not None else None,
             "actual_max_c": round(actual_temp_max, 1) if actual_temp_max is not None else None,
             "vs_30yr": box(actual_temp_mean, climatology_temp.get(mmdd)),
+            "vs_30yr_singleday": box(actual_temp_mean, climatology_temp_singleday.get(mmdd)),
             "vs_el_nino": box(actual_temp_mean, enso_climatologies_temp["el_nino"].get(mmdd)),
             "vs_la_nina": box(actual_temp_mean, enso_climatologies_temp["la_nina"].get(mmdd)),
             "vs_neutral": box(actual_temp_mean, enso_climatologies_temp["neutral"].get(mmdd)),
@@ -421,7 +424,8 @@ def build_day_history(daily_rain, daily_temp, climatology_rain,
 # client picks the right entry using its own live date at view time.
 # ============================================================================
 def build_all_days_history(daily_rain, daily_temp, climatology_rain,
-                             climatology_temp, enso_climatologies_rain,
+                             climatology_temp, climatology_rain_singleday,
+                             climatology_temp_singleday, enso_climatologies_rain,
                              enso_climatologies_temp, episode_map,
                              reference_year, start_year, end_year, window_days):
     out = {}
@@ -429,6 +433,7 @@ def build_all_days_history(daily_rain, daily_temp, climatology_rain,
     for _ in range(366):
         entry = build_day_history(
             daily_rain, daily_temp, climatology_rain, climatology_temp,
+            climatology_rain_singleday, climatology_temp_singleday,
             enso_climatologies_rain, enso_climatologies_temp,
             d.month, d.day, reference_year, episode_map
         )
@@ -543,6 +548,20 @@ def main():
     clim_temp = build_climatology(daily_temp_mean, CLIMATOLOGY_START_YEAR,
                                     CLIMATOLOGY_END_YEAR, SMOOTHING_WINDOW_DAYS)
 
+    # Method B: the exact calendar day only, one value per year, no window --
+    # window_days=0 collapses dates_within_window() to just the single date,
+    # so this reuses the same tested function rather than duplicating logic.
+    # Kept separate from Method A (above) rather than replacing it: NOAA's
+    # own daily-normals methodology keeps both a smoothed normal AND raw
+    # single-day figures side by side, since they answer different questions.
+    print("Building single-day (unwindowed) climatology (rain) ...")
+    clim_rain_singleday = build_climatology(daily_rain, CLIMATOLOGY_START_YEAR,
+                                              CLIMATOLOGY_END_YEAR, window_days=0)
+
+    print("Building single-day (unwindowed) climatology (temp) ...")
+    clim_temp_singleday = build_climatology(daily_temp_mean, CLIMATOLOGY_START_YEAR,
+                                              CLIMATOLOGY_END_YEAR, window_days=0)
+
     print("Building ENSO-stratified composites (rain) ...")
     enso_clim_rain = {
         phase: build_climatology(daily_rain, CLIMATOLOGY_START_YEAR, CLIMATOLOGY_END_YEAR,
@@ -567,6 +586,7 @@ def main():
     print(f"Building daily history for all 366 days (reference year {reference_year}) ...")
     daily_history = build_all_days_history(
         daily_rain, daily_temp, clim_rain, clim_temp,
+        clim_rain_singleday, clim_temp_singleday,
         enso_clim_rain, enso_clim_temp, episode_map,
         reference_year, CLIMATOLOGY_START_YEAR, CLIMATOLOGY_END_YEAR, ENSO_SMOOTHING_WINDOW_DAYS
     )
@@ -581,6 +601,11 @@ def main():
         "chart_climatology": {
             "rain": climatology_as_lookup_list(clim_rain),
             "temp": climatology_as_lookup_list(clim_temp),
+            # Method B (unwindowed, exact-day-only) for the 14-day chart's
+            # second climate-normal line -- see build_day_history for why
+            # this isn't also computed per-ENSO-phase (sample too small).
+            "rain_singleday": climatology_as_lookup_list(clim_rain_singleday),
+            "temp_singleday": climatology_as_lookup_list(clim_temp_singleday),
         },
         # Keyed "MM-DD" -> same shape today_in_history used to be, for all
         # 366 calendar days. The client picks today's key using its own live

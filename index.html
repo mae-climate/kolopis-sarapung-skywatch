@@ -591,7 +591,7 @@
             <button id="temp-tab-clim" class="chart-tab-btn px-3 py-1 text-[10px] font-black rounded-lg border" data-i18n="maps.tabClimate">Climate Normal</button>
          </div>
          <div class="h-64 w-full relative"><canvas id="tempChart"></canvas></div>
-         <p id="temp-hazard-caveat" data-i18n="maps.tempHazardCaveat" class="text-[9px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1 mt-2">Note: MetMalaysia's heatwave levels require the threshold to hold for 3 consecutive days — a single day touching a line isn't itself a declared heatwave.</p>
+         <p id="temp-hazard-caveat" data-i18n="maps.tempHazardCaveat" class="text-[9px] text-amber-700 bg-amber-50 border border-amber-100 rounded-lg px-2 py-1 mt-2">If temperature stays above 37°C for 3 days in a row, it's classified as a heatwave — one hot day alone isn't. Keep cool: drink water often, avoid outdoor work/exercise 11am-3pm, stay in shade or a fan-cooled room, check on elderly neighbours and children.</p>
       </div>
 
     </div>
@@ -843,9 +843,9 @@
           rainChartTitle: "14-Day Rain Outlook", tempChartTitle: "14-Day Temperature Outlook",
           chartRef: "Reference Lines: 20mm (Alert), 60mm (Sept 2025 Flood Baseline), 100mm (Severe Extreme)",
           tempChartRef: "Reference Lines: MetMalaysia Heatwave Levels — 35°C (Alert), 37°C (Heatwave), 40°C (Extreme)",
-          tabHazard: "Hazard", tabClimate: "Climate Normal", climNormalLabel: "30-yr Normal",
+          tabHazard: "Hazard", tabClimate: "Climate Normal", climNormalLabel: "30-yr average", climSingleDayLabel: "30-yr average (single day)", todayLabel: "Today",
           heat35: "35°C Alert", heat37: "37°C Heatwave", heat40: "40°C Extreme",
-          tempHazardCaveat: "Note: MetMalaysia's heatwave levels require the threshold to hold for 3 consecutive days — a single day touching a line isn't itself a declared heatwave.",
+          tempHazardCaveat: "If temperature stays above 37°C for 3 days in a row, it's classified as a heatwave — one hot day alone isn't. Keep cool: drink water often, avoid outdoor work/exercise 11am-3pm, stay in shade or a fan-cooled room, check on elderly neighbours and children.",
           ensembleLink: "Rainfall Ensemble ↗",
           alert20: "20mm Alert", flood60: "60mm Sept 2025 Flood Baseline", extreme100: "100mm Extreme Hazard",
           rainLabel: "Rain (mm)", tempLabel: "Temp (°C)",
@@ -1052,9 +1052,9 @@
           rainChartTitle: "Ramalan Hujan 14-Hari", tempChartTitle: "Ramalan Suhu 14-Hari",
           chartRef: "Garis Rujukan: 20mm (Awas), 60mm (Garis Dasar Banjir Sept 2025), 100mm (Bahaya Melampau)",
           tempChartRef: "Garis Rujukan: Tahap Gelombang Haba MetMalaysia — 35°C (Awas), 37°C (Gelombang Haba), 40°C (Melampau)",
-          tabHazard: "Bahaya", tabClimate: "Normal Iklim", climNormalLabel: "Normal 30-tahun",
+          tabHazard: "Bahaya", tabClimate: "Normal Iklim", climNormalLabel: "Purata 30-tahun", climSingleDayLabel: "Purata 30-tahun (satu hari)", todayLabel: "Hari Ini",
           heat35: "Awas 35°C", heat37: "Gelombang Haba 37°C", heat40: "Melampau 40°C",
-          tempHazardCaveat: "Nota: Tahap gelombang haba MetMalaysia memerlukan ambang dikekalkan selama 3 hari berturut-turut — satu hari sahaja menyentuh garis bukan bermakna gelombang haba diisytiharkan.",
+          tempHazardCaveat: "Jika suhu melebihi 37°C selama 3 hari berturut-turut, ia diisytiharkan sebagai gelombang haba — satu hari sahaja tidak dikira. Kekal sejuk: minum air kerap, elak kerja/senaman luar 11 pagi-3 petang, kekal di tempat teduh atau bilik berkipas, semak jiran warga emas dan kanak-kanak.",
           ensembleLink: "Ensembel Hujan ↗",
           alert20: "Awas 20mm", flood60: "Garis Dasar Banjir Sept 2025", extreme100: "Bahaya Melampau 100mm",
           rainLabel: "Hujan (mm)", tempLabel: "Suhu (°C)",
@@ -1770,13 +1770,25 @@
       return list.find(e => e.month === month && e.day === day) || null;
     }
 
+    function todayIndexInDates(dArr) {
+      const now = new Date();
+      const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      return dArr.indexOf(todayISO);
+    }
+
     function renderRainChart(chartData, lang) {
       lastChartData = chartData;
       const { dates: dArr, rain: rainArr } = chartData;
       if (!rainArr || !rainArr.length) return;
       const L = i18n[lang].maps;
       const labels = dArr.map(d => { let p = d.split('-'); return `${p[2]}-${p[1]}`; });
-      const rainCols = rainArr.map((v, i) => v >= 60 ? '#ef4444' : v >= 20 ? '#f59e0b' : i < 7 ? '#94a3b8' : '#38bdf8');
+      const rainCols = rainArr.map(v => {
+        if (rainChartMode !== 'hazard') return '#94a3b8'; // grey everywhere outside Hazard tab
+        if (v >= 100) return '#7c3aed'; // purple: extreme
+        if (v >= 60) return '#ef4444';  // red: flood baseline
+        if (v >= 20) return '#f59e0b';  // amber: alert
+        return '#94a3b8';               // grey: no threshold crossed
+      });
 
       if (rainChartInstance) rainChartInstance.destroy();
       if (typeof ChartAnnotation !== 'undefined') Chart.register(ChartAnnotation);
@@ -1796,7 +1808,23 @@
           const e = climLookup(climateReference.chart_climatology?.rain, m, dd);
           return e ? e.mean : null;
         });
-        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, tension: 0.3, yAxisID: 'yRain' });
+        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, pointStyle: 'line', tension: 0.3, yAxisID: 'yRain' });
+
+        // Method B: exact calendar day only, one value per year, no window --
+        // shown alongside Method A rather than replacing it (see chat: NOAA
+        // keeps both a smoothed normal and raw single-day figures for
+        // different purposes).
+        const climSingleArr = dArr.map(dstr => {
+          const [, m, dd] = dstr.split('-').map(Number);
+          const e = climLookup(climateReference.chart_climatology?.rain_singleday, m, dd);
+          return e ? e.mean : null;
+        });
+        datasets.push({ type: 'line', label: L.climSingleDayLabel, data: climSingleArr, borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, pointStyle: 'line', tension: 0.3, yAxisID: 'yRain' });
+      }
+
+      const todayIdx = todayIndexInDates(dArr);
+      if (todayIdx !== -1) {
+        annotations.today = { type: 'line', xMin: todayIdx, xMax: todayIdx, scaleID: 'x', borderColor: '#38bdf8', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.todayLabel, position: 'end', backgroundColor: '#38bdf8', color: '#fff', font: { size: 9, weight: 'bold' } } };
       }
 
       rainChartInstance = new Chart(document.getElementById('rainChart').getContext('2d'), {
@@ -1809,7 +1837,7 @@
             yRain: { type: 'linear', display: true, position: 'left', title: { display: true, text: L.rainLabel, font: { size: 10, weight: 'bold' }, color: '#64748b' }, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' }, suggestedMax: 100 },
           },
           plugins: {
-            legend: { display: rainChartMode === 'climatology' },
+            legend: { display: rainChartMode === 'climatology', labels: { usePointStyle: true } },
             annotation: { annotations },
           },
         },
@@ -1826,7 +1854,7 @@
       if (typeof ChartAnnotation !== 'undefined') Chart.register(ChartAnnotation);
 
       const datasets = [
-        { type: 'line', label: L.tempLabel, data: tempArr, borderColor: '#f97316', backgroundColor: '#f97316', borderWidth: 2.5, pointRadius: 3, tension: 0.3, yAxisID: 'yTemp' },
+        { type: 'line', label: L.tempLabel, data: tempArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 2.5, pointRadius: 3, tension: 0.3, yAxisID: 'yTemp' },
       ];
 
       const annotations = {};
@@ -1840,7 +1868,19 @@
           const e = climLookup(climateReference.chart_climatology?.temp, m, dd);
           return e ? e.mean : null;
         });
-        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, tension: 0.3, yAxisID: 'yTemp' });
+        datasets.push({ type: 'line', label: L.climNormalLabel, data: climArr, borderColor: '#64748b', backgroundColor: '#64748b', borderWidth: 1.5, borderDash: [5, 3], pointRadius: 0, pointStyle: 'line', tension: 0.3, yAxisID: 'yTemp' });
+
+        const climSingleArr = dArr.map(dstr => {
+          const [, m, dd] = dstr.split('-').map(Number);
+          const e = climLookup(climateReference.chart_climatology?.temp_singleday, m, dd);
+          return e ? e.mean : null;
+        });
+        datasets.push({ type: 'line', label: L.climSingleDayLabel, data: climSingleArr, borderColor: '#8b5cf6', backgroundColor: '#8b5cf6', borderWidth: 1.5, borderDash: [2, 2], pointRadius: 0, pointStyle: 'line', tension: 0.3, yAxisID: 'yTemp' });
+      }
+
+      const todayIdx = todayIndexInDates(dArr);
+      if (todayIdx !== -1) {
+        annotations.today = { type: 'line', xMin: todayIdx, xMax: todayIdx, scaleID: 'x', borderColor: '#38bdf8', borderWidth: 2, borderDash: [4, 4], label: { display: true, content: L.todayLabel, position: 'end', backgroundColor: '#38bdf8', color: '#fff', font: { size: 9, weight: 'bold' } } };
       }
 
       const tempVals = tempArr.filter(v => v != null);
@@ -1854,10 +1894,10 @@
           responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
           scales: {
             x: { ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } }, grid: { display: false } },
-            yTemp: { type: 'linear', display: true, position: 'left', min: yMin, max: yMax, title: { display: true, text: L.tempLabel, font: { size: 10, weight: 'bold' }, color: '#f97316' }, ticks: { color: '#f97316' }, grid: { color: '#f1f5f9' } },
+            yTemp: { type: 'linear', display: true, position: 'left', min: yMin, max: yMax, title: { display: true, text: L.tempLabel, font: { size: 10, weight: 'bold' }, color: '#64748b' }, ticks: { color: '#64748b' }, grid: { color: '#f1f5f9' } },
           },
           plugins: {
-            legend: { display: tempChartMode === 'climatology' },
+            legend: { display: tempChartMode === 'climatology', labels: { usePointStyle: true } },
             annotation: { annotations },
           },
         },
