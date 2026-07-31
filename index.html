@@ -2030,14 +2030,14 @@
       }
 
       document.getElementById('tdch-rain-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm', 'rain', T.avgPrefix, h.rain.vs_30yr_singleday, T.label1dAvg, T.label7dAvg),
+        comparisonBoxHtml(T.box30yr, h.rain.vs_30yr, 'mm', 'rain', T.avgPrefix, h.rain.vs_30yr_singleday, T.label7dAvg, T.label1dAvg),
         comparisonBoxHtml(T.boxElNino, h.rain.vs_el_nino, 'mm', 'rain', T.avgPrefix),
         comparisonBoxHtml(T.boxLaNina, h.rain.vs_la_nina, 'mm', 'rain', T.avgPrefix),
         comparisonBoxHtml(T.boxNeutral, h.rain.vs_neutral, 'mm', 'rain', T.avgPrefix),
       ].join('');
 
       document.getElementById('tdch-temp-boxes').innerHTML = [
-        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C', 'temp', T.avgPrefix, h.temp.vs_30yr_singleday, T.label1dAvg, T.label7dAvg),
+        comparisonBoxHtml(T.box30yr, h.temp.vs_30yr, '°C', 'temp', T.avgPrefix, h.temp.vs_30yr_singleday, T.label7dAvg, T.label1dAvg),
         comparisonBoxHtml(T.boxElNino, h.temp.vs_el_nino, '°C', 'temp', T.avgPrefix),
         comparisonBoxHtml(T.boxLaNina, h.temp.vs_la_nina, '°C', 'temp', T.avgPrefix),
         comparisonBoxHtml(T.boxNeutral, h.temp.vs_neutral, '°C', 'temp', T.avgPrefix),
