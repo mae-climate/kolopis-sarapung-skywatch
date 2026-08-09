@@ -1,23 +1,23 @@
 {
-  "generated_utc": "2026-07-31T02:55:01Z",
+  "generated_utc": "2026-08-09T01:49:25Z",
   "enso": {
-    "latest_week_ending": "2026-07-22",
-    "nino34_weekly_anomaly_c": 1.4,
-    "nino34_3mo_running_avg_c": 0.88,
+    "latest_week_ending": "2026-07-29",
+    "nino34_weekly_anomaly_c": 1.5,
+    "nino34_3mo_running_avg_c": 0.96,
     "phase": "El Nino",
     "strength": "Weak",
     "note": "3-month running average used for phase/strength classification (closer to official RONI methodology than the single latest week).",
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-07-26",
-    "rmm1": 0.474,
-    "rmm2": -0.036,
-    "phase": 4,
-    "amplitude": 0.475,
-    "active": false,
-    "impact_category": "transitional",
-    "impact_text": "Weak/incoherent MJO signal (amplitude < 1.0) \u2014 little influence expected.",
+    "date": "2026-08-04",
+    "rmm1": -1.289,
+    "rmm2": -0.524,
+    "phase": 1,
+    "amplitude": 1.392,
+    "active": true,
+    "impact_category": "suppressed",
+    "impact_text": "Suppressed wave (Indian Ocean / W. Hemisphere phase) \u2014 sinking dry air, sunny/hot spells favoured over Sabah.",
     "source": "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
   }
 }
