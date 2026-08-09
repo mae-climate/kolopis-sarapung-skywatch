@@ -27,17 +27,20 @@ Auth:
   ${{ secrets.WAQI_TOKEN }} and passed to this script as an env var.
   This script will refuse to run without it (see main()).
 
-IMPORTANT — unverified assumption, check this before trusting the output:
-  This script reports WAQI's own `data.aqi` field for the station, under
-  the assumption that for a DOE-attributed station WAQI is passing
-  through DOE's own computed Air Pollutant Index rather than re-deriving
-  a different (e.g. US EPA) scale. This has NOT been empirically
-  confirmed against eqms.doe.gov.my for the same station/time. First time
-  this runs for real: compare the "aqi" value in the committed
-  data/haze.json against the same station's reading on DOE APIMS
-  directly. If they diverge meaningfully, this assumption is wrong and
-  the banding in index.html (which currently treats this number as if it
-  were on DOE's scale) needs to be revisited.
+CONFIRMED (Aug 2026) — cross-checked by hand against eqms.doe.gov.my for the
+Kota Kinabalu station: WAQI's `data.aqi` field matched DOE's own published
+reading for that station. So for a DOE-attributed station, WAQI is passing
+through DOE's own computed Air Pollutant Index rather than re-deriving a
+different (e.g. US EPA) scale -- the banding in index.html treating this
+number as DOE's own API is correct. Only checked against one station/one
+snapshot in time, not a running guarantee -- if a future reading looks
+obviously off (e.g. wildly disagrees with DOE APIMS during an active haze
+event), re-check before trusting it blindly.
+
+Note this does NOT extend to the individual `iaqi.*` sub-index fields
+(pm25, pm10, etc.) below -- whether those are raw concentrations or
+already-computed sub-indices is still unconfirmed, and they aren't
+currently used for anything (kept only for future debugging).
 
 Usage:
   WAQI_TOKEN=xxx python fetch_haze.py       # live fetch, writes data/haze.json
@@ -99,12 +102,12 @@ def parse_waqi_response(payload: dict) -> dict:
 
     return {
         "name": city.get("name", "Unknown station"),
-        "aqi": data.get("aqi"),
+        "aqi": data.get("aqi"),  # confirmed against DOE APIMS for KK, Aug 2026 -- see docstring
         "dominant_pollutant": data.get("dominentpol"),
         # Individual pollutant sub-indices as WAQI returns them -- kept for
         # debugging/future use, NOT currently used to compute anything client-side.
-        # See the "unverified assumption" note in this file's docstring: it is not
-        # yet confirmed whether these iaqi values are raw concentrations or
+        # Unlike the top-level "aqi" above, it's still not confirmed whether these
+        # iaqi values are raw concentrations or
         # already-computed sub-indices.
         "iaqi": data.get("iaqi"),
         "observed_local": observed_local,

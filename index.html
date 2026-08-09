@@ -306,12 +306,12 @@
                        DOE itself has no public API), refreshed every 6h by
                        scripts/fetch_haze.py + .github/workflows/update-haze.yml, WAQI_TOKEN
                        kept server-side as a GH Actions secret, never shipped to the client.
-                       ASSUMPTION FLAGGED: banded here using the same DOE formula/labels as
-                       Card 1, on the working assumption that WAQI passes through DOE's own
-                       computed index for a DOE-attributed station rather than re-deriving a
-                       different national scale. Not yet empirically verified against
-                       eqms.doe.gov.my for the same station/time -- do that once the first
-                       real fetch lands, and adjust here if they diverge.
+                       Banded here using the same DOE formula/labels as Card 1 -- CONFIRMED
+                       (Aug 2026, manual check against eqms.doe.gov.my for the Kota Kinabalu
+                       station) that WAQI passes through DOE's own computed index for a
+                       DOE-attributed station, not a re-derived scale. One station/one
+                       snapshot, not a running guarantee -- re-check if a future reading looks
+                       obviously off vs DOE APIMS.
                    DOE APIMS + ASMC stay as manual-check links (no public JSON API for either,
                    same reasoning that downgraded MetMalaysia/Moyog to link cards). -->
               <div class="space-y-3">
