@@ -1,0 +1,43 @@
+{
+  "status": "ok",
+  "data": {
+    "aqi": 128,
+    "idx": 12345,
+    "attributions": [
+      {
+        "url": "https://www.doe.gov.my/",
+        "name": "Department of Environment Malaysia"
+      },
+      {
+        "url": "https://waqi.info/",
+        "name": "World Air Quality Index Project"
+      }
+    ],
+    "city": {
+      "geo": [5.9749, 116.0724],
+      "name": "Kota Kinabalu, Malaysia",
+      "url": "https://aqicn.org/city/malaysia/sabah/kota-kinabalu",
+      "location": ""
+    },
+    "dominentpol": "pm25",
+    "iaqi": {
+      "h": {"v": 78},
+      "no2": {"v": 2.3},
+      "o3": {"v": 8.1},
+      "p": {"v": 1010.5},
+      "pm10": {"v": 62},
+      "pm25": {"v": 128},
+      "t": {"v": 27.5},
+      "w": {"v": 3.1}
+    },
+    "time": {
+      "s": "2026-08-08 14:00:00",
+      "tz": "+08:00",
+      "v": 1754661600,
+      "iso": "2026-08-08T14:00:00+08:00"
+    },
+    "debug": {
+      "sync": "2026-08-08T15:03:12+09:00"
+    }
+  }
+}

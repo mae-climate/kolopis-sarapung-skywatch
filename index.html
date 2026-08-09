@@ -52,6 +52,7 @@
     <!-- TAB BAR -->
     <div class="flex gap-2">
       <button id="tab-btn-overview" class="tab-btn active flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-sky-700 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabOverview">Overview</button>
+      <button id="tab-btn-warnings" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabWarnings">Warnings</button>
       <button id="tab-btn-atmprofile" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tabAtmProfile">Atm Profile</button>
       <button id="tab-btn-14day" class="tab-btn flex-1 sm:flex-none px-4 py-2 rounded-xl border-2 border-slate-200 text-xs sm:text-sm font-black transition-colors" data-i18n="meta.tab14Day">14-Day Outlook</button>
     </div>
@@ -151,30 +152,6 @@
 
           </div>
 
-          <!-- MetMalaysia — manual check only, no automated OCR (unreliable proxy source).
-               National warning links, not geofence-specific -- always visible. -->
-          <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm mt-4">
-            <h3 data-i18n="hazard.metTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛈️ MetMalaysia Warnings</h3>
-            <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 mb-2 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-              <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                <span data-i18n="hazard.warnThunder">⛈️ Thunderstorm</span><span>↗</span>
-              </a>
-              <a href="https://www.met.gov.my/data/AmaranHujanLebat.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                <span data-i18n="hazard.warnRain">🌧️ Continuous Rain</span><span>↗</span>
-              </a>
-              <a href="https://www.met.gov.my/data/AmaranRibutTaufan.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                <span data-i18n="hazard.warnCyclone">🌀 Tropical Cyclone</span><span>↗</span>
-              </a>
-              <a href="https://www.met.gov.my/data/imap-gempa-1.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                <span data-i18n="hazard.warnQuake">🌎 Earthquake / Tsunami</span><span>↗</span>
-              </a>
-              <a href="https://www.met.gov.my/data/AmaranAnginKencangLaut.jpg" target="_blank" class="sm:col-span-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
-                <span data-i18n="hazard.warnWind">🌬️ Strong Wind &amp; Rough Seas</span><span>↗</span>
-              </a>
-            </div>
-          </div>
-
         </section>
 
         <!-- RIGHT: Local Hazard Risk (1st on mobile, right column on desktop) -->
@@ -227,14 +204,29 @@
               </div>
             </details>
 
-            <!-- Sg. Moyog — manual check only, no automated scraping (unreliable proxy source) -->
-            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex items-center justify-between gap-3">
-              <div>
-                <h3 data-i18n="hazard.moyogTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Sg. Moyog Water Level</h3>
-                <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+            <!-- Local Water Security -- moved here from Macro-Climate Drivers (it's a local catchment metric, not a regional/global driver) -->
+            <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
+              <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <h3 data-i18n="macro.droughtTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Local Water Security</h3>
+                    <p data-i18n="macro.droughtSub" class="text-[10px] text-slate-500 mt-0.5">Babagon Catchment 90-Day Accumulation</p>
+                  </div>
+                  <span id="drought-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
+                </div>
+                <div class="mt-3 flex items-baseline gap-2">
+                  <span id="drought-90d-val" class="text-2xl font-black text-slate-900">0.0</span>
+                  <span data-i18n="macro.droughtBaseline" class="text-xs text-slate-500">/ 650 mm baseline</span>
+                </div>
+                <div class="w-full bg-slate-200 rounded-full h-2 mt-1.5"><div id="drought-bar" class="bg-sky-500 h-2 rounded-full" style="width: 0%"></div></div>
+                <p id="drought-action" class="text-xs font-bold text-slate-600 mt-2">Calculating water security...</p>
+              </summary>
+              <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
+                <p data-i18n="macro.droughtNote" class="text-slate-600 leading-relaxed">
+                  Sum of past 83 days observed + 7 days forecast rain over Babagon dam catchment. Cumulative values dropping below 300mm (&lt;45%) signal critical dam drawdowns and domestic water rationing risks.
+                </p>
               </div>
-              <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="hazard.table" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-xl border border-sky-200 transition-colors shrink-0">Table ↗</a>
-            </div>
+            </details>
           </div>
 
           <!-- Out-of-coverage message (shown instead of coverage-content when outside geofence) -->
@@ -243,33 +235,12 @@
             <p data-i18n="coverage.msgBody" class="text-xs sm:text-sm text-sky-900 mt-2 leading-relaxed">The flood/landslide thresholds on this page are calibrated specifically for Kolopis &amp; Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips still apply anywhere.</p>
           </div>
 
-          <!-- Macro Climate Drivers (regional, not geofence-specific -- stays visible either way) -->
+          <!-- Regional/Global Climate Status (formerly "Macro-Climate Drivers"; regional, not
+               geofence-specific -- stays visible either way). Local Water Security moved OUT of
+               here into Local Hazard Risk above -- it's a catchment metric, not a regional driver. -->
           <div>
-            <h2 data-i18n="macro.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🌍 Macro-Climate Drivers</h2>
+            <h2 data-i18n="macro.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 mb-2 px-1">🌍 Regional/Global Climate Status</h2>
             <div class="space-y-3">
-
-              <details class="group bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden outline-none">
-                <summary class="list-none p-4 sm:p-5 cursor-pointer hover:bg-slate-50">
-                  <div class="flex justify-between items-start">
-                    <div>
-                      <h3 data-i18n="macro.droughtTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Local Water Security</h3>
-                      <p data-i18n="macro.droughtSub" class="text-[10px] text-slate-500 mt-0.5">Babagon Catchment 90-Day Accumulation</p>
-                    </div>
-                    <span id="drought-badge" class="px-2.5 py-1 text-xs font-black rounded-lg bg-slate-100 text-slate-700">FETCHING</span>
-                  </div>
-                  <div class="mt-3 flex items-baseline gap-2">
-                    <span id="drought-90d-val" class="text-2xl font-black text-slate-900">0.0</span>
-                    <span data-i18n="macro.droughtBaseline" class="text-xs text-slate-500">/ 650 mm baseline</span>
-                  </div>
-                  <div class="w-full bg-slate-200 rounded-full h-2 mt-1.5"><div id="drought-bar" class="bg-sky-500 h-2 rounded-full" style="width: 0%"></div></div>
-                  <p id="drought-action" class="text-xs font-bold text-slate-600 mt-2">Calculating water security...</p>
-                </summary>
-                <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs">
-                  <p data-i18n="macro.droughtNote" class="text-slate-600 leading-relaxed">
-                    Sum of past 83 days observed + 7 days forecast rain over Babagon dam catchment. Cumulative values dropping below 300mm (&lt;45%) signal critical dam drawdowns and domestic water rationing risks.
-                  </p>
-                </div>
-              </details>
 
               <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm space-y-4">
                 <div class="flex justify-between items-start">
@@ -322,9 +293,106 @@
                 </div>
               </div>
 
+              <!-- Haze / Transboundary Smoke — two cards on Malaysia's actual DOE API scale
+                   (formula verified against DOE's own methodology PDF, doe.gov.my), not a
+                   generic US AQI relabel:
+                     Card 1 "Kolopis (Modelled)": Open-Meteo Air Quality API (keyless CAMS
+                       ~45km global composition), trailing-24h PM2.5 mean run through DOE's
+                       own published PM2.5 sub-index formula. High confidence -- Open-Meteo's
+                       pm2_5 field is documented raw µg/m³, so the formula applies cleanly.
+                       Still a MODEL estimate, not a ground measurement.
+                     Card 2 "[station] (DOE Station)": real observed reading from the nearest
+                       DOE APIMS station (via WAQI/aqicn.org's mirror of DOE's network --
+                       DOE itself has no public API), refreshed every 6h by
+                       scripts/fetch_haze.py + .github/workflows/update-haze.yml, WAQI_TOKEN
+                       kept server-side as a GH Actions secret, never shipped to the client.
+                       ASSUMPTION FLAGGED: banded here using the same DOE formula/labels as
+                       Card 1, on the working assumption that WAQI passes through DOE's own
+                       computed index for a DOE-attributed station rather than re-deriving a
+                       different national scale. Not yet empirically verified against
+                       eqms.doe.gov.my for the same station/time -- do that once the first
+                       real fetch lands, and adjust here if they diverge.
+                   DOE APIMS + ASMC stay as manual-check links (no public JSON API for either,
+                   same reasoning that downgraded MetMalaysia/Moyog to link cards). -->
+              <div class="space-y-3">
+                <div class="flex justify-between items-start px-1">
+                  <h3 data-i18n="macro.hazeTitle" class="font-black text-slate-800 text-sm sm:text-base">🌫️ Transboundary Haze</h3>
+                  <div class="flex gap-1">
+                    <a href="https://asmc.asean.org/home/" target="_blank" data-i18n="macro.asmcLink" class="px-2 py-1 text-[9px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-slate-200">ASMC ↗</a>
+                    <a href="https://eqms.doe.gov.my/APIMS/main" target="_blank" data-i18n="macro.doeLink" class="px-2 py-1 text-[9px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-slate-200">DOE APIMS ↗</a>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                  <!-- Card 1: Kolopis, modelled, live every page load -->
+                  <div id="haze-card-modelled" class="p-4 rounded-2xl border-2 shadow-sm bg-slate-50 border-slate-200 transition-colors">
+                    <p class="text-[10px] font-black uppercase tracking-wide opacity-70">Kolopis</p>
+                    <p data-i18n="macro.hazeModelledSub" class="text-[9px] opacity-60 -mt-0.5 mb-2">Modelled · live</p>
+                    <p id="haze-modelled-val" class="text-3xl sm:text-4xl font-black leading-none">--</p>
+                    <p id="haze-modelled-label" class="text-xs font-black mt-1.5">FETCHING</p>
+                  </div>
+                  <!-- Card 2: nearest DOE station, via WAQI, refreshed every 6h by GitHub Actions -->
+                  <div id="haze-card-station" class="p-4 rounded-2xl border-2 shadow-sm bg-slate-50 border-slate-200 transition-colors">
+                    <p id="haze-station-name" class="text-[10px] font-black uppercase tracking-wide opacity-70 truncate">--</p>
+                    <p data-i18n="macro.hazeStationSub" class="text-[9px] opacity-60 -mt-0.5 mb-2">DOE station</p>
+                    <p id="haze-station-val" class="text-3xl sm:text-4xl font-black leading-none">--</p>
+                    <p id="haze-station-label" class="text-xs font-black mt-1.5">FETCHING</p>
+                  </div>
+                </div>
+
+                <p id="haze-station-updated" class="text-[10px] text-slate-400 px-1"></p>
+
+                <p data-i18n="macro.hazeNote" class="text-[10px] text-slate-400 leading-relaxed px-1">
+                  Modelled card: CAMS global composition model, ~45km resolution, trailing 24h mean run through DOE's own PM2.5 sub-index formula — a screening estimate, not a calibrated ground sensor. Station card: nearest real DOE APIMS reading, refreshed every few hours. Both use Malaysia's Air Pollutant Index scale, not US AQI. For the authoritative live number, always check DOE APIMS directly.
+                </p>
+              </div>
+
             </div>
           </div>
 
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== WARNINGS TAB ===================== -->
+    <div id="tab-warnings" class="tab-panel hidden space-y-4 sm:space-y-6">
+      <h2 data-i18n="warnings.heading" class="text-sm font-black uppercase tracking-wider text-slate-600 px-1">⚠️ Official Warnings &amp; Water Level</h2>
+      <p data-i18n="warnings.subtitle" class="text-xs text-slate-500 px-1 -mt-3">National weather warnings and the nearest river gauge — official sources, checked manually.</p>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+
+        <!-- MetMalaysia — manual check only, no automated OCR (unreliable proxy source).
+             National warning links, not geofence-specific. -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm">
+          <h3 data-i18n="hazard.metTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">⛈️ MetMalaysia Warnings</h3>
+          <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 mb-2 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
+            <a href="https://www.met.gov.my/data/AmaranRibutPetir.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+              <span data-i18n="hazard.warnThunder">⛈️ Thunderstorm</span><span>↗</span>
+            </a>
+            <a href="https://www.met.gov.my/data/AmaranHujanLebat.jpg" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+              <span data-i18n="hazard.warnRain">🌧️ Continuous Rain</span><span>↗</span>
+            </a>
+            <a href="https://www.met.gov.my/data/AmaranRibutTaufan.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+              <span data-i18n="hazard.warnCyclone">🌀 Tropical Cyclone</span><span>↗</span>
+            </a>
+            <a href="https://www.met.gov.my/data/imap-gempa-1.png" target="_blank" class="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+              <span data-i18n="hazard.warnQuake">🌎 Earthquake / Tsunami</span><span>↗</span>
+            </a>
+            <a href="https://www.met.gov.my/data/AmaranAnginKencangLaut.jpg" target="_blank" class="sm:col-span-2 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 text-[11px] font-bold rounded-xl border border-slate-200 transition-colors flex items-center justify-between gap-2">
+              <span data-i18n="hazard.warnWind">🌬️ Strong Wind &amp; Rough Seas</span><span>↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Sg. Moyog — manual check only, no automated scraping (unreliable proxy source) -->
+        <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-sm flex items-center justify-between gap-3 self-start">
+          <div>
+            <h3 data-i18n="hazard.moyogTitle" class="font-black text-slate-800 text-sm sm:text-base flex items-center gap-2">💧 Sg. Moyog Water Level</h3>
+            <span data-i18n="hazard.checkManually" class="inline-block mt-1.5 px-2 py-0.5 text-[10px] font-black rounded-full bg-slate-200 text-slate-700">Check manually</span>
+          </div>
+          <a href="https://infobanjir.sabah.gov.my/WaterLevel/District/13" target="_blank" data-i18n="hazard.table" class="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-700 text-xs font-bold rounded-xl border border-sky-200 transition-colors shrink-0">Table ↗</a>
         </div>
 
       </div>
@@ -666,6 +734,7 @@
           syncing: "Syncing live data...",
           fetchError: "Fetch Error",
           tabOverview: "Overview",
+          tabWarnings: "Warnings",
           tabAtmProfile: "Atm Profile",
           tab14Day: "14-Day Outlook",
         },
@@ -680,6 +749,10 @@
         coverage: {
           msgTitle: "🚧 Outside the calibrated hazard area",
           msgBody: "The flood/landslide thresholds on this page are calibrated specifically for Kolopis & Kg. Sarapung, Penampang. Your current location is outside that ~4km radius, so hazard status isn't shown to avoid giving a false reading. The household weather tips below still apply anywhere.",
+        },
+        warnings: {
+          heading: "⚠️ Official Warnings & Water Level",
+          subtitle: "National weather warnings and the nearest river gauge — official sources, checked manually.",
         },
         household: {
           heading: "🏠 Daily Household Guide",
@@ -795,12 +868,22 @@
           warnQuake: "🌎 Earthquake / Tsunami", warnWind: "🌬️ Strong Wind & Rough Seas",
         },
         macro: {
-          heading: "🌍 Macro-Climate Drivers",
+          heading: "🌍 Regional/Global Climate Status",
           droughtTitle: "💧 Local Water Security", droughtSub: "Babagon Catchment 90-Day Accumulation",
           droughtBaseline: "/ 650 mm baseline",
           rationingBadge: "RATIONING RISK", rationingAction: "Prepare backup water supplies.",
           stableBadge: "STABLE", stableAction: "Catchment levels healthy.",
           droughtNote: "Sum of past 83 days observed + 7 days forecast rain over Babagon dam catchment. Cumulative values dropping below 300mm (<45%) signal critical dam drawdowns and domestic water rationing risks.",
+          hazeTitle: "🌫️ Transboundary Haze",
+          hazeModelledSub: "Modelled · live",
+          hazeStationSub: "DOE station",
+          hazeStationAsOf: "Station reading as of",
+          asmcLink: "ASMC ↗", doeLink: "DOE APIMS ↗",
+          hazeBadge: {
+            good: "GOOD", moderate: "MODERATE", unhealthySensitive: "UNHEALTHY (SENSITIVE GROUP)",
+            veryUnhealthy: "VERY UNHEALTHY", hazardous: "HAZARDOUS", emergency: "EMERGENCY",
+          },
+          hazeNote: "Modelled card: CAMS global composition model, ~45km resolution, trailing 24h PM2.5 mean run through DOE's own sub-index formula — a screening estimate, not a calibrated ground sensor. Station card: nearest real DOE APIMS reading, refreshed every few hours. Both use Malaysia's Air Pollutant Index scale, not US AQI. For the authoritative live number, always check DOE APIMS directly.",
           ensoMjoTitle: "🌡️ ENSO & MJO Waves",
           ensoHeading: "1. EL NIÑO / LA NIÑA (ENSO)",
           mjoHeading: "2. MADDEN-JULIAN OSCILLATION (MJO)",
@@ -875,6 +958,7 @@
           syncing: "Menyegerak data langsung...",
           fetchError: "Ralat Mengambil Data",
           tabOverview: "Ringkasan",
+          tabWarnings: "Amaran",
           tabAtmProfile: "Profil Atmosfera",
           tab14Day: "Ramalan 14-Hari",
         },
@@ -1004,12 +1088,22 @@
           warnQuake: "🌎 Gempa Bumi / Tsunami", warnWind: "🌬️ Angin Kencang & Laut Bergelora",
         },
         macro: {
-          heading: "🌍 Penggerak Iklim Makro",
+          heading: "🌍 Status Iklim Serantau/Global",
           droughtTitle: "💧 Keselamatan Air Tempatan", droughtSub: "Pengumpulan 90-Hari Kolam Tadahan Babagon",
           droughtBaseline: "/ garis dasar 650 mm",
           rationingBadge: "RISIKO CATUAN", rationingAction: "Sediakan bekalan air sandaran.",
           stableBadge: "STABIL", stableAction: "Paras kolam tadahan sihat.",
           droughtNote: "Jumlah hujan 83 hari lepas diperhati + 7 hari ramalan di kolam tadahan empangan Babagon. Nilai kumulatif jatuh bawah 300mm (<45%) menandakan risiko penyusutan empangan kritikal dan catuan air domestik.",
+          hazeTitle: "🌫️ Jerebu Rentas Sempadan",
+          hazeModelledSub: "Termodel · langsung",
+          hazeStationSub: "Stesen DOE",
+          hazeStationAsOf: "Bacaan stesen pada",
+          asmcLink: "ASMC ↗", doeLink: "DOE APIMS ↗",
+          hazeBadge: {
+            good: "BAIK", moderate: "SEDERHANA", unhealthySensitive: "TIDAK SIHAT (KUMPULAN SENSITIF)",
+            veryUnhealthy: "SANGAT TIDAK SIHAT", hazardous: "MERBAHAYA", emergency: "KECEMASAN",
+          },
+          hazeNote: "Kad termodel: model komposisi global CAMS, resolusi ~45km, purata PM2.5 24 jam lepas melalui formula sub-indeks rasmi DOE — anggaran saringan, bukan sensor tanah yang ditentukur. Kad stesen: bacaan sebenar terdekat dari stesen APIMS DOE, dikemas kini setiap beberapa jam. Kedua-duanya menggunakan skala Indeks Pencemar Udara Malaysia, bukan US AQI. Untuk bacaan rasmi langsung, sentiasa semak DOE APIMS.",
           ensoMjoTitle: "🌡️ Gelombang ENSO & MJO",
           ensoHeading: "1. EL NIÑO / LA NIÑA (ENSO)",
           mjoHeading: "2. OSILASI MADDEN-JULIAN (MJO)",
@@ -1117,12 +1211,14 @@
       applyStaticI18n(lang);
       if (lastState) render(lastState, lang);
       if (lastClimate) renderClimate(lastClimate, lang); else renderClimateUnavailable(lang);
+      if (lastHazeModelled != null) renderHazeModelled(lastHazeModelled, lang); else renderHazeModelledUnavailable(lang);
+      if (lastHazeStation) renderHazeStation(lastHazeStation, lang); else renderHazeStationUnavailable(lang);
       if (lastChartData) { renderRainChart(lastChartData, lang); renderTempChart(lastChartData, lang); }
       if (climateReference) renderTodayInHistory(climateReference, lang);
     }
 
     // ============ TABS ============
-    const TAB_NAMES = ['overview', 'atmprofile', '14day'];
+    const TAB_NAMES = ['overview', 'warnings', 'atmprofile', '14day'];
 
     function switchTab(name) {
       TAB_NAMES.forEach(t => {
@@ -1220,6 +1316,131 @@
 
       const impactWord = L.mjoImpact[mjo.impact_category] || mjo.impact_category;
       document.getElementById('mjo-cross-analysis').innerText = L.crossAnalysis(phaseText, impactWord);
+    }
+
+    // ============ Haze / Transboundary Smoke ============
+    // Two independent data paths onto the same DOE Air Pollutant Index scale -- see the HTML
+    // comment above the haze cards for full rationale, and the docstring in
+    // scripts/fetch_haze.py for the station-card assumption that still needs a one-time
+    // empirical check against eqms.doe.gov.my.
+    let lastHazeModelled = null;  // computed DOE API number (float), or null on failure
+    let lastHazeStation = null;   // parsed data/haze.json "station" block, or null on failure
+
+    // DOE's own PM2.5 sub-index formula, transcribed from doe.gov.my's methodology PDF
+    // (doe.gov.my/wp-content/uploads/2021/09/API_Calculation.pdf). X = 24-hour average PM2.5
+    // (ug/m3). This is Malaysia-specific -- NOT the same breakpoints as the current US EPA AQI,
+    // even though DOE describes it as "modified according to USEPA standard".
+    function doePm25Index(x) {
+      if (x <= 12.0)  return 4.1667 * x;
+      if (x <= 75.5)  return 0.7741 * (x - 12.1) + 51;
+      if (x <= 150.4) return 1.3218 * (x - 75.5) + 101;
+      if (x <= 250.4) return 0.9909 * (x - 150.5) + 201;
+      if (x <= 350.4) return 0.9909 * (x - 250.5) + 301;
+      if (x <= 500.4) return 0.6604 * (x - 350.5) + 401;
+      // Beyond the published table (crisis-level, essentially never observed in practice) --
+      // extrapolate the last segment's slope rather than silently capping the number.
+      return 0.6604 * (x - 350.5) + 401;
+    }
+
+    // DOE's published health-effect bands, same source PDF. Six tiers -- note DOE's 101-200
+    // is a single "Unhealthy (sensitive group)" band, it does NOT split into separate
+    // "sensitive" / "general public" tiers the way the current US AQI does.
+    function doeApiCategory(apiValue) {
+      if (apiValue == null || isNaN(apiValue)) return null;
+      if (apiValue <= 50)  return { key: 'good',              card: 'bg-emerald-50 border-emerald-300 text-emerald-900' };
+      if (apiValue <= 100) return { key: 'moderate',           card: 'bg-yellow-50 border-yellow-300 text-yellow-900' };
+      if (apiValue <= 200) return { key: 'unhealthySensitive', card: 'bg-orange-50 border-orange-300 text-orange-900' };
+      if (apiValue <= 300) return { key: 'veryUnhealthy',      card: 'bg-red-50 border-red-400 text-red-900' };
+      if (apiValue <= 500) return { key: 'hazardous',          card: 'bg-red-100 border-red-600 text-red-950' };
+      return { key: 'emergency', card: 'bg-slate-900 border-slate-950 text-white' };
+    }
+
+    // Card 1: Open-Meteo Air Quality API (keyless), trailing 24h PM2.5 mean -> DOE formula.
+    // High confidence here -- Open-Meteo's pm2_5 field is documented raw ug/m3, so DOE's
+    // formula applies cleanly. Still a MODEL estimate (CAMS ~45km grid), not a measurement.
+    // Same honest-failure pattern as the rest of the app: on fetch failure, show an explicit
+    // amber "unavailable" state, never a false green.
+    async function fetchHazeModelled() {
+      try {
+        const url = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${latPenampang}&longitude=${lonPenampang}&current=pm2_5&hourly=pm2_5&past_days=1&timezone=Asia%2FSingapore`;
+        const res = await fetch(url, { cache: 'no-store' });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        const times = json.hourly && json.hourly.time;
+        const vals = json.hourly && json.hourly.pm2_5;
+        const curTime = json.current && json.current.time;
+        if (!times || !vals || !vals.length || !curTime) throw new Error("Missing hourly/current PM2.5 in response");
+
+        // Trailing 24h window ending at "now" -- compared as local-time strings (both arrays
+        // share the same timezone param) rather than Date objects, to sidestep browser-local
+        // timezone parsing ambiguity on Open-Meteo's naive ISO timestamps.
+        let idx = times.indexOf(curTime);
+        if (idx === -1) idx = times.length - 1;
+        const windowVals = vals.slice(Math.max(0, idx - 23), idx + 1).filter(v => v != null);
+        if (!windowVals.length) throw new Error("No valid trailing-24h PM2.5 values");
+        const mean = windowVals.reduce((s, v) => s + v, 0) / windowVals.length;
+
+        lastHazeModelled = doePm25Index(mean);
+        renderHazeModelled(lastHazeModelled, currentLang);
+      } catch (err) {
+        console.error("Modelled haze fetch failed:", err);
+        lastHazeModelled = null;
+        renderHazeModelledUnavailable(currentLang);
+      }
+    }
+
+    // Card 2: nearest real DOE APIMS station, via WAQI/aqicn.org's mirror of DOE's network
+    // (DOE itself has no public API). Refreshed every 6h by scripts/fetch_haze.py +
+    // .github/workflows/update-haze.yml -- static JSON, same pattern as
+    // data/climate_indices.json. WAQI_TOKEN lives only in the Actions secret; never reaches
+    // the client.
+    async function fetchHazeStation() {
+      try {
+        const res = await fetch('data/haze.json', { cache: 'no-store' });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        if (!json.station || json.station.aqi == null) throw new Error("Missing station.aqi in data/haze.json");
+        lastHazeStation = json.station;
+        renderHazeStation(lastHazeStation, currentLang);
+      } catch (err) {
+        console.error("Station haze fetch failed:", err);
+        lastHazeStation = null;
+        renderHazeStationUnavailable(currentLang);
+      }
+    }
+
+    function renderHazeModelled(apiValue, lang) {
+      const L = i18n[lang].macro;
+      const cat = doeApiCategory(apiValue);
+      if (!cat) { renderHazeModelledUnavailable(lang); return; }
+      document.getElementById('haze-modelled-val').innerText = Math.round(apiValue);
+      document.getElementById('haze-modelled-label').innerText = L.hazeBadge[cat.key];
+      document.getElementById('haze-card-modelled').className = `p-4 rounded-2xl border-2 shadow-sm transition-colors ${cat.card}`;
+    }
+
+    function renderHazeModelledUnavailable(lang) {
+      document.getElementById('haze-modelled-val').innerText = '--';
+      document.getElementById('haze-modelled-label').innerText = i18n[lang].meta.fetchError;
+      document.getElementById('haze-card-modelled').className = "p-4 rounded-2xl border-2 shadow-sm bg-amber-50 border-amber-300 text-amber-900 transition-colors";
+    }
+
+    function renderHazeStation(station, lang) {
+      const L = i18n[lang].macro;
+      const cat = doeApiCategory(station.aqi);
+      if (!cat) { renderHazeStationUnavailable(lang); return; }
+      document.getElementById('haze-station-name').innerText = station.name || '—';
+      document.getElementById('haze-station-val').innerText = Math.round(station.aqi);
+      document.getElementById('haze-station-label').innerText = L.hazeBadge[cat.key];
+      document.getElementById('haze-card-station').className = `p-4 rounded-2xl border-2 shadow-sm transition-colors ${cat.card}`;
+      document.getElementById('haze-station-updated').innerText = station.observed_local ? `${L.hazeStationAsOf} ${station.observed_local}` : '';
+    }
+
+    function renderHazeStationUnavailable(lang) {
+      document.getElementById('haze-station-name').innerText = '—';
+      document.getElementById('haze-station-val').innerText = '--';
+      document.getElementById('haze-station-label').innerText = i18n[lang].meta.fetchError;
+      document.getElementById('haze-card-station').className = "p-4 rounded-2xl border-2 shadow-sm bg-amber-50 border-amber-300 text-amber-900 transition-colors";
+      document.getElementById('haze-station-updated').innerText = '';
     }
 
     // ============ COMPUTE (pure — no DOM writes) ============
@@ -2200,6 +2421,7 @@
 
     // ============ INIT ============
     document.getElementById('tab-btn-overview').addEventListener('click', () => switchTab('overview'));
+    document.getElementById('tab-btn-warnings').addEventListener('click', () => switchTab('warnings'));
     document.getElementById('tab-btn-atmprofile').addEventListener('click', () => switchTab('atmprofile'));
     document.getElementById('tab-btn-14day').addEventListener('click', () => switchTab('14day'));
     document.getElementById('lang-toggle-btn').addEventListener('click', () => setLang(currentLang === 'en' ? 'bm' : 'en'));
@@ -2216,6 +2438,8 @@
     renderClimateUnavailable(currentLang);
     runEWS();
     fetchClimateIndices();
+    fetchHazeModelled();
+    fetchHazeStation();
     fetchClimateReference();
     checkGeofence();
   </script>
