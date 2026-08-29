@@ -1,52 +1,52 @@
 {
-  "generated_utc": "2026-08-28T21:41:30Z",
+  "generated_utc": "2026-08-29T05:26:55Z",
   "station": {
     "name": "Kota Kinabalu, Sabah, Malaysia",
-    "aqi": 84,
+    "aqi": 83,
     "dominant_pollutant": "",
     "iaqi": {
       "aqi": {
-        "v": 84
+        "v": 83
       },
       "co": {
         "v": 0.1
       },
       "dew": {
-        "v": 22
+        "v": 23
       },
       "h": {
-        "v": 88
+        "v": 59
       },
       "no2": {
-        "v": 4.2
+        "v": 1.2
       },
       "o3": {
-        "v": 0.3
+        "v": 10.1
       },
       "p": {
         "v": 1009
       },
       "pm10": {
-        "v": 727
+        "v": 12
       },
       "pm25": {
-        "v": 475
+        "v": 35
       },
       "so2": {
-        "v": 0.5
+        "v": 0.3
       },
       "t": {
-        "v": 24
+        "v": 32
       },
       "w": {
-        "v": 1
+        "v": 3.6
       },
       "wg": {
         "v": 19
       }
     },
-    "observed_local": "2026-08-29 05:00:00",
-    "observed_iso": "2026-08-29T05:00:00+08:00",
+    "observed_local": "2026-08-29 13:00:00",
+    "observed_iso": "2026-08-29T13:00:00+08:00",
     "station_url": "https://aqicn.org/city/malaysia/sabah/kota-kinabalu",
     "attributions": [
       {
