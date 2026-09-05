@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-05T14:45:18Z",
+  "generated_utc": "2026-09-05T20:02:16Z",
   "enso": {
     "latest_week_ending": "2026-08-26",
     "nino34_weekly_anomaly_c": 1.8,
@@ -10,14 +10,14 @@
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-08-31",
-    "rmm1": 0.896,
-    "rmm2": -0.781,
-    "phase": 4,
-    "amplitude": 1.189,
+    "date": "2026-09-01",
+    "rmm1": 0.781,
+    "rmm2": -0.809,
+    "phase": 3,
+    "amplitude": 1.124,
     "active": true,
-    "impact_category": "active",
-    "impact_text": "Active wave over the Maritime Continent \u2014 favours monsoon rain bursts and storm outbreaks over Sabah.",
+    "impact_category": "transitional",
+    "impact_text": "Transitional phase \u2014 MJO influence over the Maritime Continent is weak or shifting.",
     "source": "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
   }
 }
