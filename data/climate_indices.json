@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-07T11:49:31Z",
+  "generated_utc": "2026-09-07T17:26:06Z",
   "enso": {
     "latest_week_ending": "2026-09-02",
     "nino34_weekly_anomaly_c": 1.8,
@@ -10,11 +10,11 @@
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-09-02",
-    "rmm1": 0.588,
-    "rmm2": -0.798,
+    "date": "2026-09-03",
+    "rmm1": 0.299,
+    "rmm2": -0.843,
     "phase": 3,
-    "amplitude": 0.991,
+    "amplitude": 0.894,
     "active": false,
     "impact_category": "transitional",
     "impact_text": "Weak/incoherent MJO signal (amplitude < 1.0) \u2014 little influence expected.",
