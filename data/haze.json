@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-13T02:55:43Z",
+  "generated_utc": "2026-09-13T11:01:10Z",
   "station": {
     "name": "Kota Kinabalu, Sabah, Malaysia",
     "aqi": 69,
@@ -12,23 +12,23 @@
         "v": 0.1
       },
       "no2": {
-        "v": 0.9
+        "v": 1.2
       },
       "o3": {
-        "v": 7.4
+        "v": 7.6
       },
       "pm10": {
-        "v": 16
+        "v": 31
       },
       "pm25": {
-        "v": 46
+        "v": 82
       },
       "so2": {
-        "v": 0.2
+        "v": 0.1
       }
     },
-    "observed_local": "2026-09-13 10:00:00",
-    "observed_iso": "2026-09-13T10:00:00+08:00",
+    "observed_local": "2026-09-13 18:00:00",
+    "observed_iso": "2026-09-13T18:00:00+08:00",
     "station_url": "https://aqicn.org/city/malaysia/sabah/kota-kinabalu",
     "attributions": [
       {
