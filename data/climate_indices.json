@@ -1,11 +1,11 @@
 {
-  "generated_utc": "2026-09-14T03:50:38Z",
+  "generated_utc": "2026-09-14T12:04:05Z",
   "enso": {
-    "latest_week_ending": "2026-09-02",
-    "nino34_weekly_anomaly_c": 1.8,
-    "nino34_3mo_running_avg_c": 1.46,
+    "latest_week_ending": "2026-09-09",
+    "nino34_weekly_anomaly_c": 2.0,
+    "nino34_3mo_running_avg_c": 1.55,
     "phase": "El Nino",
-    "strength": "Moderate",
+    "strength": "Strong",
     "note": "3-month running average used for phase/strength classification (closer to official RONI methodology than the single latest week).",
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
