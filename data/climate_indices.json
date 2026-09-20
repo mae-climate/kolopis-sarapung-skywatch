@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-09-20T10:49:31Z",
+  "generated_utc": "2026-09-20T15:37:26Z",
   "enso": {
     "latest_week_ending": "2026-09-09",
     "nino34_weekly_anomaly_c": 2.0,
@@ -10,14 +10,14 @@
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-09-15",
-    "rmm1": -0.778,
-    "rmm2": 0.568,
+    "date": "2026-09-16",
+    "rmm1": -0.938,
+    "rmm2": 0.665,
     "phase": 8,
-    "amplitude": 0.964,
-    "active": false,
-    "impact_category": "transitional",
-    "impact_text": "Weak/incoherent MJO signal (amplitude < 1.0) \u2014 little influence expected.",
+    "amplitude": 1.149,
+    "active": true,
+    "impact_category": "suppressed",
+    "impact_text": "Suppressed wave (Indian Ocean / W. Hemisphere phase) \u2014 sinking dry air, sunny/hot spells favoured over Sabah.",
     "source": "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
   }
 }
