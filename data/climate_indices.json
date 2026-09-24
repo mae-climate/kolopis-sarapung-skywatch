@@ -1,9 +1,9 @@
 {
-  "generated_utc": "2026-09-24T03:37:16Z",
+  "generated_utc": "2026-09-24T11:16:45Z",
   "enso": {
     "latest_week_ending": "2026-09-16",
     "nino34_weekly_anomaly_c": 2.1,
-    "nino34_3mo_running_avg_c": 1.62,
+    "nino34_3mo_running_avg_c": 1.63,
     "phase": "El Nino",
     "strength": "Strong",
     "note": "3-month running average used for phase/strength classification (closer to official RONI methodology than the single latest week).",
