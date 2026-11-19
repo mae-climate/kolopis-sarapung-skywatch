@@ -1,5 +1,5 @@
 {
-  "generated_utc": "2026-11-19T07:08:17Z",
+  "generated_utc": "2026-11-19T20:05:30Z",
   "enso": {
     "latest_week_ending": "2026-11-11",
     "nino34_weekly_anomaly_c": 2.2,
@@ -10,11 +10,11 @@
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-11-14",
-    "rmm1": -0.726,
-    "rmm2": 1.593,
+    "date": "2026-11-15",
+    "rmm1": -0.885,
+    "rmm2": 1.56,
     "phase": 7,
-    "amplitude": 1.751,
+    "amplitude": 1.794,
     "active": true,
     "impact_category": "transitional",
     "impact_text": "Transitional phase \u2014 MJO influence over the Maritime Continent is weak or shifting.",
