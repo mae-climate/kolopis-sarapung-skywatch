@@ -1,23 +1,23 @@
 {
-  "generated_utc": "2026-11-23T06:15:59Z",
+  "generated_utc": "2026-11-23T23:30:48Z",
   "enso": {
-    "latest_week_ending": "2026-11-11",
-    "nino34_weekly_anomaly_c": 2.2,
-    "nino34_3mo_running_avg_c": 2.18,
+    "latest_week_ending": "2026-11-18",
+    "nino34_weekly_anomaly_c": 2.4,
+    "nino34_3mo_running_avg_c": 2.22,
     "phase": "El Nino",
     "strength": "Very Strong",
     "note": "3-month running average used for phase/strength classification (closer to official RONI methodology than the single latest week).",
     "source": "https://www.cpc.ncep.noaa.gov/data/indices/rel_wksst9120.txt"
   },
   "mjo": {
-    "date": "2026-11-18",
-    "rmm1": -0.721,
-    "rmm2": 1.025,
+    "date": "2026-11-19",
+    "rmm1": -0.074,
+    "rmm2": 0.891,
     "phase": 7,
-    "amplitude": 1.254,
-    "active": true,
+    "amplitude": 0.894,
+    "active": false,
     "impact_category": "transitional",
-    "impact_text": "Transitional phase \u2014 MJO influence over the Maritime Continent is weak or shifting.",
+    "impact_text": "Weak/incoherent MJO signal (amplitude < 1.0) \u2014 little influence expected.",
     "source": "https://psl.noaa.gov/mjo/mjoindex/romi.cpcolr.1x.txt"
   }
 }
